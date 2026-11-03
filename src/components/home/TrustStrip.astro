@@ -1,0 +1,68 @@
+---
+import type { Settings } from '../../lib/settings';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+---
+
+<section class="trust" aria-labelledby="trust-title">
+  <div class="wrap">
+    <h2 id="trust-title" class="sr-only">
+      Por qué comprar en Rosalu
+    </h2>
+    <ul>
+      {settings.copy.trust.map((item) => (
+        <li>
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .trust {
+    padding-block: 2.5rem 3rem;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding-top: 0.75rem;
+    border-top: 3px solid var(--color-charcoal);
+  }
+
+  h3 {
+    margin: 0 0 0.35rem;
+    font-size: var(--text-h4);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (min-width: 64rem) {
+    .trust {
+      padding-block: 3.5rem 4rem;
+    }
+
+    ul {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+</style>

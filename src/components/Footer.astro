@@ -1,0 +1,162 @@
+---
+import Wordmark from '../assets/brand/wordmark.svg';
+import PendingValue from './PendingValue.astro';
+import { getSettings, addressLine, hasWhatsApp } from '../lib/settings';
+import { summarizeHours } from '../lib/opening-hours';
+import { isPending } from '../lib/text';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
+
+const settings = await getSettings();
+const hours = summarizeHours(settings.hours);
+const social = [
+  { label: 'Instagram', url: settings.social.instagram },
+  { label: 'Facebook', url: settings.social.facebook },
+  { label: 'TikTok', url: settings.social.tiktok },
+];
+const readySocial = social.filter((s) => !isPending(s.url));
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-dark">
+  <div class="wrap grid">
+    <div class="brand">
+      <Wordmark aria-hidden="true" class="footer-logo" />
+      <p class="pickup">Retiro en el local. No hacemos envíos.</p>
+    </div>
+
+    <div>
+      <h2 class="label">Dónde estamos</h2>
+      <p>{addressLine(settings)}</p>
+      {isPending(settings.address.number) && (
+        <p>
+          <PendingValue label="altura de la calle" />
+        </p>
+      )}
+      <p>
+        {isPending(settings.mapsUrl) ? (
+          <PendingValue label="link de Google Maps" />
+        ) : (
+          <a href={settings.mapsUrl} rel="noopener" target="_blank">
+            Cómo llegar
+          </a>
+        )}
+      </p>
+    </div>
+
+    <div>
+      <h2 class="label">Horarios</h2>
+      <ul class="plain">
+        {hours.map((line) => (
+          <li>{line}</li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="label">Escribinos</h2>
+      <p>
+        {hasWhatsApp(settings) ? (
+          <a href={buildWhatsAppUrl(settings.whatsapp)} rel="noopener" target="_blank">
+            WhatsApp
+          </a>
+        ) : (
+          <PendingValue label="número de WhatsApp" />
+        )}
+      </p>
+      {readySocial.length > 0 ? (
+        <ul class="plain">
+          {readySocial.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener" target="_blank">
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>
+          <PendingValue label="redes sociales" />
+        </p>
+      )}
+    </div>
+  </div>
+  <div class="wrap">
+    <p class="legal">Rosalu {year}. Precios en pesos argentinos, pagando en efectivo.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-charcoal);
+    padding-block: 3.5rem 2rem;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .footer-logo {
+    width: auto;
+    height: 2.25rem;
+    color: var(--color-white);
+  }
+
+  .pickup {
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+
+  .label {
+    margin: 0 0 0.5rem;
+    color: var(--color-mist);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  p,
+  li {
+    margin: 0 0 0.35rem;
+  }
+
+  .plain {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-magenta);
+    text-decoration-thickness: 2px;
+  }
+
+  a:hover {
+    text-decoration-color: var(--color-white);
+  }
+
+  .legal {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    color: var(--color-mist);
+    font-size: var(--text-small);
+  }
+
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: 4fr 3fr 3fr 2fr;
+    }
+  }
+</style>

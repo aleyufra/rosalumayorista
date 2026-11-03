@@ -1,0 +1,103 @@
+---
+import MarketTag from '../MarketTag.astro';
+import type { Settings } from '../../lib/settings';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+---
+
+<section id="como-comprar" class="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title" class="voice-title text-h2">
+      Cómo comprar
+    </h2>
+    <ol>
+      {settings.copy.howToBuy.map((step, i) => (
+        <li>
+          <MarketTag size="sm" tone="charcoal" class="step-number" aria-hidden="true">
+            {i + 1}
+          </MarketTag>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+        </li>
+      ))}
+    </ol>
+    <p class="no-shipping">
+      <strong>No hacemos envíos.</strong> Todo se retira en el local.
+    </p>
+  </div>
+</section>
+
+<style>
+  .how {
+    background: var(--color-paper);
+    padding-block: var(--space-section);
+  }
+
+  h2 {
+    margin: 0 0 2rem;
+  }
+
+  ol {
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: start;
+  }
+
+  li :global(.step-number) {
+    grid-row: span 2;
+    font-size: 1.75rem;
+    margin-left: -0.3rem;
+  }
+
+  h3 {
+    margin: 0.15rem 0 0.35rem;
+    font-size: var(--text-h4);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+    max-width: 40ch;
+    color: var(--color-muted);
+  }
+
+  .no-shipping {
+    margin-top: 2.5rem;
+    color: var(--color-charcoal);
+    max-width: none;
+  }
+
+  @media (min-width: 64rem) {
+    ol {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: auto auto auto;
+      gap: 0 1.5rem;
+    }
+
+    li {
+      grid-row: span 3;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: subgrid;
+      row-gap: 0.75rem;
+    }
+
+    li :global(.step-number) {
+      grid-row: auto;
+      justify-self: start;
+      font-size: 2.25rem;
+    }
+  }
+</style>

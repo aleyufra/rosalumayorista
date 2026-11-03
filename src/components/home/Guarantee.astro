@@ -1,0 +1,98 @@
+---
+import MarketTag from '../MarketTag.astro';
+import type { Settings } from '../../lib/settings';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+---
+
+<section class="guarantee on-dark" aria-labelledby="guarantee-title">
+  <div class="wrap grid">
+    <div class="tag-col" aria-hidden="true">
+      <MarketTag size="md" class="big-tag">
+        24 hs
+      </MarketTag>
+    </div>
+    <div class="text">
+      <h2 id="guarantee-title" class="voice-title text-h2">
+        Garantía Rosalu 24 hs
+      </h2>
+      <p class="lead">{settings.copy.guarantee}</p>
+      <ul>
+        {settings.copy.guaranteeConditions.map((c) => (
+          <li>{c}</li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .guarantee {
+    background: var(--color-charcoal);
+    padding-block: var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .tag-col :global(.big-tag) {
+    font-size: clamp(4.5rem, 3rem + 7vw, 8.5rem);
+    margin-left: -0.35rem;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .lead {
+    max-width: 40ch;
+    margin: 1rem 0 1.5rem;
+    font-size: var(--text-lead);
+    font-weight: 500;
+  }
+
+  ul {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid rgb(255 255 255 / 0.2);
+    list-style: none;
+    color: var(--color-mist);
+  }
+
+  li {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  li::before {
+    content: '';
+    flex: none;
+    width: 0.6rem;
+    height: 2px;
+    margin-top: 0.75em;
+    background: var(--color-magenta);
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .tag-col {
+      grid-column: 1 / 6;
+    }
+
+    .text {
+      grid-column: 6 / 12;
+    }
+  }
+</style>

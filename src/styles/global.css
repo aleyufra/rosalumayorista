@@ -1,0 +1,204 @@
+@import 'tailwindcss';
+
+/* Metric-matched fallback so the swap to Archivo does not shift the layout. */
+@font-face {
+  font-family: 'Archivo Fallback';
+  src: local('Arial');
+  size-adjust: 100%;
+  ascent-override: 87.8%;
+  descent-override: 21%;
+  line-gap-override: 0%;
+}
+
+@theme {
+  --color-*: initial;
+  --color-charcoal: #262626;
+  --color-white: #ffffff;
+  --color-magenta: #d128af;
+  --color-magenta-dark: #a51f8a;
+  --color-paper: #ededed;
+  --color-muted: #5c5c5c;
+  --color-mist: #c9c9c9;
+  --color-rule: #d4d4d4;
+  --color-current: currentColor;
+  --color-transparent: transparent;
+
+  --font-sans: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.45;
+  --text-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --text-body--line-height: 1.5;
+  --text-lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  --text-lead--line-height: 1.45;
+  --text-h4: clamp(1.25rem, 1.15rem + 0.5vw, 1.414rem);
+  --text-h4--line-height: 1.2;
+  --text-h3: clamp(1.5625rem, 1.35rem + 1vw, 1.875rem);
+  --text-h3--line-height: 1.12;
+  --text-h2: clamp(1.953rem, 1.6rem + 1.8vw, 2.5rem);
+  --text-h2--line-height: 1.05;
+  --text-h1: clamp(2.441rem, 1.9rem + 2.8vw, 3.33rem);
+  --text-h1--line-height: 1;
+  --text-tag-sm: clamp(1.125rem, 1.08rem + 0.2vw, 1.25rem);
+  --text-tag-md: clamp(2.5rem, 2rem + 2.4vw, 3.5rem);
+  --text-tag-xl: clamp(8rem, 4rem + 18vw, 13.75rem);
+
+  --radius-none: 0;
+  --radius-field: 2px;
+  --radius-button: 4px;
+
+  --shadow-tag: 0 2px 0 rgb(0 0 0 / 0.18), 0 6px 14px -8px rgb(0 0 0 / 0.35);
+
+  --aspect-product: 1 / 1;
+  --aspect-category: 4 / 5;
+  --aspect-storefront: 3 / 2;
+  --aspect-person: 4 / 5;
+  --aspect-map: 3 / 2;
+
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-drop: cubic-bezier(0.34, 1.32, 0.5, 1);
+
+  --container-content: 75rem;
+}
+
+:root {
+  --space-section: clamp(3.5rem, 2.5rem + 5vw, 7rem);
+  --gutter: 1rem;
+  --header-height: 3.5rem;
+  --color-focus: var(--color-magenta-dark);
+  color-scheme: light;
+  scroll-padding-top: calc(var(--header-height) + 1rem);
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white font-sans text-body text-charcoal antialiased;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  ::selection {
+    background: var(--color-magenta);
+    color: var(--color-white);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  /* Charcoal and magenta surfaces flip the focus ring to white. */
+  .on-dark {
+    --color-focus: var(--color-white);
+    color: var(--color-white);
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: var(--color-magenta-dark);
+  }
+
+  html {
+    scrollbar-color: var(--color-charcoal) var(--color-paper);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* ---------- Voices ---------- */
+@utility voice-title {
+  font-style: italic;
+  font-weight: 900;
+  font-stretch: 100%;
+  letter-spacing: -0.015em;
+}
+
+@utility voice-tag {
+  font-style: normal;
+  font-weight: 800;
+  font-stretch: 70%;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+@utility voice-body {
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+}
+
+/* ---------- Layout helpers ---------- */
+@utility wrap {
+  width: 100%;
+  max-width: calc(var(--container-content) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-y {
+  padding-block: var(--space-section);
+}
+
+@utility measure {
+  max-width: 65ch;
+}
+
+/* ---------- Cross-document view transitions ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+  }
+
+  ::view-transition-group(*) {
+    animation-duration: 320ms;
+    animation-timing-function: var(--ease-settle);
+  }
+
+  /* Product photos morph between card and detail; keep the image itself crisp. */
+  ::view-transition-old(*):only-child,
+  ::view-transition-new(*):only-child {
+    animation-duration: 320ms;
+  }
+
+  ::view-transition-image-pair(site-header) {
+    animation: none;
+  }
+}

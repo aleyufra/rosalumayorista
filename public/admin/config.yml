@@ -1,0 +1,303 @@
+# Sveltia CMS. Guía para quien carga contenido: docs/CMS-GUIDE.md
+backend:
+  name: github
+  repo: aleyufra/rosalumayorista
+  branch: main
+  base_url: https://sveltia-cms-auth.almarweb.workers.dev
+  commit_messages:
+    create: 'Panel: nuevo {{collection}} {{slug}}'
+    update: 'Panel: actualiza {{collection}} {{slug}}'
+    delete: 'Panel: borra {{collection}} {{slug}}'
+    uploadMedia: 'Panel: sube {{path}}'
+    deleteMedia: 'Panel: borra {{path}}'
+
+site_url: https://rosalumayorista.almarweb.workers.dev
+display_url: https://rosalumayorista.almarweb.workers.dev
+logo_url: /favicon.svg
+
+# Images for the business settings (person, storefront, categories) live in src/ so Astro
+# can optimize them. public_folder is relative to src/content/settings/site.yml.
+media_folder: src/assets/cms
+public_folder: ../../assets/cms
+
+media_libraries:
+  all:
+    slugify_filename: true
+    transformations:
+      raster_image:
+        format: webp
+        quality: 85
+        width: 1600
+        height: 1600
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+output:
+  omit_empty_optional_fields: true
+
+collections:
+  - name: products
+    label: Productos
+    label_singular: Producto
+    description: Todo lo que se ve en el catálogo. Cada producto necesita nombre, rubro, precio y al menos una foto.
+    folder: src/content/products
+    path: '{{slug}}/index'
+    media_folder: ''
+    public_folder: ''
+    format: frontmatter
+    extension: md
+    create: true
+    delete: true
+    identifier_field: name
+    slug: '{{slug}}'
+    summary: "{{name}} ({{category}}){{available | ternary('', ' - AGOTADO')}}{{isSample | ternary(' - EJEMPLO', '')}}"
+    thumbnail: photos
+    sortable_fields:
+      fields: [name, cashPrice, updatedAt]
+      default:
+        field: updatedAt
+        direction: descending
+    view_filters:
+      - { label: Ropa, field: category, pattern: ropa }
+      - { label: Juguetería, field: category, pattern: jugueteria }
+      - { label: Bazar, field: category, pattern: bazar }
+      - { label: Agotados, field: available, pattern: false }
+      - { label: Productos de ejemplo, field: isSample, pattern: true }
+    view_groups:
+      - { label: Rubro, field: category }
+      - { label: Disponibilidad, field: available }
+    fields:
+      - name: name
+        label: Nombre del producto
+        widget: string
+        hint: 'Como lo diría una clienta. Ej: Remera básica de algodón.'
+        pattern: ['^.{3,80}$', 'Entre 3 y 80 letras.']
+      - name: category
+        label: Rubro
+        widget: select
+        options:
+          - { label: Ropa, value: ropa }
+          - { label: Juguetería, value: jugueteria }
+          - { label: Bazar, value: bazar }
+      - name: subcategory
+        label: Subcategoría
+        widget: string
+        required: false
+        hint: 'Opcional. Ej: Remeras, Muñecas, Tazas.'
+      - name: cashPrice
+        label: Precio en efectivo
+        widget: number
+        value_type: int
+        min: 1
+        hint: 'Precio en efectivo, sin puntos ni signo $. Ej: 12500'
+      - name: photos
+        label: Fotos
+        widget: image
+        multiple: true
+        min: 1
+        max: 6
+        hint: 'De 1 a 6 fotos. La primera es la portada. Mejor cuadradas y con luz natural.'
+      - name: sizes
+        label: Talles
+        widget: list
+        required: false
+        hint: 'Solo si tiene talles (ropa). Agregá uno por renglón: S, M, L... Si cargás talles, la clienta tiene que elegir uno.'
+      - name: colors
+        label: Colores
+        widget: list
+        required: false
+        hint: 'Opcional. Si cargás colores, la clienta tiene que elegir uno.'
+        fields:
+          - { name: name, label: Nombre del color, widget: string }
+          - { name: hex, label: Color para el puntito, widget: color, required: false }
+      - name: available
+        label: ¿Hay stock?
+        widget: boolean
+        default: true
+        hint: 'Destildalo cuando se agote. El producto sigue visible como Agotado.'
+      - name: featured
+        label: Mostrar en la página principal
+        widget: boolean
+        default: false
+        required: false
+        hint: 'Se muestran hasta 8. Los 3 primeros arman el ejemplo de surtido de arriba.'
+      - name: description
+        label: Descripción corta
+        widget: text
+        required: false
+        hint: 'Opcional. Máximo 300 letras.'
+        pattern: ['^[\s\S]{0,300}$', 'Máximo 300 letras.']
+      - name: isSample
+        label: Es un producto de ejemplo
+        widget: boolean
+        default: false
+        required: false
+        hint: 'Los de ejemplo se borran cuando cargues los reales.'
+      - name: updatedAt
+        label: Última actualización
+        widget: datetime
+        auto_now: true
+
+singletons:
+  - name: settings
+    label: Datos del negocio y textos
+    file: src/content/settings/site.yml
+    icon: storefront
+    fields:
+      - name: businessName
+        label: Nombre del negocio
+        widget: string
+      - name: address
+        label: Dirección
+        widget: object
+        fields:
+          - { name: street, label: Calle, widget: string }
+          - name: number
+            label: Altura
+            widget: string
+            hint: 'Solo el número. Mientras diga TODO, el sitio muestra "Falta cargar".'
+          - { name: city, label: Ciudad, widget: string }
+      - name: mapsUrl
+        label: Link de Google Maps (botón Cómo llegar)
+        widget: string
+        hint: 'En Google Maps: Compartir > Copiar vínculo.'
+      - name: mapEmbedUrl
+        label: Link para insertar el mapa
+        widget: string
+        hint: 'En Google Maps: Compartir > Insertar un mapa. Pegá solo lo que está entre comillas después de src=.'
+      - name: hours
+        label: Horarios
+        widget: list
+        min: 7
+        max: 7
+        hint: 'Un renglón por día, de lunes a domingo. Horas con este formato: 10:00.'
+        summary: '{{day}}: {{opens}} a {{closes}}'
+        fields:
+          - name: day
+            label: Día
+            widget: select
+            options:
+              - { label: Lunes, value: monday }
+              - { label: Martes, value: tuesday }
+              - { label: Miércoles, value: wednesday }
+              - { label: Jueves, value: thursday }
+              - { label: Viernes, value: friday }
+              - { label: Sábado, value: saturday }
+              - { label: Domingo, value: sunday }
+          - { name: closed, label: Cerrado todo el día, widget: boolean, default: false, required: false }
+          - name: opens
+            label: Abre
+            widget: string
+            required: false
+            pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Usá el formato 10:00']
+          - name: closes
+            label: Cierra
+            widget: string
+            required: false
+            pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Usá el formato 20:00']
+      - name: whatsapp
+        label: Número de WhatsApp
+        widget: string
+        hint: 'Formato internacional sin + ni espacios: 549388 y el número. Ej: 5493881234567.'
+      - name: social
+        label: Redes
+        widget: object
+        fields:
+          - { name: instagram, label: Link de Instagram, widget: string, required: false }
+          - { name: facebook, label: Link de Facebook, widget: string, required: false }
+          - { name: tiktok, label: Link de TikTok, widget: string, required: false }
+      - name: acceptsMercadoPago
+        label: ¿Aceptan Mercado Pago?
+        widget: select
+        options:
+          - { label: Sí, value: 'yes' }
+          - { label: 'No', value: 'no' }
+          - { label: Todavía no lo decidimos, value: pending }
+      - name: minUnits
+        label: Mínimo de compra (unidades)
+        widget: number
+        value_type: int
+        min: 1
+        default: 3
+      - name: transferSurchargePercent
+        label: Recargo por transferencia (%)
+        widget: number
+        value_type: float
+        min: 0
+        max: 100
+        required: false
+        hint: 'Solo el número. Ej: 10. Si lo dejás vacío, el sitio muestra "Falta cargar".'
+      - name: contactPerson
+        label: Quien atiende (aparece en la página principal)
+        widget: object
+        fields:
+          - { name: name, label: Nombre, widget: string }
+          - { name: role, label: Rol, widget: string, hint: 'Ej: Encargada del local.' }
+          - { name: photo, label: Foto, widget: image, required: false, hint: 'Vertical, de frente, con luz natural.' }
+      - name: photos
+        label: Fotos de la página principal
+        widget: object
+        fields:
+          - { name: storefront, label: Frente del local, widget: image, required: false, hint: 'Horizontal. Que se vea el cartel y la vereda.' }
+          - { name: ropa, label: Rubro ropa, widget: image, required: false, hint: 'Vertical.' }
+          - { name: jugueteria, label: Rubro juguetería, widget: image, required: false, hint: 'Vertical.' }
+          - { name: bazar, label: Rubro bazar, widget: image, required: false, hint: 'Vertical.' }
+      - name: season
+        label: Temporada
+        widget: object
+        hint: 'Bloque de color en la página principal. Navidad y Reyes, Día del Niño, inicio de clases.'
+        fields:
+          - { name: active, label: Mostrar la temporada, widget: boolean, default: false }
+          - { name: tag, label: Texto del cartel (corto), widget: string, hint: 'Máximo 20 letras. Ej: Navidad y Reyes.', pattern: ['^.{1,20}$', 'Máximo 20 letras.'] }
+          - { name: title, label: Título, widget: string }
+          - { name: text, label: Texto, widget: text }
+      - name: profitExample
+        label: Ejemplo de ganancia (3 productos)
+        widget: list
+        min: 3
+        max: 3
+        hint: 'La ganancia se calcula sola. Precios sin puntos ni signo $.'
+        summary: '{{product}}'
+        fields:
+          - { name: product, label: Producto, widget: string }
+          - { name: wholesalePrice, label: Precio mayorista, widget: number, value_type: int, min: 1 }
+          - { name: resalePrice, label: Precio de reventa sugerido, widget: number, value_type: int, min: 1 }
+      - name: faq
+        label: Preguntas frecuentes
+        widget: list
+        min: 1
+        hint: 'En las respuestas podés escribir {minimo} y {recargo}: el sitio los reemplaza por los valores cargados.'
+        summary: '{{question}}'
+        fields:
+          - { name: question, label: Pregunta, widget: string }
+          - { name: answer, label: Respuesta, widget: text }
+      - name: copy
+        label: Textos de la página principal
+        widget: object
+        fields:
+          - { name: heroSubtitle, label: Texto debajo del cartel principal, widget: text }
+          - name: trust
+            label: Cuatro garantías
+            widget: list
+            min: 4
+            max: 4
+            summary: '{{title}}'
+            fields:
+              - { name: title, label: Título, widget: string }
+              - { name: text, label: Texto, widget: text }
+          - name: howToBuy
+            label: Cómo comprar (3 pasos)
+            widget: list
+            min: 3
+            max: 3
+            summary: '{{title}}'
+            fields:
+              - { name: title, label: Paso, widget: string }
+              - { name: text, label: Detalle, widget: text }
+          - { name: guarantee, label: Texto de la garantía, widget: text }
+          - { name: guaranteeConditions, label: Condiciones de la garantía, widget: list }
+          - { name: closingTitle, label: Título del cierre, widget: string }
+          - { name: closingText, label: Texto del cierre, widget: text }

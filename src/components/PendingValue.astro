@@ -1,0 +1,24 @@
+---
+/** Visible, honest placeholder for a business fact the owner still has to load in the panel. */
+interface Props {
+  label: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+---
+
+<span class:list={['pending', className]}>Falta cargar: {label}</span>
+
+<style>
+  .pending {
+    display: inline-block;
+    padding: 0.05em 0.45em;
+    border: 1.5px dashed currentColor;
+    border-radius: var(--radius-field);
+    font-size: 0.875em;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.4;
+    opacity: 0.85;
+  }
+</style>

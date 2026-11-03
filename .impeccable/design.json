@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-03T00:00:00Z",
+  "title": "Design System: Rosalu",
+  "extensions": {
+    "colorMeta": {
+      "charcoal": { "role": "neutral", "displayName": "Logo Charcoal", "canonical": "#262626", "tonalRamp": ["#141414", "#262626", "#3d3d3d", "#5c5c5c", "#7a7a7a", "#a3a3a3", "#d4d4d4", "#f2f2f2"] },
+      "white": { "role": "neutral", "displayName": "White", "canonical": "#ffffff", "tonalRamp": ["#262626", "#5c5c5c", "#8a8a8a", "#b3b3b3", "#d4d4d4", "#ededed", "#f7f7f7", "#ffffff"] },
+      "magenta": { "role": "primary", "displayName": "Market Magenta", "canonical": "#d128af", "tonalRamp": ["#3d0a33", "#661155", "#8f1a77", "#a51f8a", "#d128af", "#e06bc8", "#eeaade", "#f9e1f3"] },
+      "magenta-dark": { "role": "primary", "displayName": "Deep Magenta", "canonical": "#a51f8a", "tonalRamp": ["#2e0827", "#520f44", "#7a1666", "#a51f8a", "#c44aab", "#d97dc6", "#ebb4df", "#f8e4f3"] },
+      "paper": { "role": "neutral", "displayName": "Shop Paper", "canonical": "#ededed", "tonalRamp": ["#262626", "#5c5c5c", "#8a8a8a", "#b3b3b3", "#c9c9c9", "#d4d4d4", "#ededed", "#f7f7f7"] },
+      "muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "#5c5c5c", "tonalRamp": ["#1a1a1a", "#333333", "#474747", "#5c5c5c", "#7a7a7a", "#a3a3a3", "#cccccc", "#eeeeee"] },
+      "mist": { "role": "neutral", "displayName": "Mist", "canonical": "#c9c9c9", "tonalRamp": ["#262626", "#4d4d4d", "#757575", "#9e9e9e", "#c9c9c9", "#d9d9d9", "#e8e8e8", "#f5f5f5"] },
+      "rule": { "role": "neutral", "displayName": "Rule Grey", "canonical": "#d4d4d4", "tonalRamp": ["#262626", "#4d4d4d", "#757575", "#a3a3a3", "#c9c9c9", "#d4d4d4", "#e6e6e6", "#f5f5f5"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Tag XL", "purpose": "Only the hero tag numeral; condensed 800 uppercase at 70% width." },
+      "headline-1": { "displayName": "Headline 1", "purpose": "Page titles and the closing call; 900 italic." },
+      "headline-2": { "displayName": "Headline 2", "purpose": "Section titles and the product name on detail; 900 italic." },
+      "title-3": { "displayName": "Title 3", "purpose": "Related products, empty states, the lead category tile; 900 italic." },
+      "title-4": { "displayName": "Title 4", "purpose": "Category tile names, dialog titles, the sample-mix title; 900 italic." },
+      "lead": { "displayName": "Lead", "purpose": "Hero subtitle, about 34ch." },
+      "body": { "displayName": "Body", "purpose": "Running text, 65ch measure." },
+      "small": { "displayName": "Small", "purpose": "Meta, counts, captions." },
+      "tag-md": { "displayName": "Tag MD", "purpose": "Product-page price and cart total; price voice." },
+      "tag-sm": { "displayName": "Tag SM", "purpose": "Prices on product photos; price voice." },
+      "label": { "displayName": "Label", "purpose": "Buttons (700), nav and chip labels (600)." }
+    },
+    "shadows": [
+      { "name": "tag-cast", "value": "filter: drop-shadow(0 2px 0 rgb(0 0 0 / 0.18)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.16))", "purpose": "The only shadow in the system: the market tag's cast, applied as a filter so it follows the clipped point and punched hole." }
+    ],
+    "motion": [
+      { "name": "ease-settle", "value": "cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "Default easing for action-driven motion and view-transition groups." },
+      { "name": "ease-drop", "value": "cubic-bezier(0.34, 1.32, 0.5, 1)", "purpose": "Deliberate overshoot reserved for the hero tag drop." },
+      { "name": "tag-drop", "value": "650ms ease-drop; from translateY(-0.35em) rotate(-9deg) to rotate(tilt)", "purpose": "The single orchestrated entrance; transform only; skipped under reduced motion and after a view transition." },
+      { "name": "state-color", "value": "140ms ease-out", "purpose": "Button and switch colour changes." },
+      { "name": "badge-bump", "value": "320ms ease-settle, scale 1.35 at 40%", "purpose": "Cart count when units increase." },
+      { "name": "panel-in", "value": "200ms ease-settle, from opacity 0 translateY(-6px)", "purpose": "Mobile menu and buy-bar entrances." },
+      { "name": "view-transition-root", "value": "180ms", "purpose": "Cross-document page crossfade." },
+      { "name": "view-transition-group", "value": "320ms ease-settle", "purpose": "Product photo morph between card and detail via view-transition-name product-<slug>; header group does not animate." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "48rem" },
+      { "name": "lg", "value": "64rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Market Tag",
+      "kind": "custom",
+      "refersTo": "market-tag",
+      "description": "The signature price tag: pointed left end, punched hole, -2deg tilt, tag cast. Sizes xl/md/sm, tones magenta/charcoal.",
+      "html": "<span class=\"ds-tag\"><span class=\"ds-tag-body\">$ 4.500</span></span> <span class=\"ds-tag ds-tag-charcoal\"><span class=\"ds-tag-body\">Agotado</span></span>",
+      "css": ".ds-tag { --tag-bg: var(--color-magenta, #d128af); --tip: 0.5em; --hole-x: 0.72em; --hole-r: 0.12em; display: inline-block; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; font-size: 1.25rem; transform: rotate(-2deg); transform-origin: 30% 50%; filter: drop-shadow(0 2px 0 rgb(0 0 0 / 0.18)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.16)); margin: 0.5rem; } .ds-tag-charcoal { --tag-bg: var(--color-charcoal, #262626); } .ds-tag-body { display: flex; align-items: center; padding: 0.32em 0.45em 0.32em 1.02em; background: var(--tag-bg); color: #fff; font-weight: 800; font-stretch: 70%; font-variant-numeric: tabular-nums; text-transform: uppercase; line-height: 1; white-space: nowrap; clip-path: polygon(var(--tip) 0, 100% 0, 100% 100%, var(--tip) 100%, 0 50%); -webkit-mask: radial-gradient(circle at var(--hole-x) 50%, transparent var(--hole-r), #000 calc(var(--hole-r) + 0.5px)); mask: radial-gradient(circle at var(--hole-x) 50%, transparent var(--hole-r), #000 calc(var(--hole-r) + 0.5px)); }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Magenta, white bold label, 4px corner; the next step.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Ver catálogo</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; padding: 0.75rem 1.25rem; border: 2px solid transparent; border-radius: 4px; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; font-weight: 700; font-size: 1rem; line-height: 1.15; cursor: pointer; transition: background-color 140ms ease-out, color 140ms ease-out, border-color 140ms ease-out; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 3px solid #a51f8a; outline-offset: 3px; } .ds-btn-primary { background: #d128af; color: #fff; } .ds-btn-primary:hover { background: #a51f8a; }"
+    },
+    {
+      "name": "Outline Button (dark)",
+      "kind": "button",
+      "refersTo": "button-outline-dark",
+      "description": "2px charcoal stroke on light ground; fills charcoal on hover.",
+      "html": "<button class=\"ds-btn-outline\">Seguir comprando</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: 0.75rem 1.25rem; border: 2px solid #262626; border-radius: 4px; background: transparent; color: #262626; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; font-weight: 700; font-size: 1rem; line-height: 1.15; cursor: pointer; transition: background-color 140ms ease-out, color 140ms ease-out; } .ds-btn-outline:hover { background: #262626; color: #fff; } .ds-btn-outline:focus-visible { outline: 3px solid #a51f8a; outline-offset: 3px; }"
+    },
+    {
+      "name": "Disabled Button (pending)",
+      "kind": "button",
+      "refersTo": "button-disabled",
+      "description": "Disabled reads as pending: paper fill, dashed muted stroke, label naming what is missing.",
+      "html": "<button class=\"ds-btn-pending\" disabled>WhatsApp: falta cargar el número</button>",
+      "css": ".ds-btn-pending { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: 0.75rem 1.25rem; border: 2px dashed #5c5c5c; border-radius: 4px; background: #ededed; color: #5c5c5c; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; font-weight: 700; font-size: 1rem; cursor: not-allowed; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "2px charcoal stroke, 2px corner, 3rem tall, label above.",
+      "html": "<label class=\"ds-field\"><span>Buscar</span><input type=\"search\" placeholder=\"Remera, taza, muñeca\"></label>",
+      "css": ".ds-field { display: block; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; color: #262626; } .ds-field span { display: block; margin-bottom: 0.35rem; font-weight: 600; } .ds-field input { width: 100%; min-height: 3rem; padding: 0.6rem 0.85rem; border: 2px solid #262626; border-radius: 2px; background: #fff; font: inherit; caret-color: #a51f8a; } .ds-field input:focus-visible { outline: 3px solid #a51f8a; outline-offset: 3px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "2px charcoal stroke, 2px corner; selected fills charcoal.",
+      "html": "<span class=\"ds-chip\">Todo</span> <span class=\"ds-chip ds-chip-on\">Juguetería</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border: 2px solid #262626; border-radius: 2px; color: #262626; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; font-weight: 600; cursor: pointer; } .ds-chip:hover { background: #ededed; } .ds-chip-on, .ds-chip-on:hover { background: #262626; color: #fff; }"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "refersTo": "site-header",
+      "description": "Sticky charcoal bar; white 600 links with a 2px magenta underline on hover and current page.",
+      "html": "<header class=\"ds-header\"><strong class=\"ds-logo\">Rosalu</strong><nav><a href=\"#\" aria-current=\"page\">Catálogo</a><a href=\"#\">Cómo comprar</a><a href=\"#\">Dónde estamos</a></nav></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 4rem; padding-inline: 2rem; background: #262626; color: #fff; font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; } .ds-logo { font-size: 1.6rem; font-style: italic; font-weight: 900; } .ds-header nav { display: flex; gap: 2rem; } .ds-header a { display: inline-flex; align-items: center; min-height: 2.75rem; color: #fff; font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; } .ds-header a:hover, .ds-header a[aria-current='page'] { border-bottom-color: #d128af; } .ds-header a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }"
+    },
+    {
+      "name": "Pending Value",
+      "kind": "custom",
+      "refersTo": "pending-value",
+      "description": "Honest placeholder for a business fact not yet loaded; dashed currentColor frame.",
+      "html": "<p class=\"ds-pending-demo\">Juana Manuela Gorriti <span class=\"ds-pending\">Falta cargar: altura</span></p>",
+      "css": ".ds-pending-demo { font-family: 'Archivo Variable', 'Archivo Fallback', Arial, sans-serif; color: #262626; } .ds-pending { display: inline-block; padding: 0.05em 0.45em; border: 1.5px dashed currentColor; border-radius: 2px; font-size: 0.875em; font-weight: 500; line-height: 1.4; opacity: 0.85; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Hand-Hung Price Tag",
+    "overview": "Rosalu is a market price sign, faithful to the logo: a heavy italic wordmark in white on a charcoal field, and a magenta card tag hung by a string with a punched hole. Everything else on the site is the shop around that tag: white floor, paper-grey tables, full-bleed charcoal blocks, and published prices that hang off product photos the way they hang off goods on Gorriti street. The tag is the headline, not decoration; on the home page it is the H1.\n\nThe system is flat, square and loud only where money is. Photos are full-cornered rectangles without radius or shadow; surfaces are separated by tone (white, paper, charcoal), never by boxed cards. Magenta is reserved for tags, the primary action and small marks, so a magenta shape on screen almost always means a price or the next step. Missing business facts are never hidden or faked: they show as dashed \"pending\" frames, the same language a disabled control uses.\n\nMotion is sparse. One orchestrated moment, the hero tag dropping onto its string, plus motion that answers an action (cart badge bump, menu, toasts) and product photos that morph between card and detail through cross-document view transitions. Everything respects reduced motion.",
+    "keyCharacteristics": [
+      "One signature form: the pointed, punched, tilted market tag, in three sizes.",
+      "Three Archivo voices from one variable family: black italic titles, condensed 800 uppercase prices, regular body.",
+      "Tonal blocks (white, paper, charcoal) instead of cards and shadows.",
+      "Square geometry: 0 on photos and surfaces, 2px on fields, 4px on buttons.",
+      "Dashed borders mean \"pending\", everywhere.",
+      "12-column grid from 64rem, content capped at 75rem."
+    ],
+    "rules": [
+      { "name": "The Money Colour Rule", "body": "Magenta is spent on tags, the primary button and small marks. It never fills a section, a card, or a heading.", "section": "colors" },
+      { "name": "The Charcoal Contrast Rule", "body": "Magenta on charcoal is for large text and graphics only (3.3:1): the tag body, the 2px nav underline, ticks. Deep Magenta never sits on charcoal as text or mark (2.3:1); on dark blocks, small accents are white or mist.", "section": "colors" },
+      { "name": "The Focus Flip Rule", "body": "The focus ring is 3px Deep Magenta at 3px offset on light ground and flips to white inside any dark (`on-dark`) block.", "section": "colors" },
+      { "name": "The Three Voices Rule", "body": "Titles are black italic; prices are condensed 800 tabular uppercase; everything else is regular or medium upright. No fourth voice, no second family.", "section": "typography" },
+      { "name": "The Price Voice Rule", "body": "The condensed uppercase voice belongs to prices: inside a market tag, or as a bare price figure (cart total, mobile buy bar, the \"Los 3 juntos\" total). It never sets a heading, a label or a sentence.", "section": "typography" },
+      { "name": "The Sentence Case Rule", "body": "Outside the price voice, all copy is sentence case. No tracked-out uppercase labels.", "section": "typography" },
+      { "name": "The One Shadow Rule", "body": "Only the tag casts a shadow. Panels, cards, photos, buttons and dialogs stay flat; a dialog separates with a 2px charcoal stroke and a charcoal scrim at 60%.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do put every price in a market tag or in the condensed price voice; never hide a number.",
+      "Do keep magenta for tags, the primary button and small marks; use Deep Magenta for small magenta text on light ground.",
+      "Do separate sections by tone (white, paper, full-bleed charcoal) and group content with 2px charcoal rules.",
+      "Do keep photos square-cornered on paper wells at their aspect tokens, and give each product photo its `product-<slug>` transition name exactly once per page.",
+      "Do show missing data and unavailable actions with the dashed pending language and a label that says what is missing.",
+      "Do gate every animation behind `prefers-reduced-motion: no-preference`, animate transform (and opacity only for entering panels), and use `ease-settle` for state changes.",
+      "Do keep touch targets at 2.75rem or more and the focus ring visible on every interactive element."
+    ],
+    "donts": [
+      "Don't set magenta or Deep Magenta text on charcoal below large size; Deep Magenta never appears on charcoal at all.",
+      "Don't use the condensed uppercase voice for headings, labels, navigation or sentences.",
+      "Don't add shadows to cards, panels, photos, buttons or dialogs; the tag cast is the only shadow.",
+      "Don't round photos or surfaces, or go past 4px on rectangular controls.",
+      "Don't add a second orchestrated entrance; the hero tag drop is the only one, and its overshoot easing (`ease-drop`) is reserved for it.",
+      "Don't use dashed borders for anything other than \"pending\" or disabled."
+    ]
+  }
+}

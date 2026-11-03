@@ -1,0 +1,284 @@
+---
+import Wordmark from '../assets/brand/wordmark.svg';
+import Icon from './Icon.astro';
+
+const nav = [
+  { href: '/catalogo', label: 'Catálogo' },
+  { href: '/#como-comprar', label: 'Cómo comprar' },
+  { href: '/#donde-estamos', label: 'Dónde estamos' },
+];
+const path = Astro.url.pathname;
+---
+
+<header class="site-header on-dark">
+  <div class="wrap bar">
+    <a href="/" class="logo" aria-label="Rosalu, ir al inicio">
+      <Wordmark aria-hidden="true" />
+    </a>
+
+    <nav class="nav-desktop" aria-label="Principal">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={
+                path.startsWith(item.href) && !item.href.includes('#') ? 'page' : undefined
+              }
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <a href="/carrito" class="cart-link" data-cart-link aria-label="Carrito">
+        <Icon name="bag" size={26} />
+        <span class="cart-count" data-cart-count hidden>
+          0
+        </span>
+      </a>
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <Icon name="menu" class="icon-open" />
+        <Icon name="close" class="icon-close" />
+        <span class="sr-only" data-menu-label>
+          Abrir menú
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-menu" class="nav-mobile" aria-label="Principal" data-menu hidden>
+    <ul class="wrap">
+      {nav.map((item) => (
+        <li>
+          <a href={item.href}>{item.label}</a>
+        </li>
+      ))}
+      <li>
+        <a href="/carrito">Ver carrito</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  import { $cartTotals } from '../stores/cart';
+
+  const link = document.querySelector<HTMLAnchorElement>('[data-cart-link]');
+  const badge = document.querySelector<HTMLElement>('[data-cart-count]');
+  let previous: number | null = null;
+
+  $cartTotals.subscribe(({ units }) => {
+    if (!link || !badge) return;
+    badge.textContent = String(units);
+    badge.hidden = units === 0;
+    link.setAttribute(
+      'aria-label',
+      units === 0 ? 'Carrito vacío' : `Carrito, ${units} ${units === 1 ? 'producto' : 'productos'}`,
+    );
+    if (previous !== null && units > previous) {
+      badge.classList.remove('bump');
+      void badge.offsetWidth;
+      badge.classList.add('bump');
+    }
+    previous = units;
+  });
+
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const label = document.querySelector<HTMLElement>('[data-menu-label]');
+
+  function setMenu(open: boolean) {
+    if (!toggle || !menu || !label) return;
+    toggle.setAttribute('aria-expanded', String(open));
+    menu.hidden = !open;
+    label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+  }
+
+  toggle?.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      toggle.focus();
+    }
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--color-charcoal);
+    view-transition-name: site-header;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--header-height);
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-white);
+  }
+
+  .logo :global(svg) {
+    width: auto;
+    height: 1.55rem;
+  }
+
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-desktop ul {
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-desktop a,
+  .nav-mobile a {
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .nav-desktop a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav-desktop a:hover,
+  .nav-desktop a[aria-current='page'] {
+    border-bottom-color: var(--color-magenta);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .cart-link,
+  .menu-toggle {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-white);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .cart-count {
+    position: absolute;
+    top: 0.1rem;
+    right: -0.15rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    padding-inline: 0.3rem;
+    border-radius: 999px;
+    background: var(--color-magenta);
+    color: var(--color-white);
+    font-size: 0.8125rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.35rem;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cart-count:global(.bump) {
+      animation: bump 320ms var(--ease-settle);
+    }
+  }
+
+  @keyframes bump {
+    40% {
+      transform: scale(1.35);
+    }
+  }
+
+  .menu-toggle :global(.icon-close),
+  .menu-toggle[aria-expanded='true'] :global(.icon-open) {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] :global(.icon-close) {
+    display: block;
+  }
+
+  .nav-mobile {
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    background: var(--color-charcoal);
+  }
+
+  .nav-mobile ul {
+    margin: 0;
+    padding-block: 0.5rem 1rem;
+    list-style: none;
+  }
+
+  .nav-mobile a {
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
+    font-size: 1.125rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-mobile:not([hidden]) {
+      animation: menu-in 200ms var(--ease-settle);
+    }
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .site-header {
+      --header-height: 4rem;
+    }
+
+    .logo :global(svg) {
+      height: 1.85rem;
+    }
+
+    .nav-desktop {
+      display: block;
+    }
+
+    .menu-toggle,
+    .nav-mobile {
+      display: none !important;
+    }
+  }
+</style>

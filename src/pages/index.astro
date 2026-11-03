@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import JsonLd from '../components/JsonLd.astro';
+import WhatsAppFab from '../components/WhatsAppFab.astro';
+import Hero from '../components/home/Hero.astro';
+import TrustStrip from '../components/home/TrustStrip.astro';
+import Categories from '../components/home/Categories.astro';
+import Featured from '../components/home/Featured.astro';
+import HowToBuy from '../components/home/HowToBuy.astro';
+import RealStore from '../components/home/RealStore.astro';
+import Guarantee from '../components/home/Guarantee.astro';
+import ProfitExample from '../components/home/ProfitExample.astro';
+import Season from '../components/home/Season.astro';
+import Faq from '../components/home/Faq.astro';
+import ClosingCta from '../components/home/ClosingCta.astro';
+import { getSettings, hasWhatsApp } from '../lib/settings';
+import { getProducts, type Category } from '../lib/products';
+import { isPending } from '../lib/text';
+import { WEEKDAYS } from '../lib/opening-hours';
+
+const settings = await getSettings();
+const products = await getProducts();
+const featured = products.filter((p) => p.data.featured && p.data.available).slice(0, 8);
+const counts = products.reduce(
+  (acc, p) => ({ ...acc, [p.data.category]: acc[p.data.category] + 1 }),
+  { ropa: 0, jugueteria: 0, bazar: 0 } as Record<Category, number>,
+);
+
+const site = Astro.site ?? new URL('https://rosalumayorista.almarweb.workers.dev');
+const dayNames: Record<(typeof WEEKDAYS)[number], string> = {
+  monday: 'Monday',
+  tuesday: 'Tuesday',
+  wednesday: 'Wednesday',
+  thursday: 'Thursday',
+  friday: 'Friday',
+  saturday: 'Saturday',
+  sunday: 'Sunday',
+};
+const storeLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'WholesaleStore',
+  name: 'Rosalu',
+  description: settings.copy.heroSubtitle,
+  url: site.href,
+  image: new URL('/og.png', site).href,
+  priceRange: '$',
+  currenciesAccepted: 'ARS',
+  paymentAccepted: 'Efectivo, transferencia',
+  areaServed: { '@type': 'State', name: 'Jujuy' },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: isPending(settings.address.number)
+      ? settings.address.street
+      : `${settings.address.street} ${settings.address.number}`,
+    addressLocality: settings.address.city,
+    addressRegion: 'Jujuy',
+    addressCountry: 'AR',
+  },
+  openingHoursSpecification: settings.hours
+    .filter((h) => !h.closed && h.opens && h.closes)
+    .map((h) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: dayNames[h.day],
+      opens: h.opens,
+      closes: h.closes,
+    })),
+};
+if (hasWhatsApp(settings)) storeLd.telephone = `+${settings.whatsapp}`;
+if (!isPending(settings.mapsUrl)) storeLd.hasMap = settings.mapsUrl;
+const sameAs = Object.values(settings.social).filter((url) => !isPending(url));
+if (sameAs.length) storeLd.sameAs = sameAs;
+---
+
+<BaseLayout
+  title="Rosalu"
+  description="Mayorista desde 3 productos en San Salvador de Jujuy. Ropa, juguetería y bazar con precios publicados, surtido y cambio en 24 horas. Retiro en el local de calle Gorriti."
+>
+  <JsonLd slot="head" data={storeLd} />
+
+  <Hero settings={settings} sampleMix={featured.slice(0, 3)} />
+  <TrustStrip settings={settings} />
+  <Categories settings={settings} counts={counts} />
+  <Featured products={featured} />
+  <HowToBuy settings={settings} />
+  <RealStore settings={settings} />
+  <Guarantee settings={settings} />
+  <ProfitExample settings={settings} />
+  <Season settings={settings} />
+  <Faq settings={settings} />
+  <ClosingCta settings={settings} />
+
+  <WhatsAppFab slot="after" settings={settings} />
+</BaseLayout>

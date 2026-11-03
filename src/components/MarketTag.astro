@@ -1,0 +1,165 @@
+---
+/**
+ * The signature element: a hand-hung market price tag. Pointed left end, a punched hole that
+ * shows the real background, a slight tilt. One shape, three sizes:
+ *   xl  hero headline ("Mayorista desde 3")
+ *   md  product page price, cart total
+ *   sm  price on a product photo
+ */
+import type { HTMLTag } from 'astro/types';
+
+interface Props {
+  size?: 'xl' | 'md' | 'sm';
+  as?: HTMLTag;
+  tone?: 'magenta' | 'charcoal';
+  tilt?: boolean;
+  string?: boolean;
+  drop?: boolean;
+  class?: string;
+  id?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const {
+  size = 'md',
+  as: Tag = 'span',
+  tone = 'magenta',
+  tilt = true,
+  string = false,
+  drop = false,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<span
+  class:list={['market-tag', `size-${size}`, `tone-${tone}`, { tilt, string, drop }, className]}
+>
+  <Tag class="market-tag-body voice-tag" {...rest}>
+    <slot />
+  </Tag>
+</span>
+
+<style>
+  .market-tag {
+    --tag-bg: var(--color-magenta);
+    --tilt-angle: 0deg;
+    /* Geometry in em of the tag's own type, so every size keeps the same proportions. */
+    --tip: 0.62em;
+    --hole-x: 0.92em;
+    --hole-r: 0.14em;
+    --pad-start: 1.32em;
+    --pad-end: 0.6em;
+    --pad-block: 0.16em;
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: middle;
+    transform: rotate(var(--tilt-angle));
+    transform-origin: 30% 50%;
+    filter: drop-shadow(0 2px 0 rgb(0 0 0 / 0.18)) drop-shadow(0 6px 8px rgb(0 0 0 / 0.16));
+  }
+
+  .tilt {
+    --tilt-angle: -2deg;
+  }
+
+  .tone-charcoal {
+    --tag-bg: var(--color-charcoal);
+  }
+
+  .market-tag-body {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    margin: 0;
+    padding: var(--pad-block) var(--pad-end) var(--pad-block) var(--pad-start);
+    background: var(--tag-bg);
+    color: var(--color-white);
+    line-height: 1;
+    white-space: nowrap;
+    clip-path: polygon(var(--tip) 0, 100% 0, 100% 100%, var(--tip) 100%, 0 50%);
+    -webkit-mask: radial-gradient(
+      circle at var(--hole-x) 50%,
+      transparent var(--hole-r),
+      #000 calc(var(--hole-r) + 0.5px)
+    );
+    mask: radial-gradient(
+      circle at var(--hole-x) 50%,
+      transparent var(--hole-r),
+      #000 calc(var(--hole-r) + 0.5px)
+    );
+  }
+
+  .size-sm {
+    font-size: var(--text-tag-sm);
+    --tip: 0.5em;
+    --hole-x: 0.72em;
+    --hole-r: 0.12em;
+    --pad-start: 1.02em;
+    --pad-end: 0.45em;
+    --pad-block: 0.32em;
+  }
+
+  .size-md {
+    font-size: var(--text-tag-md);
+    --pad-block: 0.12em;
+  }
+
+  /* The hero tag carries two voices: small stacked words and the giant numeral. */
+  .size-xl {
+    font-size: var(--text-tag-xl);
+    --tip: 0.3em;
+    --hole-x: 0.44em;
+    --hole-r: 0.065em;
+    --pad-start: 0.66em;
+    --pad-end: 0.18em;
+    --pad-block: 0.02em;
+    --tilt-angle: 0deg;
+  }
+
+  .size-xl.tilt {
+    --tilt-angle: -2.5deg;
+  }
+
+  /* The string the tag hangs from, threaded through the hole. */
+  .string::before {
+    content: '';
+    position: absolute;
+    left: var(--hole-x);
+    bottom: 50%;
+    width: 2px;
+    height: 0.7em;
+    background: var(--color-mist);
+    transform-origin: bottom center;
+    transform: translateX(-1px) rotate(24deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .drop {
+      animation: tag-drop 650ms var(--ease-drop) both;
+    }
+
+    :global(html.arrived-by-transition) .drop {
+      animation: none;
+    }
+  }
+
+  @keyframes tag-drop {
+    from {
+      transform: translateY(-0.35em) rotate(-9deg);
+    }
+    to {
+      transform: rotate(var(--tilt-angle));
+    }
+  }
+
+  @media (forced-colors: active) {
+    .market-tag-body {
+      border: 2px solid CanvasText;
+      -webkit-mask: none;
+      mask: none;
+      clip-path: none;
+    }
+  }
+</style>

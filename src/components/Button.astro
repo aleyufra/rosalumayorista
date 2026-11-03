@@ -1,0 +1,123 @@
+---
+/** One button language for the whole site. Renders a link when href is given. */
+import type { HTMLAttributes } from 'astro/types';
+
+type Variant = 'primary' | 'outline-dark' | 'outline-light' | 'text';
+
+type Props = {
+  href?: string | undefined;
+  variant?: Variant;
+  full?: boolean;
+  class?: string;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+} & Omit<HTMLAttributes<'a'>, 'type'> &
+  Omit<HTMLAttributes<'button'>, 'type'>;
+
+const {
+  href,
+  variant = 'primary',
+  full = false,
+  class: className,
+  type = 'button',
+  disabled = false,
+  ...rest
+} = Astro.props;
+
+const classes = ['btn', `btn-${variant}`, { 'btn-full': full }, className];
+---
+
+{href && !disabled ? (
+  <a href={href} class:list={classes} {...rest}>
+    <slot />
+  </a>
+) : (
+  <button type={type} class:list={classes} disabled={disabled} {...rest}>
+    <slot />
+  </button>
+)}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.25rem;
+    border: 2px solid transparent;
+    border-radius: var(--radius-button);
+    font: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color 140ms ease-out,
+      color 140ms ease-out,
+      border-color 140ms ease-out;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  /* Disabled reads as "still pending", the same dashed language as PendingValue. */
+  .btn:disabled,
+  .btn:disabled:hover {
+    border: 2px dashed var(--color-muted);
+    background: var(--color-paper);
+    color: var(--color-muted);
+    cursor: not-allowed;
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  .btn-primary {
+    background: var(--color-magenta);
+    color: var(--color-white);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-magenta-dark);
+  }
+
+  .btn-outline-dark {
+    border-color: var(--color-charcoal);
+    color: var(--color-charcoal);
+    background: transparent;
+  }
+
+  .btn-outline-dark:hover:not(:disabled) {
+    background: var(--color-charcoal);
+    color: var(--color-white);
+  }
+
+  .btn-outline-light {
+    border-color: var(--color-white);
+    color: var(--color-white);
+    background: transparent;
+  }
+
+  .btn-outline-light:hover:not(:disabled) {
+    background: var(--color-white);
+    color: var(--color-charcoal);
+  }
+
+  .btn-text {
+    min-height: 2.75rem;
+    padding-inline: 0.25rem;
+    color: var(--color-magenta-dark);
+    background: transparent;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .btn-text:hover {
+    color: var(--color-charcoal);
+  }
+</style>

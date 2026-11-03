@@ -1,0 +1,295 @@
+---
+import { Picture } from 'astro:assets';
+import storefrontPlaceholder from '../../assets/placeholders/storefront.webp';
+import personPlaceholder from '../../assets/placeholders/person.webp';
+import mapPlaceholder from '../../assets/placeholders/map.webp';
+import Button from '../Button.astro';
+import PendingValue from '../PendingValue.astro';
+import { addressLine, type Settings } from '../../lib/settings';
+import { summarizeHours } from '../../lib/opening-hours';
+import { isPending } from '../../lib/text';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+const { contactPerson } = settings;
+const hours = summarizeHours(settings.hours);
+const hasEmbed = !isPending(settings.mapEmbedUrl);
+---
+
+<section id="donde-estamos" class="store" aria-labelledby="store-title">
+  <div class="wrap grid">
+    <div class="intro">
+      <h2 id="store-title" class="voice-title text-h2">
+        No comprás por una foto
+      </h2>
+      <p class="lead measure">
+        Venís, lo ves y te lo llevás. Rosalu es un local de verdad en el centro de Jujuy, con gente
+        que te atiende cara a cara.
+      </p>
+    </div>
+
+    <figure class="storefront">
+      <Picture
+        src={settings.photos.storefront ?? storefrontPlaceholder}
+        alt="Frente del local de Rosalu en calle Gorriti"
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[360, 540, 720, 1080]}
+        sizes="(min-width: 64rem) 42rem, 100vw"
+      />
+    </figure>
+
+    <div class="details">
+      <div class="person">
+        <Picture
+          src={contactPerson.photo ?? personPlaceholder}
+          alt={isPending(contactPerson.name) ? 'Quien te atiende en Rosalu' : contactPerson.name}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[160, 240, 320]}
+          sizes="8rem"
+        />
+        <div>
+          <p class="person-name">
+            {isPending(contactPerson.name) ? <PendingValue label="nombre" /> : contactPerson.name}
+          </p>
+          <p class="person-role">
+            {isPending(contactPerson.role) ? <PendingValue label="rol" /> : contactPerson.role}
+          </p>
+          <p class="person-note">Te atiende en el local y responde los pedidos por WhatsApp.</p>
+        </div>
+      </div>
+
+      <dl class="facts">
+        <div>
+          <dt>Dirección</dt>
+          <dd>
+            {addressLine(settings)}
+            {isPending(settings.address.number) && (
+              <>
+                {' '}
+                <PendingValue label="altura" />
+              </>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Horarios</dt>
+          <dd>
+            <ul>
+              {hours.map((line) => (
+                <li>{line}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+
+      <div class="map" data-map>
+        <Picture
+          src={mapPlaceholder}
+          alt="Mapa de la zona del local"
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[360, 540, 720]}
+          sizes="(min-width: 64rem) 30rem, 100vw"
+          data-map-image
+        />
+        {hasEmbed && (
+          <button type="button" class="map-load" data-map-load data-src={settings.mapEmbedUrl}>
+            Ver mapa
+          </button>
+        )}
+      </div>
+
+      {isPending(settings.mapsUrl) ? (
+        <p>
+          <PendingValue label="link de Cómo llegar" />
+        </p>
+      ) : (
+        <Button href={settings.mapsUrl} variant="outline-dark" target="_blank" rel="noopener">
+          Cómo llegar
+        </Button>
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  // The map iframe only loads when asked: it costs nothing on a slow connection until then.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-map-load]')) {
+    button.addEventListener('click', () => {
+      const wrap = button.closest('[data-map]');
+      if (!wrap || !button.dataset.src) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = button.dataset.src;
+      iframe.title = 'Mapa de Rosalu en Google Maps';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.allowFullscreen = true;
+      wrap.replaceChildren(iframe);
+      iframe.focus();
+    });
+  }
+</script>
+
+<style>
+  .store {
+    padding-block: var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .lead {
+    margin: 0.75rem 0 0;
+    font-size: var(--text-lead);
+  }
+
+  .storefront {
+    margin: 0 calc(var(--gutter) * -1);
+  }
+
+  .storefront :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--aspect-storefront);
+    object-fit: cover;
+  }
+
+  .details {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+
+  .person {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .person :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--aspect-person);
+    object-fit: cover;
+  }
+
+  .person p {
+    margin: 0;
+  }
+
+  .person-name {
+    font-size: var(--text-h4);
+    font-weight: 700;
+  }
+
+  .person-role {
+    margin-top: 0.25rem !important;
+    color: var(--color-muted);
+  }
+
+  .person-note {
+    margin-top: 0.5rem !important;
+    font-size: var(--text-small);
+    color: var(--color-muted);
+  }
+
+  .facts {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding-top: 1.25rem;
+    border-top: 3px solid var(--color-charcoal);
+  }
+
+  dt {
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0.2rem 0 0;
+  }
+
+  dd ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .map {
+    position: relative;
+    aspect-ratio: var(--aspect-map);
+    background: var(--color-paper);
+  }
+
+  .map :global(img),
+  .map :global(iframe) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+  }
+
+  .map-load {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    min-height: 3rem;
+    padding: 0.75rem 1.25rem;
+    border: 0;
+    border-radius: var(--radius-button);
+    background: var(--color-charcoal);
+    color: var(--color-white);
+    font: inherit;
+    font-weight: 700;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    --color-focus: var(--color-magenta-dark);
+  }
+
+  .map-load:hover {
+    background: var(--color-magenta-dark);
+  }
+
+  .details > :global(.btn) {
+    justify-self: start;
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: min-content 1fr;
+      gap: 2.5rem 1.5rem;
+    }
+
+    .intro {
+      grid-column: 1 / 8;
+    }
+
+    .storefront {
+      grid-column: 1 / 8;
+      align-self: start;
+      margin: 0;
+    }
+
+    .details {
+      grid-column: 8 / 13;
+      grid-row: 1 / 3;
+      align-self: start;
+    }
+  }
+</style>

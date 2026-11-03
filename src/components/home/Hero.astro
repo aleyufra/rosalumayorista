@@ -1,0 +1,321 @@
+---
+import { Picture } from 'astro:assets';
+import MarketTag from '../MarketTag.astro';
+import Button from '../Button.astro';
+import PendingValue from '../PendingValue.astro';
+import { formatPrice } from '../../lib/price';
+import { addressLine, hasWhatsApp, type Settings } from '../../lib/settings';
+import { summarizeHours } from '../../lib/opening-hours';
+import { isPending } from '../../lib/text';
+import { buildWhatsAppUrl } from '../../lib/whatsapp';
+import { productUrl, type Product } from '../../lib/products';
+
+interface Props {
+  settings: Settings;
+  sampleMix: Product[];
+}
+
+const { settings, sampleMix } = Astro.props;
+const whatsappUrl = hasWhatsApp(settings)
+  ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quiero hacer una consulta.')
+  : undefined;
+const mixTotal = sampleMix.reduce((sum, p) => sum + p.data.cashPrice, 0);
+const showMix = sampleMix.length === 3;
+---
+
+<section class:list={['hero on-dark', { 'with-mix': showMix }]} aria-labelledby="hero-title">
+  <div class="wrap grid">
+    <div class="main">
+      <MarketTag size="xl" as="h1" id="hero-title" string drop class="hero-tag">
+        <span class="words">
+          Mayorista
+          <br />
+          desde
+        </span>
+        <span class="num">3</span>
+        <span class="sr-only">productos</span>
+      </MarketTag>
+
+      <p class="subtitle">{settings.copy.heroSubtitle}</p>
+
+      <div class="ctas">
+        <Button href="/catalogo" full>
+          Ver catálogo
+        </Button>
+        {whatsappUrl ? (
+          <Button href={whatsappUrl} variant="outline-light" full target="_blank" rel="noopener">
+            Consultar por WhatsApp
+          </Button>
+        ) : (
+          <Button variant="outline-light" full disabled>
+            WhatsApp: falta cargar el número
+          </Button>
+        )}
+      </div>
+
+      <p class="today">
+        <span class="status" data-opening-status data-hours={JSON.stringify(settings.hours)}>
+          {summarizeHours(settings.hours)[0]}
+        </span>
+        <span class="address">
+          {addressLine(settings)}
+          {isPending(settings.address.number) && <PendingValue label="altura" />}
+        </span>
+      </p>
+    </div>
+
+    {showMix && (
+      <aside class="mix" aria-labelledby="mix-title">
+        <h2 id="mix-title" class="mix-title">
+          Así se ve un surtido de 3
+        </h2>
+        <ul>
+          {sampleMix.map((p) => (
+            <li>
+              <a href={productUrl(p.id)}>
+                {p.data.photos[0] && (
+                  <Picture
+                    src={p.data.photos[0]}
+                    alt=""
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    widths={[120, 180, 240]}
+                    sizes="7.5rem"
+                  />
+                )}
+                <span class="mix-name">{p.data.name}</span>
+                <MarketTag size="sm" class="mix-price">
+                  {formatPrice(p.data.cashPrice)}
+                </MarketTag>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mix-total">
+          <span>Los 3 juntos</span>
+          <strong class="voice-tag">{formatPrice(mixTotal)}</strong>
+        </p>
+      </aside>
+    )}
+  </div>
+</section>
+
+<script>
+  import { getOpeningStatus, type DayHours } from '../../lib/opening-hours';
+
+  const el = document.querySelector<HTMLElement>('[data-opening-status]');
+  if (el?.dataset.hours) {
+    const status = getOpeningStatus(JSON.parse(el.dataset.hours) as DayHours[], new Date());
+    if (status) el.textContent = status;
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    background: var(--color-charcoal);
+    padding-block: 2.75rem 3rem;
+    overflow: hidden;
+  }
+
+  /* The rail the tag hangs from: the header's bottom edge. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: rgb(255 255 255 / 0.14);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .main {
+    min-width: 0;
+  }
+
+  .main :global(.hero-tag) {
+    margin-left: -0.35rem;
+    max-width: none;
+  }
+
+  .main :global(.hero-tag .market-tag-body) {
+    gap: 0.06em;
+    align-items: center;
+  }
+
+  /* Longer string: it reaches up through the rail. */
+  .main :global(.hero-tag.string)::before {
+    height: 1.2em;
+  }
+
+  .words {
+    display: block;
+    font-size: 0.205em;
+    line-height: 0.96;
+    letter-spacing: 0.01em;
+  }
+
+  .num {
+    display: block;
+    font-size: 1em;
+    line-height: 0.86;
+    margin-block: 0.03em -0.04em;
+  }
+
+  .subtitle {
+    max-width: 34ch;
+    margin: 1.75rem 0 1.5rem;
+    font-size: var(--text-lead);
+    line-height: 1.45;
+    font-weight: 500;
+  }
+
+  .ctas {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 26rem;
+  }
+
+  .today {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    margin: 1.5rem 0 0;
+    color: var(--color-mist);
+    font-size: 0.9375rem;
+  }
+
+  .address :global(.pending) {
+    margin-left: 0.35rem;
+  }
+
+  .status {
+    color: var(--color-white);
+    font-weight: 700;
+  }
+
+  .mix {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .ctas {
+      grid-template-columns: auto auto;
+      justify-content: start;
+      max-width: none;
+    }
+
+    .ctas :global(.btn) {
+      width: auto;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      padding-block: 4rem 4.5rem;
+    }
+
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: end;
+    }
+
+    .main {
+      grid-column: 1 / 10;
+    }
+
+    .with-mix .main {
+      grid-column: 1 / 8;
+    }
+
+    .main :global(.hero-tag) {
+      max-width: none;
+    }
+
+    .main :global(.hero-tag.string)::before {
+      height: 1.6em;
+    }
+
+    .subtitle {
+      margin-top: 2.25rem;
+    }
+
+    .mix {
+      display: block;
+      grid-column: 8 / 13;
+      padding: 1.25rem;
+      background: var(--color-white);
+      color: var(--color-charcoal);
+      --color-focus: var(--color-magenta-dark);
+    }
+
+    .mix-title {
+      margin: 0 0 1rem;
+      font-size: var(--text-h4);
+      font-style: italic;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .mix ul {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .mix a {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .mix :global(img) {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: var(--color-paper);
+    }
+
+    .mix-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      line-height: 1.25;
+      order: 3;
+    }
+
+    .mix :global(.mix-price) {
+      order: 2;
+      align-self: flex-start;
+      margin: -1.6rem 0 0 -0.4rem;
+      font-size: 1rem;
+    }
+
+    .mix a:hover .mix-name {
+      text-decoration: underline;
+    }
+
+    .mix-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin: 1rem 0 0;
+      padding-top: 0.75rem;
+      border-top: 2px solid var(--color-charcoal);
+      font-weight: 600;
+    }
+
+    .mix-total strong {
+      font-size: 1.75rem;
+    }
+  }
+</style>

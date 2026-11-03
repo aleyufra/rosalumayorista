@@ -1,0 +1,97 @@
+---
+import Button from '../Button.astro';
+import MarketTag from '../MarketTag.astro';
+import { hasWhatsApp, type Settings } from '../../lib/settings';
+import { buildWhatsAppUrl } from '../../lib/whatsapp';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+const whatsappUrl = hasWhatsApp(settings)
+  ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quiero armar un surtido.')
+  : undefined;
+---
+
+<section class="closing on-dark" aria-labelledby="closing-title">
+  <div class="wrap grid">
+    <div class="tag-col" aria-hidden="true">
+      <MarketTag size="md" string class="closing-tag">
+        Desde {settings.minUnits}
+      </MarketTag>
+    </div>
+    <div class="text">
+      <h2 id="closing-title" class="voice-title text-h1">
+        {settings.copy.closingTitle}
+      </h2>
+      <p>{settings.copy.closingText}</p>
+      <div class="ctas">
+        <Button href="/catalogo">Ver catálogo</Button>
+        {whatsappUrl ? (
+          <Button href={whatsappUrl} variant="outline-light" target="_blank" rel="noopener">
+            Consultar por WhatsApp
+          </Button>
+        ) : (
+          <Button variant="outline-light" disabled>
+            WhatsApp: falta cargar el número
+          </Button>
+        )}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .closing {
+    background: var(--color-charcoal);
+    padding-block: var(--space-section) calc(var(--space-section) * 0.75);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  /* The closing block hangs the signature again, so the page ends where it began. */
+  .tag-col :global(.closing-tag) {
+    margin-left: -0.35rem;
+    font-size: clamp(3rem, 2.25rem + 3.5vw, 5.5rem);
+  }
+
+  .tag-col :global(.closing-tag.string)::before {
+    height: 1.4em;
+  }
+
+  h2 {
+    max-width: 18ch;
+    margin: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .tag-col {
+      grid-column: 1 / 5;
+    }
+
+    .text {
+      grid-column: 5 / 13;
+    }
+  }
+
+  p {
+    margin: 1rem 0 2rem;
+    color: var(--color-mist);
+    font-size: var(--text-lead);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+</style>

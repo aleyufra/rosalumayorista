@@ -1,0 +1,84 @@
+---
+import ProductCard from '../ProductCard.astro';
+import Button from '../Button.astro';
+import type { Product } from '../../lib/products';
+
+interface Props {
+  products: Product[];
+}
+const { products } = Astro.props;
+---
+
+{products.length > 0 && (
+  <section class="featured" aria-labelledby="featured-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="featured-title" class="voice-title text-h2">
+          Para arrancar tu surtido
+        </h2>
+        <p class="intro">Precios en efectivo, publicados como en el local.</p>
+      </div>
+      <ul class:list={['grid', { 'grid-3': products.length % 4 !== 0 }]}>
+        {products.map((p) => (
+          <li>
+            <ProductCard product={p} />
+          </li>
+        ))}
+      </ul>
+      <div class="all">
+        <Button href="/catalogo" variant="outline-dark">
+          Ver todo el catálogo
+        </Button>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .featured {
+    padding-block: var(--space-section);
+  }
+
+  .head h2 {
+    margin: 0;
+  }
+
+  .intro {
+    margin: 0.75rem 0 2rem;
+    color: var(--color-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 0.875rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .all {
+    margin-top: 2.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2.25rem 1.25rem;
+    }
+
+    /* 3, 6 or 7 products: three columns avoid an orphan row. */
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+  }
+</style>

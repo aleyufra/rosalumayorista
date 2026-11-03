@@ -1,0 +1,21 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.34, 1.32, 0.5, 1)",
+        "createdAt": "2026-11-03T03:27:28.350Z",
+        "reason": "Agent: brief 9.7 asks the hanging price tag to drop and settle on its string; the overshoot is the literal pendulum settle, used only by the hero tag drop"
+      }
+    ]
+  }
+}

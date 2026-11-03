@@ -1,0 +1,47 @@
+---
+import Icon from './Icon.astro';
+import { hasWhatsApp, type Settings } from '../lib/settings';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+---
+
+{hasWhatsApp(settings) && (
+  <a
+    class="fab"
+    href={buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quiero hacer una consulta.')}
+    target="_blank"
+    rel="noopener"
+  >
+    <Icon name="whatsapp" size={26} />
+    <span>WhatsApp</span>
+  </a>
+)}
+
+<style>
+  .fab {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0 1.1rem 0 0.9rem;
+    border-radius: 999px;
+    background: var(--color-charcoal);
+    color: var(--color-white);
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 18px -6px rgb(0 0 0 / 0.45);
+    --color-focus: var(--color-magenta-dark);
+  }
+
+  .fab:hover {
+    background: var(--color-magenta-dark);
+  }
+</style>

@@ -1,0 +1,173 @@
+---
+import { formatPrice } from '../../lib/price';
+import type { Settings } from '../../lib/settings';
+
+interface Props {
+  settings: Settings;
+}
+const { settings } = Astro.props;
+const rows = settings.profitExample.map((r) => ({
+  ...r,
+  profit: r.resalePrice - r.wholesalePrice,
+}));
+const totals = rows.reduce(
+  (acc, r) => ({
+    wholesale: acc.wholesale + r.wholesalePrice,
+    resale: acc.resale + r.resalePrice,
+    profit: acc.profit + r.profit,
+  }),
+  { wholesale: 0, resale: 0, profit: 0 },
+);
+---
+
+<section class="profit" aria-labelledby="profit-title">
+  <div class="wrap grid">
+    <div class="copy">
+      <h2 id="profit-title" class="voice-title text-h2">
+        Cuánto le podés ganar
+      </h2>
+      <p class="measure">
+        Comprás 3 productos variados, los publicás en tus estados, ves qué vuela y reponés solo eso.
+        Así no te quedás con mercadería clavada.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Ejemplo de ganancia por unidad con 3 productos</caption>
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col">Lo pagás</th>
+            <th scope="col">Lo vendés</th>
+            <th scope="col">Ganás</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{r.product}</th>
+              <td>{formatPrice(r.wholesalePrice)}</td>
+              <td>{formatPrice(r.resalePrice)}</td>
+              <td class="gain">{formatPrice(r.profit)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Los 3</th>
+            <td>{formatPrice(totals.wholesale)}</td>
+            <td>{formatPrice(totals.resale)}</td>
+            <td class="gain">{formatPrice(totals.profit)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="note">
+        Son precios de ejemplo para que hagas la cuenta. El precio de venta lo ponés vos.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .profit {
+    padding-block: var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  .copy p {
+    margin: 0.75rem 0 0;
+    font-size: var(--text-lead);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 0.25rem;
+    border-bottom: 1px solid var(--color-rule);
+    text-align: right;
+    font-size: 0.875rem;
+    vertical-align: top;
+  }
+
+  th:first-child {
+    padding-left: 0;
+    text-align: left;
+  }
+
+  thead th {
+    border-bottom: 3px solid var(--color-charcoal);
+    color: var(--color-muted);
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  .gain {
+    font-weight: 800;
+    color: var(--color-magenta-dark);
+  }
+
+  tfoot th,
+  tfoot td {
+    border-bottom: 0;
+    border-top: 3px solid var(--color-charcoal);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .note {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+
+  @media (min-width: 48rem) {
+    th,
+    td {
+      padding: 0.85rem 0.75rem;
+      font-size: 1rem;
+    }
+
+    thead th {
+      font-size: var(--text-small);
+    }
+
+    tfoot th,
+    tfoot td {
+      font-size: 1.125rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .copy {
+      grid-column: 1 / 5;
+    }
+
+    .table-wrap {
+      grid-column: 6 / 13;
+    }
+  }
+</style>

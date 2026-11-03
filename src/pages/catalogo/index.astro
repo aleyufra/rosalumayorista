@@ -1,0 +1,336 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Button from '../../components/Button.astro';
+import { getProducts, CATEGORY_LABELS } from '../../lib/products';
+import { getSettings, hasWhatsApp } from '../../lib/settings';
+import { normalizeSearch } from '../../lib/text';
+import { buildWhatsAppUrl } from '../../lib/whatsapp';
+import { CATEGORIES } from '../../content.config';
+
+const settings = await getSettings();
+const products = await getProducts();
+const index = products.map((p) => ({
+  slug: p.id,
+  category: p.data.category,
+  available: p.data.available,
+  key: normalizeSearch(`${p.data.name} ${p.data.subcategory ?? ''}`),
+}));
+const askUrl = hasWhatsApp(settings)
+  ? buildWhatsAppUrl(
+      settings.whatsapp,
+      '¡Hola Rosalu! Estoy buscando un producto que no encontré en el catálogo.',
+    )
+  : undefined;
+---
+
+<BaseLayout
+  title="Catálogo con precios"
+  description="Ropa, juguetería y bazar a precio mayorista desde 3 productos. Todos los precios publicados, en efectivo. Retiro en el local de calle Gorriti, Jujuy."
+>
+  <section class="wrap head">
+    <h1 class="voice-title text-h1">Catálogo</h1>
+    <p class="intro">
+      Precios en efectivo. Mínimo {settings.minUnits} productos, surtidos como quieras.
+    </p>
+
+    <form class="filters" role="search" action="/catalogo" method="get" data-filters>
+      <div class="search">
+        <label for="q">Buscar por nombre</label>
+        <input id="q" name="q" type="search" autocomplete="off" enterkeyhint="search" data-q />
+      </div>
+
+      <fieldset class="chips">
+        <legend class="sr-only">Rubro</legend>
+        <label class="chip">
+          <input type="radio" name="rubro" value="" checked data-category />
+          <span>Todos</span>
+        </label>
+        {CATEGORIES.map((c) => (
+          <label class="chip">
+            <input type="radio" name="rubro" value={c} data-category />
+            <span>{CATEGORY_LABELS[c]}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <label class="switch">
+        <input type="checkbox" name="disponibles" value="1" role="switch" data-available />
+        <span class="track" aria-hidden="true"></span>
+        <span>Solo disponibles</span>
+      </label>
+      <noscript>
+        <button type="submit">Filtrar</button>
+      </noscript>
+    </form>
+
+    <p class="count" aria-live="polite" data-count>
+      {products.length} productos
+    </p>
+  </section>
+
+  <section class="wrap results" aria-label="Productos">
+    <ul class="grid" data-grid>
+      {products.map((product, i) => (
+        <li data-item={product.id}>
+          <ProductCard product={product} eager={i < 4} headingLevel="h2" />
+        </li>
+      ))}
+    </ul>
+
+    <div class="empty" data-empty hidden>
+      <h2 class="voice-title text-h3">No encontramos productos con esa búsqueda.</h2>
+      <p>Probá con otra palabra o mirá todos los rubros. Si buscás algo puntual, preguntanos.</p>
+      <div class="empty-actions">
+        <Button variant="outline-dark" data-clear>
+          Limpiar filtros
+        </Button>
+        {askUrl ? (
+          <Button href={askUrl} target="_blank" rel="noopener">
+            Consultar por WhatsApp
+          </Button>
+        ) : (
+          <Button disabled>WhatsApp: falta cargar el número</Button>
+        )}
+      </div>
+    </div>
+
+    <div class="more" data-more-wrap hidden>
+      <Button variant="outline-dark" data-more>
+        Ver más
+      </Button>
+    </div>
+  </section>
+
+  <script type="application/json" id="catalog-index" set:html={JSON.stringify(index)} />
+</BaseLayout>
+
+<script>
+  import '../../scripts/catalog';
+</script>
+
+<style>
+  .head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+
+  h1 {
+    margin: 0;
+  }
+
+  .intro {
+    margin: 0.5rem 0 1.5rem;
+    color: var(--color-muted);
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .search label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+  }
+
+  .search input {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.6rem 0.85rem;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-field);
+    background: var(--color-white);
+    font: inherit;
+  }
+
+  .chips {
+    min-width: 0;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0 0 0.25rem;
+    border: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    position: relative;
+    flex: none;
+  }
+
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-field);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .chip input:checked + span {
+    background: var(--color-charcoal);
+    color: var(--color-white);
+  }
+
+  .chip input:focus-visible + span {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    justify-self: start;
+  }
+
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    width: 2.75rem;
+    height: 1.5rem;
+  }
+
+  .track {
+    position: relative;
+    width: 2.75rem;
+    height: 1.5rem;
+    border: 2px solid var(--color-charcoal);
+    border-radius: 999px;
+    transition: background-color 140ms ease-out;
+  }
+
+  .track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--color-charcoal);
+    transition: transform 160ms var(--ease-settle);
+  }
+
+  .switch input:checked + .track {
+    background: var(--color-charcoal);
+  }
+
+  .switch input:checked + .track::after {
+    background: var(--color-white);
+    transform: translateX(1.25rem);
+  }
+
+  .switch input:focus-visible + .track {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .count {
+    margin: 1.25rem 0 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+
+  .results {
+    padding-block: 1rem var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 0.875rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .empty {
+    padding: 2rem 0;
+  }
+
+  .empty h2 {
+    margin: 0 0 0.5rem;
+  }
+
+  .empty p {
+    max-width: 45ch;
+    margin: 0 0 1.25rem;
+  }
+
+  .empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .more {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.25rem 1.25rem;
+    }
+
+    .filters {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .search {
+      grid-column: 1 / -1;
+      max-width: 32rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .head {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 1.5rem;
+    }
+
+    h1,
+    .intro {
+      grid-column: 1 / 6;
+    }
+
+    .filters {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 22rem) auto auto;
+      justify-content: start;
+      gap: 1.5rem;
+    }
+
+    .search {
+      grid-column: auto;
+    }
+
+    .count {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

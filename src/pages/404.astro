@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MarketTag from '../components/MarketTag.astro';
+import Button from '../components/Button.astro';
+import { getSettings, hasWhatsApp } from '../lib/settings';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
+
+const settings = await getSettings();
+const whatsappUrl = hasWhatsApp(settings)
+  ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Entré a un link del sitio que no funciona.')
+  : undefined;
+---
+
+<BaseLayout
+  title="Esta página no existe"
+  description="La página que buscás no existe o se movió. Mirá el catálogo de Rosalu."
+  noindex
+>
+  <section class="lost on-dark">
+    <div class="wrap grid">
+      <div class="tag-col">
+        <MarketTag size="md" as="p" class="lost-tag">
+          No está
+        </MarketTag>
+      </div>
+      <div class="text">
+        <h1 class="voice-title text-h1">Esta página no existe o se movió.</h1>
+        <p>Puede que el link esté incompleto o que el producto ya no esté publicado.</p>
+        <div class="ctas">
+          <Button href="/catalogo">Ver catálogo</Button>
+          {whatsappUrl ? (
+            <Button href={whatsappUrl} variant="outline-light" target="_blank" rel="noopener">
+              Consultar por WhatsApp
+            </Button>
+          ) : (
+            <Button variant="outline-light" disabled>
+              WhatsApp: falta cargar el número
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lost {
+    background: var(--color-charcoal);
+    padding-block: clamp(3.5rem, 2.5rem + 6vw, 8rem);
+  }
+
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .lost :global(.lost-tag) {
+    margin-left: -0.35rem;
+    font-size: clamp(3rem, 2rem + 5vw, 6rem);
+  }
+
+  h1 {
+    max-width: 16ch;
+    margin: 0;
+  }
+
+  p {
+    margin: 1rem 0 2rem;
+    color: var(--color-mist);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .tag-col {
+      grid-column: 1 / 6;
+    }
+
+    .text {
+      grid-column: 7 / 13;
+    }
+  }
+</style>

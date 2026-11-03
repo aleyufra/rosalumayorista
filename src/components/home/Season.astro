@@ -1,0 +1,72 @@
+---
+import MarketTag from '../MarketTag.astro';
+import Button from '../Button.astro';
+import type { Settings } from '../../lib/settings';
+
+interface Props {
+  settings: Settings;
+}
+const { season } = Astro.props.settings;
+---
+
+{season.active && (
+  <section class="season" aria-labelledby="season-title">
+    <div class="wrap grid">
+      <div class="tag-col" aria-hidden="true">
+        <MarketTag size="md" class="season-tag">
+          {season.tag}
+        </MarketTag>
+      </div>
+      <div class="body">
+        <h2 id="season-title" class="voice-title text-h2">
+          {season.title}
+        </h2>
+        <p>{season.text}</p>
+        <Button href="/catalogo">Ver catálogo</Button>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .season {
+    background: var(--color-paper);
+    padding-block: var(--space-section);
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .tag-col :global(.season-tag) {
+    margin-left: -0.35rem;
+    font-size: clamp(2rem, 1.5rem + 2.5vw, 3.25rem);
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    max-width: 44ch;
+    margin: 0.75rem 0 1.5rem;
+    font-size: var(--text-lead);
+  }
+
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .tag-col {
+      grid-column: 1 / 6;
+    }
+
+    .body {
+      grid-column: 6 / 12;
+    }
+  }
+</style>
