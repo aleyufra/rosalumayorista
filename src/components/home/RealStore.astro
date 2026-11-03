@@ -1,7 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
 import storefrontPlaceholder from '../../assets/placeholders/storefront.webp';
-import personPlaceholder from '../../assets/placeholders/person.webp';
 import mapPlaceholder from '../../assets/placeholders/map.webp';
 import Button from '../Button.astro';
 import PendingValue from '../PendingValue.astro';
@@ -13,7 +12,6 @@ interface Props {
   settings: Settings;
 }
 const { settings } = Astro.props;
-const { contactPerson } = settings;
 const hours = summarizeHours(settings.hours);
 const hasEmbed = !isPending(settings.mapEmbedUrl);
 ---
@@ -22,11 +20,10 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
   <div class="wrap grid">
     <div class="intro">
       <h2 id="store-title" class="voice-title text-h2">
-        No comprás por una foto
+        Tu catálogo siempre abierto
       </h2>
       <p class="lead measure">
-        Venís, lo ves y te lo llevás. Rosalu es un local de verdad en el centro de Jujuy, con gente
-        que te atiende cara a cara.
+        Visitá nuestro local en el centro de Jujuy, con una buena atención y variedad de productos para vos.
       </p>
     </div>
 
@@ -42,26 +39,6 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
     </figure>
 
     <div class="details">
-      <div class="person">
-        <Picture
-          src={contactPerson.photo ?? personPlaceholder}
-          alt={isPending(contactPerson.name) ? 'Quien te atiende en Rosalu' : contactPerson.name}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[160, 240, 320]}
-          sizes="8rem"
-        />
-        <div>
-          <p class="person-name">
-            {isPending(contactPerson.name) ? <PendingValue label="nombre" /> : contactPerson.name}
-          </p>
-          <p class="person-role">
-            {isPending(contactPerson.role) ? <PendingValue label="rol" /> : contactPerson.role}
-          </p>
-          <p class="person-note">Te atiende en el local y responde los pedidos por WhatsApp.</p>
-        </div>
-      </div>
-
       <dl class="facts">
         <div>
           <dt>Dirección</dt>
@@ -87,20 +64,24 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
         </div>
       </dl>
 
-      <div class="map" data-map>
-        <Picture
-          src={mapPlaceholder}
-          alt="Mapa de la zona del local"
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[360, 540, 720]}
-          sizes="(min-width: 64rem) 30rem, 100vw"
-          data-map-image
-        />
-        {hasEmbed && (
-          <button type="button" class="map-load" data-map-load data-src={settings.mapEmbedUrl}>
-            Ver mapa
-          </button>
+      <div class="map">
+        {hasEmbed ? (
+          <iframe
+            src={settings.mapEmbedUrl}
+            title="Mapa de Rosalu en Google Maps"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          />
+        ) : (
+          <Picture
+            src={mapPlaceholder}
+            alt="Mapa de la zona del local"
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[360, 540, 720]}
+            sizes="(min-width: 64rem) 30rem, 100vw"
+          />
         )}
       </div>
 
@@ -117,23 +98,6 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
   </div>
 </section>
 
-<script>
-  // The map iframe only loads when asked: it costs nothing on a slow connection until then.
-  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-map-load]')) {
-    button.addEventListener('click', () => {
-      const wrap = button.closest('[data-map]');
-      if (!wrap || !button.dataset.src) return;
-      const iframe = document.createElement('iframe');
-      iframe.src = button.dataset.src;
-      iframe.title = 'Mapa de Rosalu en Google Maps';
-      iframe.loading = 'lazy';
-      iframe.referrerPolicy = 'no-referrer-when-downgrade';
-      iframe.allowFullscreen = true;
-      wrap.replaceChildren(iframe);
-      iframe.focus();
-    });
-  }
-</script>
 
 <style>
   .store {
@@ -164,55 +128,19 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
     height: auto;
     aspect-ratio: var(--aspect-storefront);
     object-fit: cover;
+    object-position: center 20%;
   }
 
   .details {
     display: grid;
-    gap: 1.5rem;
-    align-content: start;
-  }
-
-  .person {
-    display: grid;
-    grid-template-columns: 6.5rem minmax(0, 1fr);
     gap: 1rem;
-    align-items: center;
-  }
-
-  .person :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: var(--aspect-person);
-    object-fit: cover;
-  }
-
-  .person p {
-    margin: 0;
-  }
-
-  .person-name {
-    font-size: var(--text-h4);
-    font-weight: 700;
-  }
-
-  .person-role {
-    margin-top: 0.25rem !important;
-    color: var(--color-muted);
-  }
-
-  .person-note {
-    margin-top: 0.5rem !important;
-    font-size: var(--text-small);
-    color: var(--color-muted);
+    align-content: start;
   }
 
   .facts {
     display: grid;
     gap: 1rem;
     margin: 0;
-    padding-top: 1.25rem;
-    border-top: 3px solid var(--color-charcoal);
   }
 
   dt {
@@ -242,27 +170,6 @@ const hasEmbed = !isPending(settings.mapEmbedUrl);
     height: 100%;
     border: 0;
     object-fit: cover;
-  }
-
-  .map-load {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    min-height: 3rem;
-    padding: 0.75rem 1.25rem;
-    border: 0;
-    border-radius: var(--radius-button);
-    background: var(--color-charcoal);
-    color: var(--color-white);
-    font: inherit;
-    font-weight: 700;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    --color-focus: var(--color-magenta-dark);
-  }
-
-  .map-load:hover {
-    background: var(--color-magenta-dark);
   }
 
   .details > :global(.btn) {

@@ -1,73 +1,113 @@
 businessName: Rosalu
 address:
   street: Juana Manuela Gorriti
-  number: 'TODO: altura de la calle'
+  number: '765'
   city: San Salvador de Jujuy
-mapsUrl: 'TODO: link de Google Maps'
-mapEmbedUrl: 'TODO: link para insertar el mapa'
+mapsUrl: https://maps.app.goo.gl/fraDqnXoxd9NFb267
+mapEmbedUrl: https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d765.097025019579!2d-65.2997100476487!3d-24.19152945673185!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sar!4v1793681714144!5m2!1ses-419!2sar
 hours:
-  - { day: monday, closed: false, opens: '10:00', closes: '20:00' }
-  - { day: tuesday, closed: false, opens: '10:00', closes: '20:00' }
-  - { day: wednesday, closed: false, opens: '10:00', closes: '20:00' }
-  - { day: thursday, closed: false, opens: '10:00', closes: '20:00' }
-  - { day: friday, closed: false, opens: '10:00', closes: '20:00' }
-  - { day: saturday, closed: false, opens: '10:00', closes: '14:00' }
-  - { day: sunday, closed: true }
-whatsapp: 'TODO: número de WhatsApp (549388XXXXXXX)'
+  - day: monday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: tuesday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: wednesday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: thursday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: friday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: saturday
+    closed: false
+    opens: '10:00'
+    closes: '14:00'
+    reopens: '18:00'
+    closesLate: '22:00'
+  - day: sunday
+    closed: true
+whatsapp: '5493885846033'
 social:
-  instagram: 'TODO: link de Instagram'
-  facebook: 'TODO: link de Facebook'
-  tiktok: 'TODO: link de TikTok'
+  instagram: https://www.instagram.com/rosalu__mayorista/
+  facebook: https://www.facebook.com/profile.php?id=100063624184269
+  tiktok: https://www.tiktok.com/@rosalu_mayorista
 acceptsMercadoPago: pending
 minUnits: 3
+transferSurchargePercent: 3
 contactPerson:
   name: 'TODO: nombre de quien atiende'
   role: 'TODO: rol (por ejemplo, encargada)'
-photos: {}
+photos:
+  storefront: ../../assets/cms/storefront.webp
 season:
   active: true
+  theme: christmas
   tag: Navidad y Reyes
   title: Se vienen Navidad y Reyes
   text: Las que se surten ahora llegan a diciembre con mercadería lista para vender. Armá tu surtido con tiempo y reponé lo que más vuela.
 profitExample:
-  - { product: Remera básica, wholesalePrice: 9000, resalePrice: 14000 }
-  - { product: Juego de té infantil, wholesalePrice: 7500, resalePrice: 12000 }
-  - { product: Taza de cerámica, wholesalePrice: 2800, resalePrice: 4500 }
+  - product: Remera básica
+    wholesalePrice: 9000
+    resalePrice: 14000
+  - product: Juego de té infantil
+    wholesalePrice: 7500
+    resalePrice: 12000
+  - product: Taza de cerámica
+    wholesalePrice: 2800
+    resalePrice: 4500
 faq:
   - question: ¿Cuál es el mínimo?
-    answer: '{minimo} productos en total. Pueden ser iguales o distintos, y las unidades del mismo producto también cuentan.'
+    answer: 3 productos en total. Pueden ser iguales o distintos, y las unidades del mismo producto también cuentan.
   - question: ¿Se puede surtido?
     answer: Sí. Podés mezclar ropa, juguetería y bazar en el mismo pedido para llegar al mínimo.
   - question: ¿Hacen envíos?
     answer: No hacemos envíos. Armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
   - question: ¿Aceptan transferencia?
-    answer: 'Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia hay un recargo de {recargo}.'
+    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia hay un recargo de $1.500.
   - question: ¿Cómo son los cambios?
     answer: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas con el ticket, sin uso y con la etiqueta, y te lo cambiamos. Es un cambio, no devolvemos dinero.
   - question: ¿Aceptan Mercado Pago?
-    answer: 'TODO: confirmar si aceptan Mercado Pago'
+    answer: Aceptamos transferencias bancarias pero con un recargo de $1.500
 copy:
-  heroSubtitle: Ropa, juguetería y bazar a precio mayorista, surtido y desde solo 3 productos, en un local jujeño que podés visitar.
+  heroSubtitle: Ropa, juguetería y bazar. Visitá y armá tu pedido como quieras y retiralo en nuestro local de Jujuy.
   trust:
     - title: Local en el centro
-      text: 'Venís, lo ves y te lo llevás. Estamos en calle Gorriti.'
+      text: Venís, lo ves y te lo llevás. Estamos en calle Gorriti.
     - title: Cambio en 24 horas
-      text: 'Si vino fallado o necesitás otro talle o color, te lo cambiamos.'
+      text: Si vino fallado o necesitás otro talle o color, te lo cambiamos.
     - title: Precio especial en efectivo
-      text: 'El precio publicado es el que pagás en efectivo. Sin sorpresas.'
+      text: El precio publicado es el que pagás en efectivo. Sin sorpresas.
     - title: El mismo trato
-      text: 'Compres 3 o compres 30, te atendemos igual.'
+      text: Compres 3 o compres 30, te atendemos igual.
   howToBuy:
     - title: Mirás el catálogo y armás tu pedido
-      text: 'Todos los productos tienen el precio publicado. Elegí talle, color y cantidad.'
+      text: Todos los productos tienen el precio publicado. Elegí talle, color y cantidad.
     - title: Lo mandás por WhatsApp y te confirmamos
-      text: 'El pedido sale armado con un toque. Te respondemos con la disponibilidad.'
-    - title: 'Venís al local, lo ves, pagás y te lo llevás'
-      text: 'Lo revisás en el mostrador y recién ahí pagás.'
+      text: El pedido sale armado con un toque. Te respondemos con la disponibilidad.
+    - title: Venís al local, lo ves, pagás y te lo llevás
+      text: Lo revisás en el mostrador y recién ahí pagás.
   guarantee: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas y te lo cambiamos.
   guaranteeConditions:
     - Traé el ticket de compra.
     - El producto tiene que estar sin uso y con la etiqueta.
     - Es un cambio, no una devolución de dinero.
-  closingTitle: Vení a Rosalu y armá tu surtido desde 3 productos
+  closingTitle: Vení a Rosalu y llevate lo que más te guste al mejor precio
   closingText: Mirá el catálogo, mandanos tu pedido o pasá nomás por el local.

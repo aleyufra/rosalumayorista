@@ -20,7 +20,7 @@ const whatsappUrl = hasWhatsApp(settings)
   ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quiero hacer una consulta.')
   : undefined;
 const mixTotal = sampleMix.reduce((sum, p) => sum + p.data.cashPrice, 0);
-const showMix = sampleMix.length === 3;
+const showMix = sampleMix.length > 0;
 ---
 
 <section class:list={['hero on-dark', { 'with-mix': showMix }]} aria-labelledby="hero-title">
@@ -28,7 +28,9 @@ const showMix = sampleMix.length === 3;
     <div class="main">
       <MarketTag size="xl" as="h1" id="hero-title" string drop class="hero-tag">
         <span class="words">
-          Mayorista
+          Precio
+          <br />
+          mayorista
           <br />
           desde
         </span>
@@ -67,7 +69,7 @@ const showMix = sampleMix.length === 3;
     {showMix && (
       <aside class="mix" aria-labelledby="mix-title">
         <h2 id="mix-title" class="mix-title">
-          Así se ve un surtido de 3
+          Productos destacados
         </h2>
         <ul>
           {sampleMix.map((p) => (
@@ -91,10 +93,12 @@ const showMix = sampleMix.length === 3;
             </li>
           ))}
         </ul>
-        <p class="mix-total">
-          <span>Los 3 juntos</span>
-          <strong class="voice-tag">{formatPrice(mixTotal)}</strong>
-        </p>
+        {sampleMix.length === 3 && (
+          <p class="mix-total">
+            <span>Los 3 juntos</span>
+            <strong class="voice-tag">{formatPrice(mixTotal)}</strong>
+          </p>
+        )}
       </aside>
     )}
   </div>

@@ -12,7 +12,7 @@ import {
   getProducts,
   thumbnailUrl,
   productUrl,
-  CATEGORY_LABELS,
+  getCategoryLabels,
   type Product,
 } from '../../lib/products';
 import { getSettings, hasWhatsApp, surchargeLabel } from '../../lib/settings';
@@ -36,6 +36,7 @@ const { product, all } = Astro.props;
 const { name, category, subcategory, cashPrice, photos, sizes, colors, available, description } =
   product.data;
 const settings = await getSettings();
+const CATEGORY_LABELS = await getCategoryLabels();
 const surcharge = surchargeLabel(settings);
 const related = all
   .filter((p) => p.id !== product.id && p.data.category === category && p.data.available)
@@ -62,9 +63,9 @@ const productLd = {
   '@type': 'Product',
   name,
   description:
-    description ?? `${name}. ${CATEGORY_LABELS[category]} a precio mayorista en Rosalu, Jujuy.`,
+    description ?? `${name}. ${CATEGORY_LABELS[category] ?? category} a precio mayorista en Rosalu, Jujuy.`,
   image: new URL(shareImage, site).href,
-  category: CATEGORY_LABELS[category],
+  category: CATEGORY_LABELS[category] ?? category,
   brand: { '@type': 'Brand', name: 'Rosalu' },
   offers: {
     '@type': 'Offer',
@@ -79,7 +80,7 @@ const productLd = {
 
 <BaseLayout
   title={`${name}, ${formatPrice(cashPrice)}`}
-  description={`${name} a ${formatPrice(cashPrice)} en efectivo. ${CATEGORY_LABELS[category]} mayorista desde ${settings.minUnits} productos surtidos. Retiro en el local de calle Gorriti, Jujuy.`}
+  description={`${name} a ${formatPrice(cashPrice)} en efectivo. ${CATEGORY_LABELS[category] ?? category} mayorista desde ${settings.minUnits} productos surtidos. Retiro en el local de calle Gorriti, Jujuy.`}
   image={shareImage}
 >
   <JsonLd slot="head" data={productLd} />
@@ -88,7 +89,7 @@ const productLd = {
     <nav class="crumbs" aria-label="Estás en">
       <a href="/catalogo">Catálogo</a>
       <span aria-hidden="true">/</span>
-      <a href={`/catalogo?rubro=${category}`}>{CATEGORY_LABELS[category]}</a>
+      <a href={`/catalogo?rubro=${category}`}>{CATEGORY_LABELS[category] ?? category}</a>
     </nav>
 
     <div class="layout">
@@ -98,7 +99,7 @@ const productLd = {
 
       <div class="info">
         <p class="category">
-          {CATEGORY_LABELS[category]}
+          {CATEGORY_LABELS[category] ?? category}
           {subcategory && <span> de {subcategory.toLowerCase()}</span>}
         </p>
         <h1 class="voice-title text-h2">{name}</h1>
@@ -236,7 +237,7 @@ const productLd = {
     {related.length > 0 && (
       <section class="related" aria-labelledby="related-title">
         <h2 id="related-title" class="voice-title text-h3">
-          Más de {CATEGORY_LABELS[category].toLowerCase()}
+          Más de {(CATEGORY_LABELS[category] ?? category).toLowerCase()}
         </h2>
         <ul class="related-grid">
           {related.map((p) => (

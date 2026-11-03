@@ -7,10 +7,39 @@ interface Props {
   settings: Settings;
 }
 const { season } = Astro.props.settings;
+const christmas = season.theme === 'christmas';
+
+// Baubles hanging from the top edge, like the price tags hang from their string.
+const baubles = [
+  { x: 18, drop: 34, r: 15, color: 'var(--season-red)' },
+  { x: 54, drop: 70, r: 20, color: 'var(--color-magenta)' },
+  { x: 96, drop: 22, r: 12, color: 'var(--color-white)' },
+  { x: 132, drop: 52, r: 16, color: 'var(--season-gold)' },
+];
 ---
 
 {season.active && (
-  <section class="season" aria-labelledby="season-title">
+  <section
+    class:list={['season', { christmas, 'on-dark': christmas }]}
+    aria-labelledby="season-title"
+  >
+    {christmas && (
+      <svg class="baubles" viewBox="0 0 150 120" aria-hidden="true" focusable="false">
+        {baubles.map((b) => (
+          <g>
+            <line x1={b.x} y1="0" x2={b.x} y2={b.drop} />
+            <rect x={b.x - 3} y={b.drop - 1} width="6" height="4" class="cap" />
+            <circle cx={b.x} cy={b.drop + 3 + b.r} r={b.r} fill={b.color} />
+            <circle
+              cx={b.x - b.r * 0.35}
+              cy={b.drop + 3 + b.r * 0.6}
+              r={b.r * 0.22}
+              class="shine"
+            />
+          </g>
+        ))}
+      </svg>
+    )}
     <div class="wrap grid">
       <div class="tag-col" aria-hidden="true">
         <MarketTag size="md" class="season-tag">
@@ -30,11 +59,60 @@ const { season } = Astro.props.settings;
 
 <style>
   .season {
+    position: relative;
+    overflow: hidden;
     background: var(--color-paper);
     padding-block: var(--space-section);
   }
 
+  .christmas {
+    --season-green: #1d4a39;
+    --season-red: #d2343f;
+    --season-gold: #e2b84b;
+    background: var(--season-green);
+    color: var(--color-white);
+  }
+
+  .christmas :global(.season-tag) {
+    --tag-bg: var(--season-red);
+  }
+
+  .christmas :global(.btn-primary) {
+    background: var(--season-red);
+  }
+
+  .christmas :global(.btn-primary:hover) {
+    background: #a8232d;
+  }
+
+  .christmas p {
+    color: var(--color-mist);
+  }
+
+  .baubles {
+    position: absolute;
+    top: 0;
+    right: var(--gutter);
+    width: clamp(8rem, 5rem + 12vw, 15rem);
+    height: auto;
+    pointer-events: none;
+  }
+
+  .baubles line {
+    stroke: rgb(255 255 255 / 0.55);
+    stroke-width: 1;
+  }
+
+  .baubles .cap {
+    fill: var(--season-gold);
+  }
+
+  .baubles .shine {
+    fill: rgb(255 255 255 / 0.45);
+  }
+
   .grid {
+    position: relative;
     display: grid;
     gap: 1.75rem;
   }
@@ -45,6 +123,7 @@ const { season } = Astro.props.settings;
   }
 
   h2 {
+    max-width: 16ch;
     margin: 0;
   }
 
@@ -52,6 +131,13 @@ const { season } = Astro.props.settings;
     max-width: 44ch;
     margin: 0.75rem 0 1.5rem;
     font-size: var(--text-lead);
+  }
+
+  @media (max-width: 63.99rem) {
+    /* Leave room under the baubles on narrow screens. */
+    .christmas .grid {
+      padding-top: clamp(5rem, 3rem + 8vw, 7rem);
+    }
   }
 
   @media (min-width: 64rem) {
@@ -66,7 +152,11 @@ const { season } = Astro.props.settings;
     }
 
     .body {
-      grid-column: 6 / 12;
+      grid-column: 6 / 11;
+    }
+
+    .baubles {
+      right: max(var(--gutter), calc((100vw - 75rem) / 2));
     }
   }
 </style>

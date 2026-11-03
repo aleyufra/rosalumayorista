@@ -9,22 +9,26 @@ import Featured from '../components/home/Featured.astro';
 import HowToBuy from '../components/home/HowToBuy.astro';
 import RealStore from '../components/home/RealStore.astro';
 import Guarantee from '../components/home/Guarantee.astro';
-import ProfitExample from '../components/home/ProfitExample.astro';
 import Season from '../components/home/Season.astro';
 import Faq from '../components/home/Faq.astro';
 import ClosingCta from '../components/home/ClosingCta.astro';
 import { getSettings, hasWhatsApp } from '../lib/settings';
-import { getProducts, type Category } from '../lib/products';
+import { getProducts, getCategories } from '../lib/products';
 import { isPending } from '../lib/text';
 import { WEEKDAYS } from '../lib/opening-hours';
 
 const settings = await getSettings();
 const products = await getProducts();
 const featured = products.filter((p) => p.data.featured && p.data.available).slice(0, 8);
-const counts = products.reduce(
-  (acc, p) => ({ ...acc, [p.data.category]: acc[p.data.category] + 1 }),
-  { ropa: 0, jugueteria: 0, bazar: 0 } as Record<Category, number>,
-);
+const categories = (await getCategories()).map((c) => ({
+  ...c,
+  count: products.filter((p) => p.data.category === c.id).length,
+}));
+// Hero picks: chosen in the panel, otherwise the first 3 featured.
+const picked = (settings.heroProducts ?? [])
+  .map((slug) => products.find((p) => p.id === slug && p.data.available))
+  .filter((p) => p !== undefined);
+const heroMix = picked.length > 0 ? picked : featured.slice(0, 3);
 
 const site = Astro.site ?? new URL('https://rosalumayorista.almarweb.workers.dev');
 const dayNames: Record<(typeof WEEKDAYS)[number], string> = {
@@ -58,12 +62,19 @@ const storeLd: Record<string, unknown> = {
   },
   openingHoursSpecification: settings.hours
     .filter((h) => !h.closed && h.opens && h.closes)
-    .map((h) => ({
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: dayNames[h.day],
-      opens: h.opens,
-      closes: h.closes,
-    })),
+    .flatMap((h) =>
+      [
+        [h.opens, h.closes],
+        [h.reopens, h.closesLate],
+      ]
+        .filter(([opens, closes]) => opens && closes)
+        .map(([opens, closes]) => ({
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: dayNames[h.day],
+          opens,
+          closes,
+        })),
+    ),
 };
 if (hasWhatsApp(settings)) storeLd.telephone = `+${settings.whatsapp}`;
 if (!isPending(settings.mapsUrl)) storeLd.hasMap = settings.mapsUrl;
@@ -77,14 +88,13 @@ if (sameAs.length) storeLd.sameAs = sameAs;
 >
   <JsonLd slot="head" data={storeLd} />
 
-  <Hero settings={settings} sampleMix={featured.slice(0, 3)} />
+  <Hero settings={settings} sampleMix={heroMix} />
   <TrustStrip settings={settings} />
-  <Categories settings={settings} counts={counts} />
+  <Categories categories={categories} />
   <Featured products={featured} />
   <HowToBuy settings={settings} />
   <RealStore settings={settings} />
   <Guarantee settings={settings} />
-  <ProfitExample settings={settings} />
   <Season settings={settings} />
   <Faq settings={settings} />
   <ClosingCta settings={settings} />

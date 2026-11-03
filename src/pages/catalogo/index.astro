@@ -2,14 +2,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import Button from '../../components/Button.astro';
-import { getProducts, CATEGORY_LABELS } from '../../lib/products';
+import { getProducts, getCategories } from '../../lib/products';
 import { getSettings, hasWhatsApp } from '../../lib/settings';
 import { normalizeSearch } from '../../lib/text';
 import { buildWhatsAppUrl } from '../../lib/whatsapp';
-import { CATEGORIES } from '../../content.config';
 
 const settings = await getSettings();
 const products = await getProducts();
+const categories = await getCategories();
 const index = products.map((p) => ({
   slug: p.id,
   category: p.data.category,
@@ -37,7 +37,7 @@ const askUrl = hasWhatsApp(settings)
     <form class="filters" role="search" action="/catalogo" method="get" data-filters>
       <div class="search">
         <label for="q">Buscar por nombre</label>
-        <input id="q" name="q" type="search" autocomplete="off" enterkeyhint="search" data-q />
+        <input id="q" name="q" type="search" placeholder="Ej: remera, muñeca, taza" autocomplete="off" enterkeyhint="search" data-q />
       </div>
 
       <fieldset class="chips">
@@ -46,10 +46,10 @@ const askUrl = hasWhatsApp(settings)
           <input type="radio" name="rubro" value="" checked data-category />
           <span>Todos</span>
         </label>
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <label class="chip">
-            <input type="radio" name="rubro" value={c} data-category />
-            <span>{CATEGORY_LABELS[c]}</span>
+            <input type="radio" name="rubro" value={c.id} data-category />
+            <span>{c.data.name}</span>
           </label>
         ))}
       </fieldset>
@@ -165,9 +165,24 @@ const askUrl = hasWhatsApp(settings)
     position: absolute;
     opacity: 0;
     inset: 0;
+    cursor: pointer;
+  }
+
+  .chip:hover input:not(:checked) + span {
+    border-color: var(--color-magenta-dark);
+    color: var(--color-magenta-dark);
+  }
+
+  .chip:hover input:checked + span {
+    background: var(--color-magenta-dark);
+    border-color: var(--color-magenta-dark);
   }
 
   .chip span {
+    transition:
+      color 150ms var(--ease-settle),
+      background-color 150ms var(--ease-settle),
+      border-color 150ms var(--ease-settle);
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;

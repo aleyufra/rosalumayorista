@@ -14,6 +14,8 @@ export interface DayHours {
   closed?: boolean | undefined;
   opens?: string | undefined;
   closes?: string | undefined;
+  reopens?: string | undefined;
+  closesLate?: string | undefined;
 }
 
 const DAY_NAMES: Record<Weekday, string> = {
@@ -47,6 +49,20 @@ function isOpenDay(h: DayHours | undefined): h is DayHours & { opens: string; cl
   return Boolean(h && !h.closed && h.opens && h.closes);
 }
 
+type OpenDay = DayHours & { opens: string; closes: string };
+
+function hasSecondShift(h: OpenDay): h is OpenDay & { reopens: string; closesLate: string } {
+  return Boolean(h.reopens && h.closesLate);
+}
+
+/** "de 10 a 20" or, with a midday break, "de 10 a 14 y de 18 a 22". */
+function shiftsText(h: OpenDay): string {
+  const first = `de ${shortTime(h.opens)} a ${shortTime(h.closes)}`;
+  return hasSecondShift(h)
+    ? `${first} y de ${shortTime(h.reopens)} a ${shortTime(h.closesLate)}`
+    : first;
+}
+
 /** Weekday and minutes since midnight of a moment, in the store's timezone. */
 export function localClock(
   date: Date,
@@ -74,8 +90,9 @@ export function getOpeningStatus(hours: DayHours[], now: Date, timeZone = STORE_
   const byDay = new Map(hours.map((h) => [h.day, h]));
   const { day, minutes } = localClock(now, timeZone);
   const today = byDay.get(day);
-  if (isOpenDay(today) && minutes < toMinutes(today.closes)) {
-    return `Hoy abrimos de ${shortTime(today.opens)} a ${shortTime(today.closes)}`;
+  if (isOpenDay(today)) {
+    const lastClose = hasSecondShift(today) ? today.closesLate : today.closes;
+    if (minutes < toMinutes(lastClose)) return `Hoy abrimos ${shiftsText(today)}`;
   }
   const start = WEEKDAYS.indexOf(day);
   for (let offset = 1; offset <= 7; offset++) {
@@ -91,7 +108,7 @@ export function getOpeningStatus(hours: DayHours[], now: Date, timeZone = STORE_
 /** Groups consecutive days with the same hours: "Lunes a viernes de 10 a 20". */
 export function summarizeHours(hours: DayHours[]): string[] {
   const byDay = new Map(hours.map((h) => [h.day, h]));
-  const key = (h: DayHours | undefined) => (isOpenDay(h) ? `${h.opens}-${h.closes}` : 'closed');
+  const key = (h: DayHours | undefined) => (isOpenDay(h) ? shiftsText(h) : 'closed');
   const groups: { from: Weekday; to: Weekday; h: DayHours | undefined }[] = [];
   for (const day of WEEKDAYS) {
     const h = byDay.get(day);
@@ -102,7 +119,7 @@ export function summarizeHours(hours: DayHours[]): string[] {
   return groups.map(({ from, to, h }) => {
     const days = from === to ? DAY_PLURALS[from] : `${DAY_PLURALS[from]} a ${DAY_NAMES[to]}`;
     return isOpenDay(h)
-      ? `${days} de ${shortTime(h.opens)} a ${shortTime(h.closes)}`
+      ? `${days} ${shiftsText(h)}`
       : `${days} cerrado`;
   });
 }

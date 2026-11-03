@@ -17,7 +17,7 @@ Cuando tocás **Guardar**, el cambio se publica solo. Tarda **entre 1 y 3 minuto
 1. Entrá a **Productos** y tocá **Nuevo producto**.
 2. Completá:
    - **Nombre del producto:** como lo diría una clienta. Ej: "Remera básica de algodón".
-   - **Rubro:** Ropa, Juguetería o Bazar.
+   - **Rubro:** elegilo de la lista (Ropa, Juguetería, Bazar, Otros o los que crees en **Rubros**).
    - **Precio en efectivo:** solo el número, sin puntos ni signo $. Ej: `12500`.
    - **Fotos:** de 1 a 6. La primera es la que se ve en el catálogo. Mejor cuadradas.
    - **Talles** y **Colores:** solo si tiene. Si los cargás, la clienta tiene que elegir uno antes de agregar al carrito.
@@ -61,8 +61,20 @@ La temporada es el bloque de color de la página principal (Navidad y Reyes, Dí
 
 ## Otros datos del negocio
 
-En **Datos del negocio y textos** también se cambian: la dirección, los horarios, el WhatsApp, las redes, quién atiende y su foto, las fotos del local y de los rubros, el ejemplo de ganancia, las preguntas frecuentes y los textos de la página principal.
+En **Datos del negocio y textos** también se cambian: la dirección, los horarios, el WhatsApp, las redes, quién atiende y su foto, la foto del local, los 3 productos que se ven junto al cartel principal, el ejemplo de ganancia, las preguntas frecuentes y los textos de la página principal.
 
 En las respuestas de las preguntas frecuentes podés escribir `{minimo}` y `{recargo}`: el sitio los reemplaza por el mínimo de compra y el recargo que tengas cargados.
 
 Mientras un dato diga "TODO", el sitio muestra un recuadro "Falta cargar". Reemplazalo por el dato real y guardá.
+
+## Rubros
+
+En **Rubros** podés crear, renombrar o borrar rubros, y cargarles una foto.
+
+- **Orden:** el número 1 aparece primero (y grande en la página principal).
+- **Para borrar un rubro:** primero pasá todos sus productos a otro rubro. Si queda algún producto con un rubro borrado, la página no se publica hasta que lo corrijas.
+- Cambiar el nombre no cambia el link del rubro, así que los links compartidos siguen funcionando.
+
+## Productos junto al cartel principal
+
+En **Datos del negocio y textos > Productos destacados del inicio** elegís hasta 3 productos. Se ven al lado del cartel "Precio mayorista desde 3", solo en computadora. Si lo dejás vacío, se muestran los 3 primeros marcados con **Mostrar en la página principal**.

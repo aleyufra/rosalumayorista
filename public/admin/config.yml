@@ -16,9 +16,10 @@ display_url: https://rosalumayorista.almarweb.workers.dev
 logo_url: /favicon.svg
 
 # Images for the business settings (person, storefront, categories) live in src/ so Astro
-# can optimize them. public_folder is relative to src/content/settings/site.yml.
+# can optimize them. The global public_folder must be absolute; the relative path
+# Astro needs is set on the settings singleton below.
 media_folder: src/assets/cms
-public_folder: ../../assets/cms
+public_folder: /src/assets/cms
 
 media_libraries:
   all:
@@ -39,6 +40,26 @@ output:
   omit_empty_optional_fields: true
 
 collections:
+  - name: categories
+    label: Rubros
+    label_singular: Rubro
+    folder: src/content/categories
+    format: yml
+    extension: yml
+    create: true
+    delete: true
+    identifier_field: name
+    slug: '{{name}}'
+    media_folder: ../../assets/cms
+    public_folder: ../../assets/cms
+    sortable_fields:
+      fields: [order, name]
+      default: { field: order, direction: ascending }
+    description: 'Para borrar un rubro, primero pasá sus productos a otro rubro; si no, la página no se publica.'
+    fields:
+      - { name: name, label: Nombre, widget: string, hint: 'Como se ve en la página. Ej: Ropa, Bazar, Otros.' }
+      - { name: order, label: Orden, widget: number, value_type: int, default: 99, hint: 'El 1 aparece primero (y grande en la página principal).' }
+      - { name: photo, label: Foto, widget: image, required: false, hint: 'Vertical. Se ve en la página principal.' }
   - name: products
     label: Productos
     label_singular: Producto
@@ -77,11 +98,12 @@ collections:
         pattern: ['^.{3,80}$', 'Entre 3 y 80 letras.']
       - name: category
         label: Rubro
-        widget: select
-        options:
-          - { label: Ropa, value: ropa }
-          - { label: Juguetería, value: jugueteria }
-          - { label: Bazar, value: bazar }
+        widget: relation
+        collection: categories
+        value_field: '{{slug}}'
+        search_fields: [name]
+        display_fields: [name]
+        hint: 'Los rubros se crean y editan en la sección Rubros.'
       - name: subcategory
         label: Subcategoría
         widget: string
@@ -145,6 +167,8 @@ singletons:
   - name: settings
     label: Datos del negocio y textos
     file: src/content/settings/site.yml
+    media_folder: /src/assets/cms
+    public_folder: ../../assets/cms
     icon: storefront
     fields:
       - name: businessName
@@ -198,6 +222,17 @@ singletons:
             widget: string
             required: false
             pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Usá el formato 20:00']
+          - name: reopens
+            label: Vuelve a abrir (turno tarde)
+            widget: string
+            required: false
+            hint: 'Solo si cortás al mediodía. Ej: 18:00'
+            pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Usá el formato 18:00']
+          - name: closesLate
+            label: Cierra (turno tarde)
+            widget: string
+            required: false
+            pattern: ['^([01]\d|2[0-3]):[0-5]\d$', 'Usá el formato 22:00']
       - name: whatsapp
         label: Número de WhatsApp
         widget: string
@@ -242,15 +277,30 @@ singletons:
         widget: object
         fields:
           - { name: storefront, label: Frente del local, widget: image, required: false, hint: 'Horizontal. Que se vea el cartel y la vereda.' }
-          - { name: ropa, label: Rubro ropa, widget: image, required: false, hint: 'Vertical.' }
-          - { name: jugueteria, label: Rubro juguetería, widget: image, required: false, hint: 'Vertical.' }
-          - { name: bazar, label: Rubro bazar, widget: image, required: false, hint: 'Vertical.' }
+      - name: heroProducts
+        label: Productos destacados del inicio (arriba de todo)
+        widget: relation
+        collection: products
+        value_field: '{{slug}}'
+        search_fields: [name]
+        display_fields: [name]
+        multiple: true
+        max: 3
+        required: false
+        hint: 'Elegí hasta 3 productos para mostrar junto al cartel principal (solo se ve en computadora). Si lo dejás vacío, se muestran los 3 primeros marcados como destacados.'
       - name: season
         label: Temporada
         widget: object
         hint: 'Bloque de color en la página principal. Navidad y Reyes, Día del Niño, inicio de clases.'
         fields:
           - { name: active, label: Mostrar la temporada, widget: boolean, default: false }
+          - name: theme
+            label: Estilo
+            widget: select
+            default: plain
+            options:
+              - { label: Simple, value: plain }
+              - { label: Navideño (verde con adornos), value: christmas }
           - { name: tag, label: Texto del cartel (corto), widget: string, hint: 'Máximo 20 letras. Ej: Navidad y Reyes.', pattern: ['^.{1,20}$', 'Máximo 20 letras.'] }
           - { name: title, label: Título, widget: string }
           - { name: text, label: Texto, widget: text }

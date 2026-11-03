@@ -18,6 +18,8 @@ const whatsappUrl = hasWhatsApp(settings)
     <div class="tag-col" aria-hidden="true">
       <MarketTag size="md" string class="closing-tag">
         Desde {settings.minUnits}
+        <br />
+        productos
       </MarketTag>
     </div>
     <div class="text">
@@ -55,7 +57,7 @@ const whatsappUrl = hasWhatsApp(settings)
   /* The closing block hangs the signature again, so the page ends where it began. */
   .tag-col :global(.closing-tag) {
     margin-left: -0.35rem;
-    font-size: clamp(3rem, 2.25rem + 3.5vw, 5.5rem);
+    font-size: clamp(2.5rem, 1.75rem + 3vw, 4.5rem);
   }
 
   .tag-col :global(.closing-tag.string)::before {
@@ -75,11 +77,15 @@ const whatsappUrl = hasWhatsApp(settings)
     }
 
     .tag-col {
-      grid-column: 1 / 5;
+      grid-column: 8 / 13;
+      grid-row: 1;
+      justify-self: center;
+      min-width: max-content;
     }
 
     .text {
-      grid-column: 5 / 13;
+      grid-column: 1 / 8;
+      grid-row: 1;
     }
   }
 

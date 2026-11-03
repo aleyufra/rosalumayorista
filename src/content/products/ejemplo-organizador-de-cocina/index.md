@@ -1,11 +1,17 @@
 ---
-name: 'Organizador de cocina'
+name: Juego de Mate Stanley
 category: bazar
-cashPrice: 5000
+cashPrice: 20000
 photos:
-  - ./photo-1.webp
+  - juego-de-mate-stanley-azul.webp
+  - juego-de-mate-stanley-blanco.webp
+colors:
+  - name: Azul
+    hex: '#0b3d93'
+  - name: Blanco
+    hex: '#ffffff'
 available: true
 featured: true
-isSample: true
-updatedAt: 2026-11-03T03:03:56.792Z
+isSample: false
+updatedAt: 2026-11-03T03:25:35
 ---

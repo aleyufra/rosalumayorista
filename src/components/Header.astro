@@ -1,6 +1,17 @@
 ---
 import Wordmark from '../assets/brand/wordmark.svg';
 import Icon from './Icon.astro';
+import { getSettings } from '../lib/settings';
+import { isPending } from '../lib/text';
+
+const { social } = await getSettings();
+const socials = (
+  [
+    { name: 'facebook', label: 'Facebook', href: social.facebook },
+    { name: 'instagram', label: 'Instagram', href: social.instagram },
+    { name: 'tiktok', label: 'TikTok', href: social.tiktok },
+  ] as const
+).filter((s) => !isPending(s.href));
 
 const nav = [
   { href: '/catalogo', label: 'Catálogo' },
@@ -34,6 +45,17 @@ const path = Astro.url.pathname;
     </nav>
 
     <div class="actions">
+      {socials.map((s) => (
+        <a
+          href={s.href}
+          class="social-link"
+          target="_blank"
+          rel="noopener"
+          aria-label={`Rosalu en ${s.label}`}
+        >
+          <Icon name={s.name} size={22} />
+        </a>
+      ))}
       <a href="/carrito" class="cart-link" data-cart-link aria-label="Carrito">
         <Icon name="bag" size={26} />
         <span class="cart-count" data-cart-count hidden>
@@ -181,6 +203,11 @@ const path = Astro.url.pathname;
     gap: 0.25rem;
   }
 
+  .social-link:hover {
+    color: var(--color-magenta);
+  }
+
+  .social-link,
   .cart-link,
   .menu-toggle {
     position: relative;

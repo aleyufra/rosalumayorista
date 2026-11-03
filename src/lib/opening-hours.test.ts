@@ -45,3 +45,30 @@ describe('summarizeHours', () => {
     ]);
   });
 });
+
+describe('split hours', () => {
+  const split: DayHours[] = [
+    ...['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => ({
+      day: day as DayHours['day'],
+      opens: '10:00',
+      closes: '14:00',
+      reopens: '18:00',
+      closesLate: '22:00',
+    })),
+    { day: 'sunday', closed: true },
+  ];
+
+  it('shows both shifts until the evening close', () => {
+    expect(getOpeningStatus(split, at('2026-11-02T16:00:00'))).toBe(
+      'Hoy abrimos de 10 a 14 y de 18 a 22',
+    );
+    expect(getOpeningStatus(split, at('2026-11-02T22:30:00'))).toBe('Mañana abrimos a las 10');
+  });
+
+  it('summarizes both shifts', () => {
+    expect(summarizeHours(split)).toEqual([
+      'Lunes a sábado de 10 a 14 y de 18 a 22',
+      'Domingos cerrado',
+    ]);
+  });
+});

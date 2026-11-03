@@ -2,8 +2,19 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-/** Category slugs stay in Spanish: they appear in visitor-facing URLs (?rubro=ropa). */
-export const CATEGORIES = ['ropa', 'jugueteria', 'bazar'] as const;
+/**
+ * Categories are editable in the CMS. The file name is the slug, which stays in Spanish
+ * because it appears in visitor-facing URLs (?rubro=ropa).
+ */
+const categories = defineCollection({
+  loader: glob({ base: './src/content/categories', pattern: '*.yml' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string().min(2).max(30),
+      order: z.number().int().default(99),
+      photo: image().optional(),
+    }),
+});
 
 const products = defineCollection({
   loader: glob({
@@ -14,7 +25,7 @@ const products = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string().min(3).max(80),
-      category: z.enum(CATEGORIES),
+      category: z.string().min(1), // category slug, checked in lib/products.ts
       subcategory: z.string().max(40).optional(),
       cashPrice: z.number().int().positive(),
       photos: z.array(image()).min(1).max(6),
@@ -66,6 +77,9 @@ const settings = defineCollection({
             closed: z.boolean().default(false),
             opens: time.optional(),
             closes: time.optional(),
+            // Optional second shift (split hours, e.g. 10-14 and 18-22).
+            reopens: time.optional(),
+            closesLate: time.optional(),
           }),
         )
         .length(7),
@@ -77,12 +91,12 @@ const settings = defineCollection({
       contactPerson: z.object({ name: pendable, role: pendable, photo: image().optional() }),
       photos: z.object({
         storefront: image().optional(),
-        ropa: image().optional(),
-        jugueteria: image().optional(),
-        bazar: image().optional(),
       }),
+      // Up to 3 product slugs for the hero; empty = first 3 featured.
+      heroProducts: z.array(z.string()).max(3).default([]),
       season: z.object({
         active: z.boolean(),
+        theme: z.enum(['plain', 'christmas']).default('plain'),
         tag: z.string().max(20),
         title: z.string(),
         text: z.string(),
@@ -109,4 +123,4 @@ const settings = defineCollection({
     }),
 });
 
-export const collections = { products, settings };
+export const collections = { categories, products, settings };
