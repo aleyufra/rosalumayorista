@@ -42,13 +42,13 @@ Si una clienta tenía ese producto en el carrito, al abrirlo ve el precio nuevo 
 
 En **Productos**, usá el filtro **Productos de ejemplo**. Abrí cada uno y tocá **Borrar** (en el menú de arriba). Hay 9.
 
-## Cambiar el recargo por transferencia
+## Cambiar el recargo por Mercado Pago o transferencia
 
 1. Entrá a **Datos del negocio y textos**.
-2. En **Recargo por transferencia (%)** poné solo el número. Ej: `10`.
+2. En **Recargo por Mercado Pago o transferencia ($)** poné el monto en pesos, sin puntos. Ej: `1500`.
 3. Tocá **Guardar**.
 
-El sitio muestra "Por transferencia, +10 %" en cada producto, en el carrito y en las preguntas frecuentes.
+Cada producto muestra, debajo del precio en efectivo, el precio final con Mercado Pago o transferencia (precio + recargo). El carrito y las preguntas frecuentes también usan este monto.
 
 ## Activar o cambiar la temporada
 

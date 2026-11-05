@@ -15,7 +15,7 @@ import {
   getCategoryLabels,
   type Product,
 } from '../../lib/products';
-import { getSettings, hasWhatsApp, surchargeLabel } from '../../lib/settings';
+import { getSettings, hasWhatsApp, surchargeAmount } from '../../lib/settings';
 import { formatPrice } from '../../lib/price';
 import { buildWhatsAppUrl } from '../../lib/whatsapp';
 
@@ -37,7 +37,7 @@ const { name, category, subcategory, cashPrice, photos, sizes, colors, available
   product.data;
 const settings = await getSettings();
 const CATEGORY_LABELS = await getCategoryLabels();
-const surcharge = surchargeLabel(settings);
+const surcharge = surchargeAmount(settings);
 const related = all
   .filter((p) => p.id !== product.id && p.data.category === category && p.data.available)
   .slice(0, 4);
@@ -114,13 +114,19 @@ const productLd = {
           )}
         </div>
         <p class="price-note">
-          Precio en efectivo.{' '}
-          {surcharge ? (
-            `Por transferencia, +${surcharge}.`
-          ) : (
-            <PendingValue label="recargo por transferencia" />
-          )}
+          Precio en efectivo.
         </p>
+        {available && (
+          <p class="price-alt">
+            {surcharge !== null ? (
+              <>
+                Con Mercado Pago o transferencia: <strong>{formatPrice(cashPrice + surcharge)}</strong>
+              </>
+            ) : (
+              <PendingValue label="recargo por Mercado Pago o transferencia" />
+            )}
+          </p>
+        )}
 
         {description && <p class="description measure">{description}</p>}
 
@@ -308,6 +314,14 @@ const productLd = {
     color: var(--color-muted);
   }
 
+  .price-alt {
+    margin: 0.25rem 0 0;
+  }
+
+  .price-alt strong {
+    font-variant-numeric: tabular-nums;
+  }
+
   .description {
     margin: 1.25rem 0 0;
   }
@@ -359,7 +373,7 @@ const productLd = {
     min-height: 2.75rem;
     padding: 0 0.85rem;
     justify-content: center;
-    border: 2px solid var(--color-charcoal);
+    border: 1px solid var(--color-charcoal);
     border-radius: var(--radius-field);
     font-weight: 600;
     cursor: pointer;
@@ -392,7 +406,7 @@ const productLd = {
 
   .stepper {
     display: inline-flex;
-    border: 2px solid var(--color-charcoal);
+    border: 1px solid var(--color-charcoal);
     border-radius: var(--radius-field);
   }
 
@@ -414,7 +428,7 @@ const productLd = {
   .stepper input {
     width: 3.5rem;
     border: 0;
-    border-inline: 2px solid var(--color-charcoal);
+    border-inline: 1px solid var(--color-charcoal);
     font: inherit;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -477,7 +491,7 @@ const productLd = {
   .sold-out-box {
     margin-top: 1.75rem;
     padding: 1rem;
-    border: 2px solid var(--color-charcoal);
+    border: 1px solid var(--color-charcoal);
   }
 
   .sold-out-box p {

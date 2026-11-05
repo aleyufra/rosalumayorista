@@ -33,7 +33,7 @@ Rosalu is a wholesale store (clothing, toys, housewares) with a physical shop on
 ## Capabilities and Constraints
 
 - Minimum purchase: 3 units, mixable across categories. Units of the same product count.
-- Special price paying cash; bank transfer carries a fixed surcharge percentage, only announced, never computed per product.
+- Special price paying cash; Mercado Pago or bank transfer adds a fixed ARS amount per unit (editable in the CMS); each product shows that final price below the cash price.
 - Garantía Rosalu 24 hs: exchange (not refund) within 24 hours for a faulty item or a different size/colour, with receipt, unused and with tag.
 - No shipping, no online payment, no customer accounts, no per-variant stock (only available / sold out per product), no blog, single language.
 - All prices published; never "info al privado" or "consultar precio".

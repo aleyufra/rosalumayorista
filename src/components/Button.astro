@@ -45,7 +45,7 @@ const classes = ['btn', `btn-${variant}`, { 'btn-full': full }, className];
     gap: 0.5rem;
     min-height: 3rem;
     padding: 0.75rem 1.25rem;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: var(--radius-button);
     font: inherit;
     font-weight: 700;
@@ -67,7 +67,7 @@ const classes = ['btn', `btn-${variant}`, { 'btn-full': full }, className];
   /* Disabled reads as "still pending", the same dashed language as PendingValue. */
   .btn:disabled,
   .btn:disabled:hover {
-    border: 2px dashed var(--color-muted);
+    border: 1px dashed var(--color-muted);
     background: var(--color-paper);
     color: var(--color-muted);
     cursor: not-allowed;

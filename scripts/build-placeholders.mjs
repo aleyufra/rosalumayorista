@@ -126,14 +126,6 @@ const SAMPLES = [
     cashPrice: 6500,
     photos: 1,
   },
-  {
-    slug: 'ejemplo-organizador-de-cocina',
-    name: 'Organizador de cocina',
-    category: 'bazar',
-    cashPrice: 5000,
-    featured: true,
-    photos: 1,
-  },
 ];
 
 function frontmatter(p) {

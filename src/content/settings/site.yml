@@ -51,7 +51,7 @@ social:
   tiktok: https://www.tiktok.com/@rosalu_mayorista
 acceptsMercadoPago: pending
 minUnits: 3
-transferSurchargePercent: 3
+paymentSurcharge: 1500
 contactPerson:
   name: 'TODO: nombre de quien atiende'
   role: 'TODO: rol (por ejemplo, encargada)'
@@ -76,16 +76,16 @@ profitExample:
 faq:
   - question: ¿Cuál es el mínimo?
     answer: 3 productos en total. Pueden ser iguales o distintos, y las unidades del mismo producto también cuentan.
-  - question: ¿Se puede surtido?
+  - question: ¿Se puede comprar surtido?
     answer: Sí. Podés mezclar ropa, juguetería y bazar en el mismo pedido para llegar al mínimo.
   - question: ¿Hacen envíos?
-    answer: No hacemos envíos. Armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
+    answer: Por el momento no, armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
   - question: ¿Aceptan transferencia?
-    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia hay un recargo de $1.500.
+    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia hay un recargo de {recargo} por producto.
   - question: ¿Cómo son los cambios?
     answer: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas con el ticket, sin uso y con la etiqueta, y te lo cambiamos. Es un cambio, no devolvemos dinero.
   - question: ¿Aceptan Mercado Pago?
-    answer: Aceptamos transferencias bancarias pero con un recargo de $1.500
+    answer: Aceptamos transferencias bancarias pero con un recargo de {recargo} por producto.
 copy:
   heroSubtitle: Ropa, juguetería y bazar. Visitá y armá tu pedido como quieras y retiralo en nuestro local de Jujuy.
   trust:

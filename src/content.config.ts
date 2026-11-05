@@ -87,7 +87,8 @@ const settings = defineCollection({
       social: z.object({ instagram: pendable, facebook: pendable, tiktok: pendable }),
       acceptsMercadoPago: z.enum(['yes', 'no', 'pending']),
       minUnits: z.number().int().min(1).default(3),
-      transferSurchargePercent: z.number().min(0).max(100).optional(),
+      // Fixed ARS amount added per unit when paying by Mercado Pago or transfer.
+      paymentSurcharge: z.number().int().min(0).optional(),
       contactPerson: z.object({ name: pendable, role: pendable, photo: image().optional() }),
       photos: z.object({
         storefront: image().optional(),

@@ -257,14 +257,13 @@ singletons:
         value_type: int
         min: 1
         default: 3
-      - name: transferSurchargePercent
-        label: Recargo por transferencia (%)
+      - name: paymentSurcharge
+        label: Recargo por Mercado Pago o transferencia ($)
         widget: number
-        value_type: float
+        value_type: int
         min: 0
-        max: 100
         required: false
-        hint: 'Solo el número. Ej: 10. Si lo dejás vacío, el sitio muestra "Falta cargar".'
+        hint: 'Monto en pesos que se suma a cada producto. Solo el número, sin puntos. Ej: 1500. Si lo dejás vacío, el sitio muestra "Falta cargar".'
       - name: contactPerson
         label: Quien atiende (aparece en la página principal)
         widget: object

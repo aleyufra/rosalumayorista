@@ -10,10 +10,15 @@ export async function getSettings(): Promise<Settings> {
   return entry.data;
 }
 
-/** "+10 %" or null while the owner has not set the surcharge. */
+/** Fixed amount added per unit when paying by Mercado Pago or transfer; null while unset. */
+export function surchargeAmount(settings: Settings): number | null {
+  return settings.paymentSurcharge ?? null;
+}
+
+/** "$ 1.500" or null while the owner has not set the surcharge. */
 export function surchargeLabel(settings: Settings): string | null {
-  const p = settings.transferSurchargePercent;
-  return p === undefined ? null : `${p.toLocaleString('es-AR')} %`;
+  const amount = surchargeAmount(settings);
+  return amount === null ? null : formatPrice(amount);
 }
 
 export function hasWhatsApp(settings: Settings): boolean {
@@ -29,7 +34,7 @@ export function addressLine(settings: Settings): string {
 export function copyTokens(settings: Settings): Record<string, string> {
   return {
     minimo: String(settings.minUnits),
-    recargo: surchargeLabel(settings) ?? 'un porcentaje que todavía falta cargar',
+    recargo: surchargeLabel(settings) ?? 'un monto que todavía falta cargar',
   };
 }
 
