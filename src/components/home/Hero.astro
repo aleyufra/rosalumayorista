@@ -4,10 +4,9 @@ import MarketTag from '../MarketTag.astro';
 import Button from '../Button.astro';
 import PendingValue from '../PendingValue.astro';
 import { formatPrice } from '../../lib/price';
-import { addressLine, hasWhatsApp, type Settings } from '../../lib/settings';
+import { addressLine, type Settings } from '../../lib/settings';
 import { summarizeHours } from '../../lib/opening-hours';
 import { isPending } from '../../lib/text';
-import { buildWhatsAppUrl } from '../../lib/whatsapp';
 import { productUrl, type Product } from '../../lib/products';
 
 interface Props {
@@ -16,9 +15,6 @@ interface Props {
 }
 
 const { settings, sampleMix } = Astro.props;
-const whatsappUrl = hasWhatsApp(settings)
-  ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quiero hacer una consulta.')
-  : undefined;
 const mixTotal = sampleMix.reduce((sum, p) => sum + p.data.cashPrice, 0);
 const showMix = sampleMix.length > 0;
 ---
@@ -33,9 +29,10 @@ const showMix = sampleMix.length > 0;
           mayorista
           <br />
           desde
+          <br />
+          unidades
         </span>
         <span class="num">3</span>
-        <span class="sr-only">productos</span>
       </MarketTag>
 
       <p class="subtitle">{settings.copy.heroSubtitle}</p>
@@ -44,15 +41,9 @@ const showMix = sampleMix.length > 0;
         <Button href="/catalogo" full>
           Ver catálogo
         </Button>
-        {whatsappUrl ? (
-          <Button href={whatsappUrl} variant="outline-light" full target="_blank" rel="noopener">
-            Consultar por WhatsApp
-          </Button>
-        ) : (
-          <Button variant="outline-light" full disabled>
-            WhatsApp: falta cargar el número
-          </Button>
-        )}
+        <Button href="/#donde-estamos" variant="outline-light" full>
+          Dónde estamos
+        </Button>
       </div>
 
       <p class="today">

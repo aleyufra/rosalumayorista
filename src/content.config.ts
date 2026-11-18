@@ -1,13 +1,58 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { glob, type Loader } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const IMAGE_FILE = /\.(webp|png|jpe?g|avif|gif|svg)$/i;
+
+/** Removes image references whose file no longer exists, so one renamed photo does not break the site. */
+function dropMissingImages(value: unknown, baseDir: string, where: string): unknown {
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => dropMissingImages(v, baseDir, where))
+      .filter((v) => v !== undefined);
+  }
+  if (value && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([k, v]) => [k, dropMissingImages(v, baseDir, where)] as const)
+        .filter(([, v]) => v !== undefined),
+    );
+  }
+  if (typeof value === 'string' && IMAGE_FILE.test(value) && !existsSync(resolve(baseDir, value))) {
+    console.warn(`[rosalu] Falta la imagen "${value}" en ${where}; se muestra sin foto.`);
+    return undefined;
+  }
+  return value;
+}
+
+/** Wraps a loader so entries are parsed with their missing images dropped. */
+function tolerantImages(loader: Loader): Loader {
+  return {
+    ...loader,
+    load: (context) =>
+      loader.load({
+        ...context,
+        parseData: (props) => {
+          const filePath = props.filePath ?? '';
+          const absolute = resolve(fileURLToPath(context.config.root), filePath);
+          return context.parseData({
+            ...props,
+            data: dropMissingImages(props.data, dirname(absolute), filePath) as typeof props.data,
+          });
+        },
+      }),
+  };
+}
 
 /**
  * Categories are editable in the CMS. The file name is the slug, which stays in Spanish
  * because it appears in visitor-facing URLs (?rubro=ropa).
  */
 const categories = defineCollection({
-  loader: glob({ base: './src/content/categories', pattern: '*.yml' }),
+  loader: tolerantImages(glob({ base: './src/content/categories', pattern: '*.yml' })),
   schema: ({ image }) =>
     z.object({
       name: z.string().min(2).max(30),
@@ -17,18 +62,20 @@ const categories = defineCollection({
 });
 
 const products = defineCollection({
-  loader: glob({
-    base: './src/content/products',
-    pattern: '*/index.md',
-    generateId: ({ entry }) => entry.split('/')[0] ?? entry,
-  }),
+  loader: tolerantImages(
+    glob({
+      base: './src/content/products',
+      pattern: '*/index.md',
+      generateId: ({ entry }) => entry.split('/')[0] ?? entry,
+    }),
+  ),
   schema: ({ image }) =>
     z.object({
       name: z.string().min(3).max(80),
       category: z.string().min(1), // category slug, checked in lib/products.ts
       subcategory: z.string().max(40).optional(),
       cashPrice: z.number().int().positive(),
-      photos: z.array(image()).min(1).max(6),
+      photos: z.array(image()).max(6), // the panel requires 1+; empty only if a file went missing
       sizes: z.array(z.string().min(1)).default([]),
       colors: z
         .array(
@@ -42,6 +89,8 @@ const products = defineCollection({
         )
         .default([]),
       available: z.boolean().default(true),
+      // Can be paid online with Mercado Pago; off = only at the store or by WhatsApp.
+      onlinePayment: z.boolean().default(true),
       featured: z.boolean().default(false),
       description: z.string().max(300).optional(),
       isSample: z.boolean().default(false),
@@ -63,7 +112,7 @@ const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const pendable = z.string().default('');
 
 const settings = defineCollection({
-  loader: glob({ base: './src/content/settings', pattern: 'site.yml' }),
+  loader: tolerantImages(glob({ base: './src/content/settings', pattern: 'site.yml' })),
   schema: ({ image }) =>
     z.object({
       businessName: z.string(),
@@ -85,10 +134,13 @@ const settings = defineCollection({
         .length(7),
       whatsapp: z.union([z.string().regex(/^549\d{10}$/), z.string().startsWith('TODO')]),
       social: z.object({ instagram: pendable, facebook: pendable, tiktok: pendable }),
+      // 'yes' shows the "Pagar con Mercado Pago" button in the cart.
       acceptsMercadoPago: z.enum(['yes', 'no', 'pending']),
       minUnits: z.number().int().min(1).default(3),
-      // Fixed ARS amount added per unit when paying by Mercado Pago or transfer.
+      // Fixed ARS amount added once per purchase when paying by Mercado Pago or transfer.
       paymentSurcharge: z.number().int().min(0).optional(),
+      // Minimum of products (without the surcharge) to reserve with Mercado Pago.
+      mpMinAmount: z.number().int().min(0).default(35000),
       contactPerson: z.object({ name: pendable, role: pendable, photo: image().optional() }),
       photos: z.object({
         storefront: image().optional(),

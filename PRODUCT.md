@@ -35,7 +35,7 @@ Rosalu is a wholesale store (clothing, toys, housewares) with a physical shop on
 - Minimum purchase: 3 units, mixable across categories. Units of the same product count.
 - Special price paying cash; Mercado Pago or bank transfer adds a fixed ARS amount per unit (editable in the CMS); each product shows that final price below the cash price.
 - Garantía Rosalu 24 hs: exchange (not refund) within 24 hours for a faulty item or a different size/colour, with receipt, unused and with tag.
-- No shipping, no online payment, no customer accounts, no per-variant stock (only available / sold out per product), no blog, single language.
+- No shipping: pickup at the store only. Mercado Pago is only to reserve an order (minimum of online products set in the panel, `mpMinAmount`, plus the surcharge); the rest is paid at the store. No customer accounts, no per-variant stock (only available / sold out per product), no blog, single language.
 - All prices published; never "info al privado" or "consultar precio".
 - Same treatment for whoever buys 3 or 30.
 - Code identifiers (folders, files, components, classes, tokens, variables, collections, field names) are in English; every visitor- or editor-facing text is in Spanish. Routes and URL parameters stay in Spanish because visitors see and share them.

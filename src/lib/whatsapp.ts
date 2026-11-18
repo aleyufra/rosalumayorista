@@ -1,5 +1,6 @@
 import type { CartLine } from './cart';
 import { activeLines, getTotals } from './cart';
+import type { PaymentSummary } from './checkout';
 import { formatPricePlain } from './price';
 
 const MAX_NAME_LENGTH = 60;
@@ -31,6 +32,31 @@ export function buildOrderMessage(lines: CartLine[], customerName = ''): string 
     `Total estimado en efectivo: ${formatPricePlain(total)}`,
     '',
     'Lo retiro en el local. ¿Me confirman disponibilidad?',
+  ].join('\n');
+}
+
+/**
+ * Sent by the customer after reserving with Mercado Pago, together with the receipt.
+ */
+export function buildPaidOrderMessage(summary: PaymentSummary): string {
+  const name = summary.name.trim().replace(/\s+/g, ' ').slice(0, MAX_NAME_LENGTH);
+  const greeting = name
+    ? `¡Hola Rosalu! Soy ${name}. Reservé con Mercado Pago este pedido:`
+    : '¡Hola Rosalu! Reservé con Mercado Pago este pedido:';
+  const items = summary.items.map((i) => {
+    const each = i.quantity > 1 ? ' c/u' : '';
+    return `- ${i.quantity} x ${i.title}: ${formatPricePlain(i.unitPrice)}${each}`;
+  });
+  return [
+    greeting,
+    '',
+    ...items,
+    '',
+    `Pedido: ${summary.orderCode}`,
+    `Operación de Mercado Pago: ${summary.id}`,
+    `Total pagado: ${formatPricePlain(summary.total)}`,
+    '',
+    'Te mando el comprobante. Lo retiro en el local.',
   ].join('\n');
 }
 

@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { getSettings, hasWhatsApp } from '../../lib/settings';
+
+const settings = await getSettings();
+---
+
+<BaseLayout
+  title="Pago con Mercado Pago"
+  description="Resultado del pago con Mercado Pago en Rosalu."
+  noindex
+>
+  <div
+    class="wrap page"
+    data-payment-result
+    data-whatsapp={hasWhatsApp(settings) ? settings.whatsapp : ''}
+  >
+    <div data-state="loading">
+      <h1 class="voice-title text-h1">Revisando tu pago…</h1>
+      <p>Esto tarda unos segundos.</p>
+    </div>
+
+    <div data-state="ok" hidden>
+      <h1 class="voice-title text-h1">¡Reserva confirmada!</h1>
+      <p class="lead">
+        Ahora mandanos el comprobante por WhatsApp para que te guardemos el pedido.
+      </p>
+      <dl class="facts">
+        <div>
+          <dt>Pedido</dt>
+          <dd data-order-code></dd>
+        </div>
+        <div>
+          <dt>Operación de Mercado Pago</dt>
+          <dd data-payment-id></dd>
+        </div>
+      </dl>
+      <ul class="items" data-items></ul>
+      <p class="total-row">
+        <span>Total pagado</span>
+        <span class="total voice-tag" data-total></span>
+      </p>
+    </div>
+
+    <div data-state="unverified" hidden>
+      <h1 class="voice-title text-h1">No pudimos confirmar el pago desde acá</h1>
+      <p class="lead">
+        Si Mercado Pago te mostró el pago aprobado, mandanos el comprobante por WhatsApp y lo
+        revisamos.
+      </p>
+    </div>
+
+    <div class="actions" data-actions hidden>
+      {hasWhatsApp(settings) ? (
+        <Button href="#" data-receipt target="_blank" rel="noopener">
+          <Icon name="whatsapp" />
+          Enviar comprobante por WhatsApp
+        </Button>
+      ) : (
+        <Button disabled>WhatsApp: falta cargar el número</Button>
+      )}
+      <p class="pickup">Adjuntá la captura del comprobante. Lo retirás en el local.</p>
+      <Button href="/catalogo" variant="text">
+        Volver al catálogo
+      </Button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import '../../scripts/payment-result';
+</script>
+
+<style>
+  .page {
+    min-height: 70svh;
+    max-width: 44rem;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-section);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    font-weight: 500;
+  }
+
+  .facts {
+    margin: 0 0 1.25rem;
+  }
+
+  .facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.4rem;
+  }
+
+  .facts dt {
+    font-weight: 600;
+  }
+
+  .facts dd {
+    margin: 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .items :global(li) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.6rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .total-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0 0 1.5rem;
+    padding-top: 0.85rem;
+    border-top: 2px solid var(--color-charcoal);
+    font-weight: 600;
+  }
+
+  .total {
+    font-size: var(--text-tag-md);
+    line-height: 1;
+  }
+
+  .actions {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+  }
+
+  .pickup {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+</style>

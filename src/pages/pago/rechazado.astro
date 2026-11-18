@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+---
+
+<BaseLayout
+  title="No se pudo hacer la reserva"
+  description="El pago con Mercado Pago no se aprobó."
+  noindex
+>
+  <div class="wrap page">
+    <h1 class="voice-title text-h1">No se pudo hacer el pago</h1>
+    <p class="lead">
+      Mercado Pago no aprobó el pago y no se te cobró nada. Tu pedido sigue en el carrito: podés
+      probar con otra tarjeta o mandarlo por WhatsApp.
+    </p>
+    <Button href="/carrito">Volver al carrito</Button>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    min-height: 70svh;
+    max-width: 44rem;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-section);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    font-weight: 500;
+  }
+</style>

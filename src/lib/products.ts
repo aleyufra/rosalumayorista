@@ -53,5 +53,6 @@ export async function toCatalogProduct(product: Product): Promise<CatalogProduct
     sizes: product.data.sizes,
     colors: product.data.colors.map((c) => c.name),
     photo: await thumbnailUrl(product),
+    onlinePayment: product.data.onlinePayment,
   };
 }

@@ -9,6 +9,8 @@ export interface CartLine {
   quantity: number;
   photo: string;
   excluded?: ExclusionReason | undefined;
+  /** false when the product can't be paid online; set by revalidate(). */
+  onlinePayment?: boolean | undefined;
 }
 
 /** What the build publishes in /products.json for each product. */
@@ -20,6 +22,7 @@ export interface CatalogProduct {
   sizes: string[];
   colors: string[];
   photo: string;
+  onlinePayment: boolean;
 }
 
 export type CartNotice =
@@ -59,6 +62,11 @@ export function activeLines(lines: CartLine[]): CartLine[] {
   return lines.filter((l) => !l.excluded);
 }
 
+/** Lines Mercado Pago can charge: in the order and not marked as store-only. */
+export function payableLines(lines: CartLine[]): CartLine[] {
+  return activeLines(lines).filter((l) => l.onlinePayment !== false);
+}
+
 export function getTotals(lines: CartLine[]): { units: number; total: number } {
   return activeLines(lines).reduce(
     (acc, l) => ({ units: acc.units + l.quantity, total: acc.total + l.quantity * l.cashPrice }),
@@ -91,6 +99,7 @@ export function revalidate(
       ...line,
       name: product.name,
       photo: product.photo,
+      onlinePayment: product.onlinePayment,
       excluded: undefined,
     };
     if (!product.available) {
@@ -129,7 +138,8 @@ function isCartLine(value: unknown): value is CartLine {
     v.quantity >= 1 &&
     typeof v.photo === 'string' &&
     (v.size === undefined || typeof v.size === 'string') &&
-    (v.color === undefined || typeof v.color === 'string')
+    (v.color === undefined || typeof v.color === 'string') &&
+    (v.onlinePayment === undefined || typeof v.onlinePayment === 'boolean')
   );
 }
 

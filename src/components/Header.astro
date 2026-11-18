@@ -48,7 +48,7 @@ const path = Astro.url.pathname;
       {socials.map((s) => (
         <a
           href={s.href}
-          class="social-link"
+          class="social-link desktop-only"
           target="_blank"
           rel="noopener"
           aria-label={`Rosalu en ${s.label}`}
@@ -56,10 +56,15 @@ const path = Astro.url.pathname;
           <Icon name={s.name} size={22} />
         </a>
       ))}
-      <a href="/carrito" class="cart-link" data-cart-link aria-label="Carrito">
-        <Icon name="bag" size={26} />
-        <span class="cart-count" data-cart-count hidden>
-          0
+      <a href="/carrito" class="cart-link desktop-only" data-cart-link aria-label="Carrito">
+        <span class="cart-icon">
+          <Icon name="bag" size={26} />
+          <span class="cart-count" data-cart-count hidden>
+            0
+          </span>
+        </span>
+        <span class="cart-label" aria-hidden="true">
+          Carrito
         </span>
       </a>
       <button
@@ -86,23 +91,45 @@ const path = Astro.url.pathname;
         </li>
       ))}
       <li>
-        <a href="/carrito">Ver carrito</a>
+        <a href="/carrito" class="menu-cart">
+          <Icon name="bag" size={22} />
+          Carrito
+          <span class="menu-cart-count" data-menu-cart-count hidden></span>
+        </a>
       </li>
+      {socials.length > 0 && (
+        <li class="menu-socials">
+          {socials.map((s) => (
+            <a href={s.href} target="_blank" rel="noopener" aria-label={`Rosalu en ${s.label}`}>
+              <Icon name={s.name} size={22} />
+              {s.label}
+            </a>
+          ))}
+        </li>
+      )}
     </ul>
   </nav>
 </header>
+
+<!-- Outside the header: its view-transition-name makes it a backdrop root, which would limit the blur to its own content. -->
+<div class="menu-backdrop" data-backdrop hidden></div>
 
 <script>
   import { $cartTotals } from '../stores/cart';
 
   const link = document.querySelector<HTMLAnchorElement>('[data-cart-link]');
   const badge = document.querySelector<HTMLElement>('[data-cart-count]');
+  const menuCount = document.querySelector<HTMLElement>('[data-menu-cart-count]');
   let previous: number | null = null;
 
   $cartTotals.subscribe(({ units }) => {
     if (!link || !badge) return;
     badge.textContent = String(units);
     badge.hidden = units === 0;
+    if (menuCount) {
+      menuCount.textContent = `(${units})`;
+      menuCount.hidden = units === 0;
+    }
     link.setAttribute(
       'aria-label',
       units === 0 ? 'Carrito vacío' : `Carrito, ${units} ${units === 1 ? 'producto' : 'productos'}`,
@@ -118,15 +145,18 @@ const path = Astro.url.pathname;
   const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   const label = document.querySelector<HTMLElement>('[data-menu-label]');
+  const backdrop = document.querySelector<HTMLElement>('[data-backdrop]');
 
   function setMenu(open: boolean) {
     if (!toggle || !menu || !label) return;
     toggle.setAttribute('aria-expanded', String(open));
     menu.hidden = !open;
+    if (backdrop) backdrop.hidden = !open;
     label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
   }
 
   toggle?.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+  backdrop?.addEventListener('click', () => setMenu(false));
   menu?.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).closest('a')) setMenu(false);
   });
@@ -207,8 +237,23 @@ const path = Astro.url.pathname;
     color: var(--color-magenta);
   }
 
+  .cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding-inline: 0.4rem;
+    color: var(--color-white);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cart-icon {
+    position: relative;
+    display: inline-flex;
+  }
+
   .social-link,
-  .cart-link,
   .menu-toggle {
     position: relative;
     display: inline-grid;
@@ -223,8 +268,8 @@ const path = Astro.url.pathname;
 
   .cart-count {
     position: absolute;
-    top: 0.1rem;
-    right: -0.15rem;
+    top: -0.45rem;
+    right: -0.6rem;
     min-width: 1.35rem;
     height: 1.35rem;
     padding-inline: 0.3rem;
@@ -277,6 +322,37 @@ const path = Astro.url.pathname;
     font-size: 1.125rem;
   }
 
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgb(38 38 38 / 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .menu-cart {
+    gap: 0.6rem;
+  }
+
+  .menu-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .menu-socials a {
+    gap: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .nav-mobile:not([hidden]) {
       animation: menu-in 200ms var(--ease-settle);
@@ -303,7 +379,16 @@ const path = Astro.url.pathname;
       display: block;
     }
 
+    .social-link.desktop-only {
+      display: inline-grid !important;
+    }
+
+    .cart-link.desktop-only {
+      display: inline-flex !important;
+    }
+
     .menu-toggle,
+    .menu-backdrop,
     .nav-mobile {
       display: none !important;
     }

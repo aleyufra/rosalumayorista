@@ -8,6 +8,12 @@
 /products.json
   Cache-Control: no-cache
 
+/checkout.json
+  Cache-Control: no-cache
+
+/pago/*
+  X-Robots-Tag: noindex
+
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

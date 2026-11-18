@@ -24,6 +24,10 @@ Cuando tocás **Guardar**, el cambio se publica solo. Tarda **entre 1 y 3 minuto
    - **Mostrar en la página principal:** tildalo para que aparezca entre los destacados (se muestran hasta 8).
 3. Tocá **Guardar**.
 
+### No renombres fotos desde la biblioteca de medios
+
+Si cambiás el nombre de una foto en la biblioteca de medios del panel, los productos y rubros que la usan siguen buscando el nombre viejo y se quedan **sin foto**. Para cambiar una foto: abrí el producto, sacá la foto vieja con la X, subí o elegí la nueva y tocá **Guardar**. Si un producto se quedó sin foto, hacé eso mismo.
+
 ## Marcar un producto como agotado
 
 1. En **Productos**, buscalo (podés usar el buscador o el filtro por rubro).
@@ -48,7 +52,14 @@ En **Productos**, usá el filtro **Productos de ejemplo**. Abrí cada uno y toc�
 2. En **Recargo por Mercado Pago o transferencia ($)** poné el monto en pesos, sin puntos. Ej: `1500`.
 3. Tocá **Guardar**.
 
-Cada producto muestra, debajo del precio en efectivo, el precio final con Mercado Pago o transferencia (precio + recargo). El carrito y las preguntas frecuentes también usan este monto.
+El recargo se suma **una sola vez por compra**, sin importar cuántos productos lleve. Cada producto muestra, debajo del precio en efectivo, el precio con Mercado Pago o transferencia si se compra solo (precio + recargo). En el carrito se suma una vez al total. Las preguntas frecuentes también usan este monto.
+
+## Pago con Mercado Pago
+
+- **Activarlo:** en **Datos del negocio y textos**, poné **¿Aceptan Mercado Pago?** en **Sí**. Aparece el botón **Reservar con Mercado Pago** en el carrito, siempre que el recargo esté cargado. Es solo para reservar: la clienta paga todo online y retira en el local.
+- **Mínimo para reservar:** en **Datos del negocio y textos**, **Mínimo para reservar con Mercado Pago ($)**. Es la suma mínima de productos que se pagan online, sin el recargo. Ej: `35000` con un recargo de `2500` = la clienta paga `37500` como mínimo.
+- **Un producto que no se paga online:** abrilo en **Productos** y destildá **¿Se puede pagar online con Mercado Pago?**. En el carrito aparece un aviso en rojo y ese producto no se cobra (se compra en el local).
+- **Cuando llega un pago:** te avisa Mercado Pago y la clienta te manda el comprobante por WhatsApp con el código de pedido. Revisá en la app que la operación esté aprobada antes de entregar.
 
 ## Activar o cambiar la temporada
 
@@ -63,7 +74,7 @@ La temporada es el bloque de color de la página principal (Navidad y Reyes, Dí
 
 En **Datos del negocio y textos** también se cambian: la dirección, los horarios, el WhatsApp, las redes, quién atiende y su foto, la foto del local, los 3 productos que se ven junto al cartel principal, el ejemplo de ganancia, las preguntas frecuentes y los textos de la página principal.
 
-En las respuestas de las preguntas frecuentes podés escribir `{minimo}` y `{recargo}`: el sitio los reemplaza por el mínimo de compra y el recargo que tengas cargados.
+En las respuestas de las preguntas frecuentes podés escribir `{minimo}`, `{recargo}` y `{reserva}`: el sitio los reemplaza por el mínimo de compra, el recargo que tengas cargado y el mínimo para reservar con Mercado Pago.
 
 Mientras un dato diga "TODO", el sitio muestra un recuadro "Falta cargar". Reemplazalo por el dato real y guardá.
 

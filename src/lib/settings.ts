@@ -10,7 +10,7 @@ export async function getSettings(): Promise<Settings> {
   return entry.data;
 }
 
-/** Fixed amount added per unit when paying by Mercado Pago or transfer; null while unset. */
+/** Fixed amount added once per purchase when paying by Mercado Pago or transfer; null while unset. */
 export function surchargeAmount(settings: Settings): number | null {
   return settings.paymentSurcharge ?? null;
 }
@@ -19,6 +19,11 @@ export function surchargeAmount(settings: Settings): number | null {
 export function surchargeLabel(settings: Settings): string | null {
   const amount = surchargeAmount(settings);
   return amount === null ? null : formatPrice(amount);
+}
+
+/** Switched on in the panel and with the surcharge loaded: without it the amount charged would be wrong. */
+export function mercadoPagoEnabled(settings: Settings): boolean {
+  return settings.acceptsMercadoPago === 'yes' && surchargeAmount(settings) !== null;
 }
 
 export function hasWhatsApp(settings: Settings): boolean {
@@ -35,6 +40,7 @@ export function copyTokens(settings: Settings): Record<string, string> {
   return {
     minimo: String(settings.minUnits),
     recargo: surchargeLabel(settings) ?? 'un monto que todavía falta cargar',
+    reserva: formatPrice(settings.mpMinAmount),
   };
 }
 

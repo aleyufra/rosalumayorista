@@ -12,7 +12,7 @@ export default defineConfig({
   build: { format: 'file', inlineStylesheets: 'always' },
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/admin') && !page.endsWith('/carrito'),
+      filter: (page) => !page.includes('/admin') && !page.endsWith('/carrito') && !page.includes('/pago/'),
     }),
   ],
   vite: {

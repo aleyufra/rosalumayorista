@@ -28,7 +28,8 @@ const CATEGORY_LABELS = await getCategoryLabels();
           widths={[200, 300, 420, 600]}
           sizes="(min-width: 75rem) 18rem, (min-width: 64rem) 25vw, (min-width: 48rem) 33vw, 50vw"
           loading={eager ? 'eager' : 'lazy'}
-          style={`view-transition-name: product-${product.id}`}
+          style={`view-transition-name: product-${product.id};`}
+          class="lg:p-0"
         />
       )}
       {isSample && <span class="sample">Ejemplo</span>}
@@ -70,6 +71,7 @@ const CATEGORY_LABELS = await getCategoryLabels();
     aspect-ratio: var(--aspect-product);
     border: 1px solid var(--color-rule);
     background: var(--color-white);
+    border-radius: 6px;
   }
 
   /* Contain, not cover: vertical or wide photos show whole, never cropped. */

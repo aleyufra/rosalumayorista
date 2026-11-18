@@ -3,10 +3,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
 import PendingValue from '../components/PendingValue.astro';
-import { getSettings, hasWhatsApp, surchargeLabel } from '../lib/settings';
+import {
+  getSettings,
+  hasWhatsApp,
+  mercadoPagoEnabled,
+  surchargeAmount,
+  surchargeLabel,
+} from '../lib/settings';
 
 const settings = await getSettings();
 const surcharge = surchargeLabel(settings);
+const mpEnabled = mercadoPagoEnabled(settings);
 ---
 
 <BaseLayout
@@ -19,6 +26,9 @@ const surcharge = surchargeLabel(settings);
     data-cart-page
     data-min-units={settings.minUnits}
     data-whatsapp={hasWhatsApp(settings) ? settings.whatsapp : ''}
+    data-mp-enabled={mpEnabled ? '1' : ''}
+    data-surcharge={surchargeAmount(settings) ?? 0}
+    data-mp-min={settings.mpMinAmount}
   >
     <h1 class="voice-title text-h1">Tu pedido</h1>
 
@@ -53,6 +63,12 @@ const surcharge = surchargeLabel(settings);
             <dt>Unidades</dt>
             <dd data-units>0</dd>
           </div>
+          {mpEnabled && (
+            <div data-online-row hidden>
+              <dt>Solo productos que se pagan online</dt>
+              <dd data-online-total>$ 0</dd>
+            </div>
+          )}
           <div class="total-row">
             <dt>Total estimado en efectivo</dt>
             <dd>
@@ -64,7 +80,7 @@ const surcharge = surchargeLabel(settings);
         </dl>
         <p class="surcharge">
           {surcharge ? (
-            `Con Mercado Pago o transferencia, +${surcharge} por producto.`
+            `Con Mercado Pago o transferencia, +${surcharge} por compra.`
           ) : (
             <PendingValue label="recargo por Mercado Pago o transferencia" />
           )}
@@ -95,6 +111,59 @@ const surcharge = surchargeLabel(settings);
           </div>
           <p class="pickup">Lo retirás en el local. Te confirmamos disponibilidad por WhatsApp.</p>
         </form>
+
+        {mpEnabled && (
+          <form class="mp" data-mp-form novalidate>
+            <h2 class="voice-title text-h4">O reservá ahora con Mercado Pago</h2>
+            <p class="mp-note notice" data-mp-note hidden></p>
+            <dl class="totals mp-totals">
+              <div>
+                <dt>Productos</dt>
+                <dd data-mp-subtotal>$ 0</dd>
+              </div>
+              <div>
+                <dt>Recargo por compra</dt>
+                <dd data-mp-surcharge>$ 0</dd>
+              </div>
+              <div class="total-row">
+                <dt>Total con Mercado Pago</dt>
+                <dd>
+                  <span class="total voice-tag" data-mp-total>
+                    $ 0
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <label for="mp-name">Tu nombre</label>
+            <input
+              id="mp-name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              maxlength="60"
+              required
+            />
+            <label for="mp-phone">Tu teléfono</label>
+            <input
+              id="mp-phone"
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              inputmode="tel"
+              placeholder="388 1234567"
+              maxlength="20"
+              required
+            />
+            <p class="mp-error" role="alert" data-mp-error></p>
+            <Button type="submit" variant="outline-dark" full data-mp-submit>
+              Reservar con Mercado Pago
+            </Button>
+            <p class="pickup">
+              Tarjeta o dinero en Mercado Pago, en 1 pago. Después nos mandás el comprobante por
+              WhatsApp y retirás en el local con tu reserva.
+            </p>
+          </form>
+        )}
       </aside>
     </div>
   </div>
@@ -107,6 +176,7 @@ const surcharge = surchargeLabel(settings);
         <p class="line-variant" data-variant></p>
         <p class="line-price" data-price></p>
         <p class="line-excluded" data-excluded></p>
+        <p class="line-online" data-online></p>
       </div>
       <div class="line-actions">
         <div class="stepper" data-stepper>
@@ -237,7 +307,14 @@ const surcharge = surchargeLabel(settings);
     font-size: var(--text-small);
   }
 
-  :global(.line-excluded:empty) {
+  :global(.line-online) {
+    color: var(--color-magenta-dark);
+    font-weight: 700;
+    font-size: var(--text-small);
+  }
+
+  :global(.line-excluded:empty),
+  :global(.line-online:empty) {
     display: none;
   }
 
@@ -366,6 +443,46 @@ const surcharge = surchargeLabel(settings);
     border: 2px solid var(--color-charcoal);
     border-radius: var(--radius-field);
     font: inherit;
+  }
+
+  .mp {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--color-charcoal);
+  }
+
+  .mp h2 {
+    margin: 0 0 0.75rem;
+  }
+
+  .mp label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+  }
+
+  .mp input {
+    width: 100%;
+    min-height: 3rem;
+    margin-bottom: 1rem;
+    padding: 0.6rem 0.85rem;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-field);
+    font: inherit;
+  }
+
+  .mp-totals {
+    margin-bottom: 1rem;
+  }
+
+  .mp-error {
+    margin: 0 0 0.75rem;
+    color: var(--color-magenta-dark);
+    font-weight: 600;
+  }
+
+  .mp-error:empty {
+    display: none;
   }
 
   .pickup {

@@ -63,7 +63,8 @@ const productLd = {
   '@type': 'Product',
   name,
   description:
-    description ?? `${name}. ${CATEGORY_LABELS[category] ?? category} a precio mayorista en Rosalu, Jujuy.`,
+    description ??
+    `${name}. ${CATEGORY_LABELS[category] ?? category} a precio mayorista en Rosalu, Jujuy.`,
   image: new URL(shareImage, site).href,
   category: CATEGORY_LABELS[category] ?? category,
   brand: { '@type': 'Brand', name: 'Rosalu' },
@@ -113,14 +114,13 @@ const productLd = {
             </MarketTag>
           )}
         </div>
-        <p class="price-note">
-          Precio en efectivo.
-        </p>
+        <p class="price-note">Precio en efectivo.</p>
         {available && (
           <p class="price-alt">
             {surcharge !== null ? (
               <>
-                Con Mercado Pago o transferencia: <strong>{formatPrice(cashPrice + surcharge)}</strong>
+                Con Mercado Pago o transferencia:{' '}
+                <strong>{formatPrice(cashPrice + surcharge)}</strong>
               </>
             ) : (
               <PendingValue label="recargo por Mercado Pago o transferencia" />

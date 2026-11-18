@@ -49,9 +49,10 @@ social:
   instagram: https://www.instagram.com/rosalu__mayorista/
   facebook: https://www.facebook.com/profile.php?id=100063624184269
   tiktok: https://www.tiktok.com/@rosalu_mayorista
-acceptsMercadoPago: pending
+acceptsMercadoPago: 'yes'
 minUnits: 3
 paymentSurcharge: 1500
+mpMinAmount: 35000
 contactPerson:
   name: 'TODO: nombre de quien atiende'
   role: 'TODO: rol (por ejemplo, encargada)'
@@ -79,24 +80,24 @@ faq:
   - question: ¿Se puede comprar surtido?
     answer: Sí. Podés mezclar ropa, juguetería y bazar en el mismo pedido para llegar al mínimo.
   - question: ¿Hacen envíos?
-    answer: Por el momento no, armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
+    answer: Por ahora no. Armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
   - question: ¿Aceptan transferencia?
-    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia hay un recargo de {recargo} por producto.
+    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia o Mercado Pago hay un recargo de {recargo} por compra.
   - question: ¿Cómo son los cambios?
     answer: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas con el ticket, sin uso y con la etiqueta, y te lo cambiamos. Es un cambio, no devolvemos dinero.
   - question: ¿Aceptan Mercado Pago?
-    answer: Aceptamos transferencias bancarias pero con un recargo de {recargo} por producto.
+    answer: Sí, para reservar tu pedido. Desde el carrito pagás con Mercado Pago (tarjeta o dinero en cuenta, en 1 pago) y lo retirás en el local. Se habilita desde {reserva} en productos, más un recargo de {recargo} por compra. Después nos mandás el comprobante por WhatsApp.
 copy:
-  heroSubtitle: Ropa, juguetería y bazar. Visitá y armá tu pedido como quieras y retiralo en nuestro local de Jujuy.
+  heroSubtitle: Ropa, Juguetería, Bazar, encontrá todo lo que buscás y armá tu pedido.
   trust:
     - title: Local en el centro
       text: Venís, lo ves y te lo llevás. Estamos en calle Gorriti.
     - title: Cambio en 24 horas
       text: Si vino fallado o necesitás otro talle o color, te lo cambiamos.
     - title: Precio especial en efectivo
-      text: El precio publicado es el que pagás en efectivo. Sin sorpresas.
+      text: El precio publicado es el que pagás en efectivo.
     - title: El mismo trato
-      text: Compres 3 o compres 30, te atendemos igual.
+      text: Compres 3 unidades o compres 30, te atendemos igual.
   howToBuy:
     - title: Mirás el catálogo y armás tu pedido
       text: Todos los productos tienen el precio publicado. Elegí talle, color y cantidad.
@@ -110,4 +111,4 @@ copy:
     - El producto tiene que estar sin uso y con la etiqueta.
     - Es un cambio, no una devolución de dinero.
   closingTitle: Vení a Rosalu y llevate lo que más te guste al mejor precio
-  closingText: Mirá el catálogo, mandanos tu pedido o pasá nomás por el local.
+  closingText: Mirá el catálogo, mandanos tu pedido o pasá por el local. Te esperamos!

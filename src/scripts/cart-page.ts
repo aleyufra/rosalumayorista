@@ -1,5 +1,6 @@
 import {
   lineKey,
+  payableLines,
   removeLine,
   revalidate,
   setQuantity,
@@ -10,6 +11,8 @@ import {
   type CatalogProduct,
 } from '../lib/cart';
 import { formatPrice } from '../lib/price';
+import { PENDING_PAYMENT_KEY, type PendingPayment } from '../lib/payment-session';
+import { mpMinimumMissing } from '../lib/checkout';
 import { buildOrderMessage, buildWhatsAppUrl } from '../lib/whatsapp';
 import { $cart } from '../stores/cart';
 
@@ -28,6 +31,22 @@ if (root) {
   const template = document.querySelector<HTMLTemplateElement>('#line-template');
   const confirm = document.querySelector<HTMLDialogElement>('[data-confirm]');
   const sendForm = root.querySelector<HTMLFormElement>('[data-send-form]');
+  const mpEnabled = root.dataset.mpEnabled === '1';
+  const onlineRow = root.querySelector<HTMLElement>('[data-online-row]');
+  const onlineTotal = root.querySelector<HTMLElement>('[data-online-total]');
+  const surcharge = Number(root.dataset.surcharge ?? '0');
+  const mpForm = root.querySelector<HTMLFormElement>('[data-mp-form]');
+  const mpNote = root.querySelector<HTMLElement>('[data-mp-note]');
+  const mpSubtotal = root.querySelector<HTMLElement>('[data-mp-subtotal]');
+  const mpSurcharge = root.querySelector<HTMLElement>('[data-mp-surcharge]');
+  const mpTotal = root.querySelector<HTMLElement>('[data-mp-total]');
+  const mpError = root.querySelector<HTMLElement>('[data-mp-error]');
+  const mpSubmit = root.querySelector<HTMLButtonElement>('[data-mp-submit]');
+  const mpMinAmount = Number(root.dataset.mpMin ?? '0');
+  let mpBusy = false;
+
+  const ONLINE_TEXT =
+    'Este producto no se puede pagar desde la página. Podés comprarlo en el local.';
 
   const EXCLUDED_TEXT: Record<NonNullable<CartLine['excluded']>, string> = {
     'sold-out': 'Agotado: queda fuera del pedido.',
@@ -92,6 +111,11 @@ if (root) {
     if (priceEl) priceEl.textContent = `${formatPrice(line.cashPrice)} c/u`;
     const excludedEl = node.querySelector<HTMLElement>('[data-excluded]');
     if (excludedEl) excludedEl.textContent = line.excluded ? EXCLUDED_TEXT[line.excluded] : '';
+    const onlineEl = node.querySelector<HTMLElement>('[data-online]');
+    if (onlineEl) {
+      onlineEl.textContent =
+        mpEnabled && !line.excluded && line.onlinePayment === false ? ONLINE_TEXT : '';
+    }
 
     const qty = node.querySelector<HTMLInputElement>('[data-qty]');
     if (qty) {
@@ -139,11 +163,45 @@ if (root) {
         missing === 1 ? 'falta 1' : `faltan ${missing}`
       } para llegar.`;
     }
+    renderMercadoPago(lines);
     if (focusKey) {
       linesEl
         ?.querySelector<HTMLElement>(`[data-key="${CSS.escape(focusKey)}"] [data-qty]`)
         ?.focus();
     }
+  }
+
+  function renderMercadoPago(lines: CartLine[]) {
+    if (!mpForm) return;
+    const payable = payableLines(lines);
+    const { units, total } = getTotals(payable);
+    const storeOnly = units < getTotals(lines).units;
+    if (onlineRow) onlineRow.hidden = !storeOnly;
+    if (onlineTotal) onlineTotal.textContent = formatPrice(total);
+    if (mpSubtotal) mpSubtotal.textContent = formatPrice(total);
+    if (mpSurcharge) mpSurcharge.textContent = formatPrice(surcharge);
+    if (mpTotal) mpTotal.textContent = formatPrice(total + surcharge);
+    const missing = unitsMissing(units, minUnits);
+    const notes: string[] = [];
+    if (storeOnly) notes.push('Solo se cobran los productos que se pueden pagar online.');
+    if (missing > 0) {
+      notes.push(
+        `Para reservar online necesitás ${minUnits} productos que se puedan pagar desde la página. Te ${
+          missing === 1 ? 'falta 1' : `faltan ${missing}`
+        }.`,
+      );
+    }
+    const amountMissing = mpMinimumMissing(total, mpMinAmount);
+    if (amountMissing > 0) {
+      notes.push(
+        `Para reservar necesitás ${formatPrice(mpMinAmount)} en productos que se pagan desde la página. Te faltan ${formatPrice(amountMissing)}.`,
+      );
+    }
+    if (mpNote) {
+      mpNote.textContent = notes.join(' ');
+      mpNote.hidden = notes.length === 0;
+    }
+    if (mpSubmit) mpSubmit.disabled = mpBusy || missing > 0 || amountMissing > 0;
   }
 
   function update(lines: CartLine[], focusKey?: string) {
@@ -193,5 +251,64 @@ if (root) {
     const name = sendForm.querySelector<HTMLInputElement>('input[name="name"]')?.value ?? '';
     const url = buildWhatsAppUrl(phone, buildOrderMessage($cart.get(), name));
     window.open(url, '_blank', 'noopener');
+  });
+
+  mpForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (mpBusy || !mpSubmit) return;
+    const name = mpForm.querySelector<HTMLInputElement>('input[name="name"]')?.value.trim() ?? '';
+    const phone = mpForm.querySelector<HTMLInputElement>('input[name="phone"]')?.value ?? '';
+    const showError = (text: string) => {
+      if (mpError) mpError.textContent = text;
+    };
+    if (name.length < 2) return showError('Escribí tu nombre.');
+    if (phone.replace(/\D/g, '').length < 8)
+      return showError('Escribí tu teléfono con característica.');
+    showError('');
+
+    const lines = payableLines($cart.get());
+    mpBusy = true;
+    mpSubmit.disabled = true;
+    const label = mpSubmit.textContent;
+    mpSubmit.textContent = 'Abriendo Mercado Pago…';
+    const restore = () => {
+      mpBusy = false;
+      mpSubmit.textContent = label;
+      renderMercadoPago($cart.get());
+    };
+    fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        phone,
+        lines: lines.map(({ slug, size, color, quantity }) => ({ slug, size, color, quantity })),
+      }),
+    })
+      .then(async (r) => {
+        const data = (await r.json().catch(() => ({}))) as {
+          initPoint?: string;
+          orderCode?: string;
+          error?: string;
+        };
+        if (!r.ok || !data.initPoint || !data.orderCode) {
+          throw new Error(data.error ?? 'No pudimos abrir Mercado Pago. Probá de nuevo.');
+        }
+        const pending: PendingPayment = { orderCode: data.orderCode, keys: lines.map(lineKey) };
+        try {
+          sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending));
+        } catch {
+          // Without storage the cart just isn't cleared after paying.
+        }
+        window.location.href = data.initPoint;
+      })
+      .catch((error: unknown) => {
+        showError(
+          error instanceof Error && error.message
+            ? error.message
+            : 'No pudimos abrir Mercado Pago. Probá de nuevo.',
+        );
+        restore();
+      });
   });
 }

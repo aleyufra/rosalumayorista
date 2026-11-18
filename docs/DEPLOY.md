@@ -31,7 +31,9 @@ git push -u origin main
    - Si el build falla por la versión de pnpm, agregá también `PNPM_VERSION` = `12.15.0`.
 5. Guardá y desplegá. El sitio queda en `https://rosalumayorista.almarweb.workers.dev`.
 
-`wrangler.jsonc` ya tiene lo necesario: sirve `dist/`, usa `404.html` para las rutas que no existen y respeta `public/_headers` (caché larga para `/_astro/*`, `noindex` para `/admin/`).
+Para el pago con Mercado Pago hay que cargar el secreto `MP_ACCESS_TOKEN` en el Worker: ver [MERCADOPAGO.md](MERCADOPAGO.md).
+
+`wrangler.jsonc` ya tiene lo necesario: sirve `dist/`, atiende `/api/*` con el Worker de Mercado Pago, usa `404.html` para las rutas que no existen y respeta `public/_headers` (caché larga para `/_astro/*`, `noindex` para `/admin/`).
 
 ### Deploy manual (para probar sin GitHub)
 

@@ -1,10 +1,15 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
+  "account_id": "a0adb78681c26bc2d71cc4c94506fa36",
   "name": "rosalumayorista",
   "compatibility_date": "2026-11-02",
   "workers_dev": true,
+  // Only /api/* runs the Worker (Mercado Pago); everything else is served as static assets.
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"],
   },
 }

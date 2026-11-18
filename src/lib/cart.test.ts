@@ -4,6 +4,7 @@ import {
   decodeCart,
   getTotals,
   lineKey,
+  payableLines,
   removeLine,
   revalidate,
   setQuantity,
@@ -38,6 +39,7 @@ const catalog: CatalogProduct[] = [
     sizes: ['S', 'M'],
     colors: ['Negro'],
     photo: '/r.webp',
+    onlinePayment: true,
   },
   {
     slug: 'te',
@@ -47,6 +49,7 @@ const catalog: CatalogProduct[] = [
     sizes: [],
     colors: [],
     photo: '/t.webp',
+    onlinePayment: true,
   },
 ];
 
@@ -131,4 +134,20 @@ describe('decodeCart', () => {
       expect(decodeCart(raw)).toEqual([]);
     },
   );
+});
+
+describe('payableLines', () => {
+  it('keeps active lines that can be paid online', () => {
+    const storeOnly: CartLine = { ...te, slug: 'mueble', onlinePayment: false };
+    const soldOut: CartLine = { ...te, slug: 'x', excluded: 'sold-out' };
+    expect(payableLines([remera, storeOnly, soldOut]).map((l) => l.slug)).toEqual(['remera']);
+  });
+});
+
+describe('revalidate onlinePayment', () => {
+  it('copies the online payment flag from the catalogue', () => {
+    const storeOnly = catalog.map((p) => (p.slug === 'te' ? { ...p, onlinePayment: false } : p));
+    const { lines } = revalidate([te], storeOnly);
+    expect(lines[0]?.onlinePayment).toBe(false);
+  });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CartLine } from './cart';
-import { buildOrderMessage, buildWhatsAppUrl } from './whatsapp';
+import { buildOrderMessage, buildPaidOrderMessage, buildWhatsAppUrl } from './whatsapp';
 
 const lines: CartLine[] = [
   {
@@ -71,6 +71,36 @@ describe('buildWhatsAppUrl', () => {
   it('encodes line breaks and accents', () => {
     expect(buildWhatsAppUrl('5493880000000', 'Hola\nqué tal')).toBe(
       'https://wa.me/5493880000000?text=Hola%0Aqu%C3%A9%20tal',
+    );
+  });
+});
+
+describe('buildPaidOrderMessage', () => {
+  it('lists the paid items with order code and payment number', () => {
+    const message = buildPaidOrderMessage({
+      id: '123456',
+      status: 'approved',
+      orderCode: 'RSL-ABC234',
+      total: 19500,
+      name: 'Vero',
+      items: [
+        { title: 'Remera básica (Talle M)', quantity: 2, unitPrice: 9000 },
+        { title: 'Recargo por pago con Mercado Pago', quantity: 1, unitPrice: 1500 },
+      ],
+    });
+    expect(message).toBe(
+      [
+        '¡Hola Rosalu! Soy Vero. Reservé con Mercado Pago este pedido:',
+        '',
+        '- 2 x Remera básica (Talle M): $ 9.000 c/u',
+        '- 1 x Recargo por pago con Mercado Pago: $ 1.500',
+        '',
+        'Pedido: RSL-ABC234',
+        'Operación de Mercado Pago: 123456',
+        'Total pagado: $ 19.500',
+        '',
+        'Te mando el comprobante. Lo retiro en el local.',
+      ].join('\n'),
     );
   });
 });

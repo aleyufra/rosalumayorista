@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+---
+
+<BaseLayout
+  title="Tu reserva está pendiente"
+  description="El pago con Mercado Pago todavía no se acreditó."
+  noindex
+>
+  <div class="wrap page">
+    <h1 class="voice-title text-h1">Tu pago está pendiente</h1>
+    <p class="lead">
+      Mercado Pago todavía no confirmó el pago. Cuando se acredite te llega el aviso: ahí mandanos
+      el comprobante por WhatsApp. Tu pedido sigue en el carrito.
+    </p>
+    <Button href="/carrito">Volver al carrito</Button>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    min-height: 70svh;
+    max-width: 44rem;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-section);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    font-weight: 500;
+  }
+</style>
