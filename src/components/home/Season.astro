@@ -9,7 +9,7 @@ interface Props {
 const { season } = Astro.props.settings;
 const christmas = season.theme === 'christmas';
 
-// Baubles hanging from the top edge, like the price tags hang from their string.
+// Adornos colgando del borde superior, como los carteles de precio cuelgan de su hilo.
 const baubles = [
   { x: 18, drop: 34, r: 15, color: 'var(--season-red)' },
   { x: 54, drop: 70, r: 20, color: 'var(--color-magenta)' },
@@ -134,7 +134,7 @@ const baubles = [
   }
 
   @media (max-width: 63.99rem) {
-    /* Leave room under the baubles on narrow screens. */
+    /* Deja lugar debajo de los adornos en pantallas angostas. */
     .christmas .grid {
       padding-top: clamp(5rem, 3rem + 8vw, 7rem);
     }

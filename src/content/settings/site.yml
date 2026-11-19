@@ -51,8 +51,8 @@ social:
   tiktok: https://www.tiktok.com/@rosalu_mayorista
 acceptsMercadoPago: 'yes'
 minUnits: 3
-paymentSurcharge: 1500
-mpMinAmount: 35000
+paymentSurcharge: 500
+mpMinAmount: 1000
 contactPerson:
   name: 'TODO: nombre de quien atiende'
   role: 'TODO: rol (por ejemplo, encargada)'

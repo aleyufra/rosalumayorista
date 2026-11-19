@@ -1,3 +1,6 @@
+// Horarios del local. Los valores de dia ('monday'...) son los del CMS (settings.hours);
+// los textos para el publico salen de DAY_NAMES y DAY_PLURALS. La hora siempre se calcula
+// en la zona horaria del local, no en la del visitante ni la del servidor de build.
 export const WEEKDAYS = [
   'monday',
   'tuesday',
@@ -55,7 +58,7 @@ function hasSecondShift(h: OpenDay): h is OpenDay & { reopens: string; closesLat
   return Boolean(h.reopens && h.closesLate);
 }
 
-/** "de 10 a 20" or, with a midday break, "de 10 a 14 y de 18 a 22". */
+/** "de 10 a 20" o, con corte al mediodia, "de 10 a 14 y de 18 a 22". */
 function shiftsText(h: OpenDay): string {
   const first = `de ${shortTime(h.opens)} a ${shortTime(h.closes)}`;
   return hasSecondShift(h)
@@ -63,11 +66,13 @@ function shiftsText(h: OpenDay): string {
     : first;
 }
 
-/** Weekday and minutes since midnight of a moment, in the store's timezone. */
+/** Dia de la semana y minutos desde la medianoche de un momento, en la zona horaria del local. */
 export function localClock(
   date: Date,
   timeZone = STORE_TIMEZONE,
 ): { day: Weekday; minutes: number } {
+  // Se usa 'en-US' a proposito: devuelve el dia en ingles, que coincide con el tipo Weekday.
+  // hourCycle h23 evita el "24:00" de medianoche.
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
     weekday: 'long',
@@ -83,8 +88,8 @@ export function localClock(
 const toMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
 
 /**
- * One line for the hero: "Hoy abrimos de 10 a 20" while today is still ahead or open,
- * otherwise when we open next ("Mañana abrimos a las 10", "El lunes abrimos a las 10").
+ * Una linea para el hero: "Hoy abrimos de 10 a 20" mientras el dia todavia no termino,
+ * y si no, cuando abrimos de nuevo ("Mañana abrimos a las 10", "El lunes abrimos a las 10").
  */
 export function getOpeningStatus(hours: DayHours[], now: Date, timeZone = STORE_TIMEZONE): string {
   const byDay = new Map(hours.map((h) => [h.day, h]));
@@ -94,6 +99,8 @@ export function getOpeningStatus(hours: DayHours[], now: Date, timeZone = STORE_
     const lastClose = hasSecondShift(today) ? today.closesLate : today.closes;
     if (minutes < toMinutes(lastClose)) return `Hoy abrimos ${shiftsText(today)}`;
   }
+  // Hoy ya cerro o es feriado: se busca el proximo dia abierto, hasta una semana adelante
+  // (offset 7 es el mismo dia de la semana que viene).
   const start = WEEKDAYS.indexOf(day);
   for (let offset = 1; offset <= 7; offset++) {
     const next = WEEKDAYS[(start + offset) % 7] as Weekday;
@@ -105,10 +112,11 @@ export function getOpeningStatus(hours: DayHours[], now: Date, timeZone = STORE_
   return '';
 }
 
-/** Groups consecutive days with the same hours: "Lunes a viernes de 10 a 20". */
+/** Agrupa dias consecutivos con el mismo horario: "Lunes a viernes de 10 a 20". */
 export function summarizeHours(hours: DayHours[]): string[] {
   const byDay = new Map(hours.map((h) => [h.day, h]));
   const key = (h: DayHours | undefined) => (isOpenDay(h) ? shiftsText(h) : 'closed');
+  // Agrupa dias contiguos con el mismo horario; todos los dias cerrados comparten la clave 'closed'.
   const groups: { from: Weekday; to: Weekday; h: DayHours | undefined }[] = [];
   for (const day of WEEKDAYS) {
     const h = byDay.get(day);

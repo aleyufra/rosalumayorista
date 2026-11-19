@@ -46,7 +46,7 @@ const cover = photos[0];
 const shareImage = cover
   ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src
   : '/og.png';
-const site = Astro.site ?? new URL('https://rosalumayorista.almarweb.workers.dev');
+const site = Astro.site ?? new URL('https://rosalumayorista.alejandromaryufra.workers.dev');
 const askBackUrl = hasWhatsApp(settings)
   ? buildWhatsAppUrl(settings.whatsapp, `¡Hola Rosalu! Quería saber cuándo vuelve: ${name}`)
   : undefined;
@@ -203,7 +203,7 @@ const productLd = {
               </Button>
             </div>
 
-            {/* Mobile only: appears when neither the price nor the in-page button is on screen. */}
+            {/* Solo celular: aparece cuando no se ve ni el precio ni el boton de la pagina. */}
             <div class="buy-bar" data-buy-bar hidden>
               <span class="bar-price voice-tag" aria-hidden="true">
                 {formatPrice(cashPrice)}
@@ -454,7 +454,7 @@ const productLd = {
     display: none;
   }
 
-  /* Mobile: price and action stay reachable at the bottom of the screen. */
+  /* Celular: el precio y la accion quedan al alcance, abajo en la pantalla. */
   .buy-bar {
     position: fixed;
     inset: auto 0 0;

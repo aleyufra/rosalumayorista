@@ -1,5 +1,9 @@
+// Filtro del catalogo del lado del cliente. La pagina trae todas las tarjetas ya renderizadas
+// y un indice JSON (#catalog-index); aca solo se muestran u ocultan segun busqueda, rubro y
+// disponibilidad, y se sincroniza el estado con la URL para poder compartir el link.
 import { normalizeSearch } from '../lib/text';
 
+// key = texto de busqueda ya normalizado (sin acentos, en minusculas), calculado en el servidor.
 interface IndexEntry {
   slug: string;
   category: string;
@@ -29,7 +33,7 @@ if (form && indexEl) {
 
   let visibleLimit = PAGE_SIZE;
 
-  // Read the shared link: ?rubro=ropa&q=remera&disponibles=1
+  // Lee el link compartido: ?rubro=ropa&q=remera&disponibles=1
   const params = new URLSearchParams(location.search);
   const initialCategory = params.get('rubro') ?? '';
   if (q) q.value = params.get('q') ?? '';
@@ -45,6 +49,7 @@ if (form && indexEl) {
     };
   }
 
+  // replaceState (no pushState): filtrar no llena el historial con una entrada por tecla.
   function syncUrl({ category, available }: ReturnType<typeof state>) {
     const next = new URLSearchParams();
     if (category) next.set('rubro', category);
@@ -57,6 +62,7 @@ if (form && indexEl) {
 
   function render() {
     const s = state();
+    // Cada palabra de la busqueda tiene que aparecer en el texto del producto (en cualquier orden).
     const words = s.query.split(/\s+/).filter(Boolean);
     const matches = index.filter(
       (p) =>
@@ -75,6 +81,7 @@ if (form && indexEl) {
     syncUrl(s);
   }
 
+  // Debounce de 150 ms al escribir; los demas controles (rubro, disponibles) filtran al instante.
   let timer: number | undefined;
   q?.addEventListener('input', () => {
     window.clearTimeout(timer);
@@ -95,7 +102,7 @@ if (form && indexEl) {
     const firstNew = visibleLimit;
     visibleLimit += PAGE_SIZE;
     render();
-    // Move focus to the first newly revealed product for keyboard users.
+    // Mueve el foco al primer producto recien mostrado, para quienes usan teclado.
     const revealed = [...items.values()].filter((el) => !el.hidden)[firstNew];
     revealed?.querySelector<HTMLAnchorElement>('a')?.focus();
   });

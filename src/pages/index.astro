@@ -24,13 +24,13 @@ const categories = (await getCategories()).map((c) => ({
   ...c,
   count: products.filter((p) => p.data.category === c.id).length,
 }));
-// Hero picks: chosen in the panel, otherwise the first 3 featured.
+// Productos del hero: elegidos en el panel; si no, los 3 primeros destacados.
 const picked = (settings.heroProducts ?? [])
   .map((slug) => products.find((p) => p.id === slug && p.data.available))
   .filter((p) => p !== undefined);
 const heroMix = picked.length > 0 ? picked : featured.slice(0, 3);
 
-const site = Astro.site ?? new URL('https://rosalumayorista.almarweb.workers.dev');
+const site = Astro.site ?? new URL('https://rosalumayorista.alejandromaryufra.workers.dev');
 const dayNames: Record<(typeof WEEKDAYS)[number], string> = {
   monday: 'Monday',
   tuesday: 'Tuesday',

@@ -16,8 +16,8 @@ const lines: CartLine[] = [
   { slug: 'taza', name: 'Taza cerámica', cashPrice: 2800, color: 'Blanco', quantity: 3, photo: '' },
 ];
 
-// The brief's sample message says "$ 34.400", but 2 x 9.000 + 7.500 + 3 x 2.800 = 33.900.
-// Format is matched exactly; the total is the correct sum.
+// El mensaje de ejemplo del brief dice "$ 34.400", pero 2 x 9.000 + 7.500 + 3 x 2.800 = 33.900.
+// El formato se compara exacto; el total es la suma correcta.
 const BRIEF_MESSAGE = [
   '¡Hola Rosalu! Soy Vero. Quiero consultar por este pedido:',
   '',

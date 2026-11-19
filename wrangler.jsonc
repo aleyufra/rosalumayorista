@@ -2,9 +2,12 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "account_id": "a0adb78681c26bc2d71cc4c94506fa36",
   "name": "rosalumayorista",
-  "compatibility_date": "2026-11-02",
+  "compatibility_date": "2026-11-08",
   "workers_dev": true,
-  // Only /api/* runs the Worker (Mercado Pago); everything else is served as static assets.
+  // Solo /api/* ejecuta el Worker (Mercado Pago); todo lo demas se sirve como archivos estaticos.
+  // Notas: "assets.directory" es la salida del build (dist/); "binding" es el
+  // nombre con el que el Worker accede a esos archivos (env.ASSETS); "404-page" sirve el 404.html
+  // del sitio. El secreto MP_ACCESS_TOKEN no va aca: se carga en Cloudflare o en .dev.vars.
   "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",

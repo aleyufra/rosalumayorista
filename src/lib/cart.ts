@@ -1,3 +1,5 @@
+// Logica pura del carrito (sin DOM). El estado persistido vive en stores/cart.ts y la pantalla
+// en scripts/cart-page.ts. Todas las funciones devuelven arrays nuevos: nunca mutan el carrito.
 export type ExclusionReason = 'sold-out' | 'removed' | 'variant';
 
 export interface CartLine {
@@ -9,11 +11,11 @@ export interface CartLine {
   quantity: number;
   photo: string;
   excluded?: ExclusionReason | undefined;
-  /** false when the product can't be paid online; set by revalidate(). */
+  /** false cuando el producto no se puede pagar online; lo define revalidate(). */
   onlinePayment?: boolean | undefined;
 }
 
-/** What the build publishes in /products.json for each product. */
+/** Lo que el build publica en /products.json por cada producto. */
 export interface CatalogProduct {
   slug: string;
   name: string;
@@ -31,11 +33,12 @@ export type CartNotice =
 
 export const MAX_QUANTITY = 999;
 
-/** Same product with the same size and colour shares one line. */
+/** El mismo producto con el mismo talle y color comparte una linea. */
 export function lineKey(line: Pick<CartLine, 'slug' | 'size' | 'color'>): string {
   return [line.slug, line.size ?? '', line.color ?? ''].join('|');
 }
 
+// Fuerza un entero entre 1 y MAX_QUANTITY; cualquier valor raro (NaN, 0, negativo) pasa a 1.
 const clampQuantity = (n: number) => Math.min(MAX_QUANTITY, Math.max(1, Math.floor(n) || 1));
 
 export function addLine(lines: CartLine[], incoming: CartLine): CartLine[] {
@@ -57,12 +60,12 @@ export function removeLine(lines: CartLine[], key: string): CartLine[] {
   return lines.filter((l) => lineKey(l) !== key);
 }
 
-/** Only lines that still go in the order count toward units and total. */
+/** Solo las lineas que siguen en el pedido cuentan para unidades y total. */
 export function activeLines(lines: CartLine[]): CartLine[] {
   return lines.filter((l) => !l.excluded);
 }
 
-/** Lines Mercado Pago can charge: in the order and not marked as store-only. */
+/** Lineas que Mercado Pago puede cobrar: estan en el pedido y no son solo para el local. */
 export function payableLines(lines: CartLine[]): CartLine[] {
   return activeLines(lines).filter((l) => l.onlinePayment !== false);
 }
@@ -79,9 +82,9 @@ export function unitsMissing(units: number, minimum: number): number {
 }
 
 /**
- * Compares the stored cart with the catalogue published by the last build.
- * Price changes are applied and reported; sold-out, deleted products and variants that
- * no longer exist stay visible but are excluded from the order.
+ * Compara el carrito guardado con el catalogo publicado en el ultimo build.
+ * Los cambios de precio se aplican y se avisan; los agotados, los productos borrados y las variantes que
+ * ya no existen siguen visibles pero quedan fuera del pedido.
  */
 export function revalidate(
   lines: CartLine[],
@@ -126,6 +129,7 @@ export function revalidate(
   return { lines: next, notices };
 }
 
+// El localStorage lo puede haber editado cualquiera o venir de una version vieja: se valida cada campo.
 function isCartLine(value: unknown): value is CartLine {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -143,7 +147,7 @@ function isCartLine(value: unknown): value is CartLine {
   );
 }
 
-/** Parses the stored cart; anything unreadable becomes an empty cart instead of a broken page. */
+/** Lee el carrito guardado; lo que no se pueda leer se vuelve un carrito vacio en lugar de una pagina rota. */
 export function decodeCart(raw: string | undefined | null): CartLine[] {
   if (!raw) return [];
   try {

@@ -1,9 +1,11 @@
-/** sessionStorage entry saved before leaving for Checkout Pro, read by /pago/aprobado. */
+// Puente entre el carrito y /pago/aprobado: antes de salir a Mercado Pago se guarda que lineas
+// se mandaron, para quitarlas del carrito recien cuando el pago se confirma.
+/** Entrada de sessionStorage que se guarda antes de salir a Checkout Pro y lee /pago/aprobado. */
 export const PENDING_PAYMENT_KEY = 'rosalu-pending-payment';
 
 export interface PendingPayment {
   orderCode: string;
-  /** lineKey() of every cart line sent to Mercado Pago. */
+  /** lineKey() de cada linea del carrito enviada a Mercado Pago. */
   keys: string[];
 }
 

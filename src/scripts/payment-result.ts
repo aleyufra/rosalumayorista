@@ -1,3 +1,7 @@
+// Pagina /pago/aprobado. Mercado Pago vuelve con payment_id y external_reference en la URL, pero
+// la URL se puede falsificar: se confirma el pago con /api/payment (que consulta a Mercado Pago)
+// y solo con status "approved" se muestra el comprobante y se vacian las lineas pagadas.
+// Si algo falla, se ofrece un mensaje de WhatsApp generico (fallback) sin dar nada por pagado.
 import { lineKey } from '../lib/cart';
 import type { PaymentSummary } from '../lib/checkout';
 import { decodePendingPayment, PENDING_PAYMENT_KEY } from '../lib/payment-session';
@@ -26,7 +30,7 @@ if (root) {
     if (receipt && phone) receipt.href = buildWhatsAppUrl(phone, text);
   };
 
-  /** Removes from the cart the lines that went to Mercado Pago, once. */
+  /** Quita del carrito las lineas que fueron a Mercado Pago, una sola vez. */
   const clearPaidLines = (code: string) => {
     try {
       const pending = decodePendingPayment(sessionStorage.getItem(PENDING_PAYMENT_KEY));
@@ -35,7 +39,7 @@ if (root) {
       $cart.set($cart.get().filter((l) => !paid.has(lineKey(l))));
       sessionStorage.removeItem(PENDING_PAYMENT_KEY);
     } catch {
-      // Storage blocked: the customer can empty the cart by hand.
+      // Storage bloqueado: la clienta puede vaciar el carrito a mano.
     }
   };
 
@@ -77,6 +81,7 @@ if (root) {
     show('ok');
   };
 
+  // El id de pago son solo digitos; si no, ni se consulta al Worker.
   if (!/^\d+$/.test(paymentId) || !orderCode) {
     fallback();
   } else {

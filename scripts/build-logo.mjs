@@ -1,10 +1,10 @@
-// Builds every brand asset from the original logo and the typeface it was set in.
+// Genera todos los recursos de marca a partir del logo original y de la tipografia en que esta compuesto.
 //
-// Finding (Phase 1): the "Rosalu" wordmark in logo-original.jpg is Roboto Black Italic
-// (98.7 % pixel overlap, same 3.95 aspect ratio), so the wordmark is rebuilt as vector
-// paths instead of shipping a raster. Roboto is Apache-2.0 licensed.
+// Hallazgo (Fase 1): el wordmark "Rosalu" de logo-original.jpg es Roboto Black Italic
+// (98,7 % de pixeles coincidentes, misma proporcion 3,95), asi que el wordmark se reconstruye como trazos
+// vectoriales en lugar de publicar una imagen raster. Roboto tiene licencia Apache-2.0.
 //
-// Usage (Git Bash or any shell): pnpm logo
+// Uso (Git Bash o cualquier shell): pnpm logo
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -19,7 +19,7 @@ const MAGENTA = '#D128AF';
 const MIST = '#C9C9C9';
 const WHITE = '#FFFFFF';
 
-/** Hanging tag outline: pointed left end, the same geometry as the MarketTag component. */
+/** Contorno del cartel colgante: punta a la izquierda, la misma geometria que el componente MarketTag. */
 function tagShape(x, y, w, h, fill) {
   const tip = h * 0.32;
   const hole = { cx: x + tip + h * 0.08, cy: y + h / 2, r: h * 0.075 };
@@ -38,7 +38,7 @@ async function main() {
     process.exit(1);
   }
 
-  // 1. Crop the black band at the bottom of the original (rows darker than the #262626 field).
+  // 1. Recorta la banda negra al pie del original (filas mas oscuras que el fondo #262626).
   const { data, info } = await sharp(original)
     .removeAlpha()
     .raw()
@@ -65,14 +65,14 @@ async function main() {
     .toFile(path.join(BRAND, 'logo-cropped.png'));
   console.log(`Franja negra recortada: ${info.height - bandTop} px. Logo cuadrado de ${side} px.`);
 
-  // 2. Vector wordmark (currentColor, so the header can paint it).
+  // 2. Wordmark vectorial (currentColor, para que el header pueda pintarlo).
   const roboto = await loadFont('roboto');
   const word = textPath(roboto, 'Rosalu', 1000);
   const vb = `${word.x.toFixed(1)} ${word.y.toFixed(1)} ${word.w.toFixed(1)} ${word.h.toFixed(1)}`;
   const wordmark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" fill="currentColor"><path d="${word.d}"/></svg>\n`;
   await writeFile(path.join(BRAND, 'wordmark.svg'), wordmark);
 
-  // 3. Favicons: the italic "R" from the wordmark on the charcoal field.
+  // 3. Favicons: la "R" cursiva del wordmark sobre el fondo carbon.
   const r = textPath(roboto, 'R', 1000);
   const pad = r.h * 0.22;
   const box = r.h + pad * 2;
@@ -86,13 +86,13 @@ async function main() {
     .png()
     .toFile(path.join(PUBLIC, 'favicon-32.png'));
 
-  // 4. Apple touch icon: full wordmark on charcoal, 180 x 180.
+  // 4. Apple touch icon: wordmark completo sobre carbon, 180 x 180.
   const touchW = 150;
   const touchH = (touchW * word.h) / word.w;
   const touchSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><rect width="180" height="180" fill="${CHARCOAL}"/><svg x="${(180 - touchW) / 2}" y="${(180 - touchH) / 2}" width="${touchW}" height="${touchH}" viewBox="${vb}"><path fill="${WHITE}" d="${word.d}"/></svg></svg>`;
   await sharp(Buffer.from(touchSvg)).png().toFile(path.join(PUBLIC, 'apple-touch-icon.png'));
 
-  // 5. Open Graph 1200 x 630: wordmark plus the "Mayorista desde 3" tag, text set as Archivo paths.
+  // 5. Open Graph 1200 x 630: wordmark mas el cartel "Mayorista desde 3", con el texto como trazos de Archivo.
   const archivo = await loadFont('archivo');
   const ogWordW = 560;
   const ogWordH = (ogWordW * word.h) / word.w;

@@ -1,10 +1,10 @@
 ---
 /**
- * The signature element: a hand-hung market price tag. Pointed left end, a punched hole that
- * shows the real background, a slight tilt. One shape, three sizes:
- *   xl  hero headline ("Mayorista desde 3")
- *   md  product page price, cart total
- *   sm  price on a product photo
+ * El elemento distintivo: un cartel de precio de mercado colgado a mano. Punta a la izquierda, un agujero que
+ * deja ver el fondo real y una leve inclinacion. Una forma, tres tamanos:
+ *   xl  titular del hero ("Mayorista desde 3")
+ *   md  precio en la pagina de producto, total del carrito
+ *   sm  precio sobre la foto de un producto
  */
 import type { HTMLTag } from 'astro/types';
 
@@ -44,7 +44,7 @@ const {
   .market-tag {
     --tag-bg: var(--color-magenta);
     --tilt-angle: 0deg;
-    /* Geometry in em of the tag's own type, so every size keeps the same proportions. */
+    /* Geometria en em de la tipografia del propio cartel, asi todos los tamanos conservan las proporciones. */
     --tip: 0.62em;
     --hole-x: 0.92em;
     --hole-r: 0.14em;
@@ -106,7 +106,7 @@ const {
     --pad-block: 0.12em;
   }
 
-  /* The hero tag carries two voices: small stacked words and the giant numeral. */
+  /* El cartel del hero lleva dos voces: palabras chicas apiladas y el numero gigante. */
   .size-xl {
     font-size: var(--text-tag-xl);
     --tip: 0.3em;
@@ -122,7 +122,7 @@ const {
     --tilt-angle: -2.5deg;
   }
 
-  /* The string the tag hangs from, threaded through the hole. */
+  /* El hilo del que cuelga el cartel, pasado por el agujero. */
   .string::before {
     content: '';
     position: absolute;

@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Metric-matched fallback so the swap to Archivo does not shift the layout. */
+/* Fuente de respaldo con las mismas metricas, para que el cambio a Archivo no mueva el layout. */
 @font-face {
   font-family: 'Archivo Fallback';
   src: local('Arial');
@@ -116,7 +116,7 @@
     outline-offset: 3px;
   }
 
-  /* Charcoal and magenta surfaces flip the focus ring to white. */
+  /* En las superficies carbon y magenta el anillo de foco pasa a blanco. */
   .on-dark {
     --color-focus: var(--color-white);
     color: var(--color-white);
@@ -137,7 +137,7 @@
   }
 }
 
-/* ---------- Voices ---------- */
+/* ---------- Voces ---------- */
 @utility voice-title {
   font-style: italic;
   font-weight: 900;
@@ -160,7 +160,7 @@
   font-stretch: 100%;
 }
 
-/* ---------- Layout helpers ---------- */
+/* ---------- Utilidades de layout ---------- */
 @utility wrap {
   width: 100%;
   max-width: calc(var(--container-content) + var(--gutter) * 2);
@@ -176,7 +176,7 @@
   max-width: 65ch;
 }
 
-/* ---------- Cross-document view transitions ---------- */
+/* ---------- Transiciones de vista entre documentos ---------- */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
@@ -192,7 +192,7 @@
     animation-timing-function: var(--ease-settle);
   }
 
-  /* Product photos morph between card and detail; keep the image itself crisp. */
+  /* Las fotos de producto se transforman entre tarjeta y detalle; la imagen en si se mantiene nitida. */
   ::view-transition-old(*):only-child,
   ::view-transition-new(*):only-child {
     animation-duration: 320ms;

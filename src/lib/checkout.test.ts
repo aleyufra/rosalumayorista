@@ -139,8 +139,8 @@ describe('validateCheckout', () => {
     const buy = (quantity: number) =>
       validateCheckout(request([{ slug: 'te', quantity }]), catalog, withMin);
     expect(buy(3).ok).toBe(false); // 22.500
-    expect(buy(4).ok).toBe(true); // 30.000 exactly
-    // 30.000 + 1.500 of surcharge would pass a 31.000 minimum if the surcharge counted.
+    expect(buy(4).ok).toBe(true); // 30.000 justo
+    // 30.000 + 1.500 de recargo pasarian un minimo de 31.000 si el recargo contara.
     expect(
       validateCheckout(request([{ slug: 'te', quantity: 4 }]), catalog, {
         ...withMin,

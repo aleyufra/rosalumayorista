@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const IMAGE_FILE = /\.(webp|png|jpe?g|avif|gif|svg)$/i;
 
-/** Removes image references whose file no longer exists, so one renamed photo does not break the site. */
+/** Quita las referencias a imagenes cuyo archivo ya no existe, para que una foto renombrada no rompa el sitio. */
 function dropMissingImages(value: unknown, baseDir: string, where: string): unknown {
   if (Array.isArray(value)) {
     return value
@@ -28,7 +28,7 @@ function dropMissingImages(value: unknown, baseDir: string, where: string): unkn
   return value;
 }
 
-/** Wraps a loader so entries are parsed with their missing images dropped. */
+/** Envuelve un loader para que las entradas se lean sin las imagenes que faltan. */
 function tolerantImages(loader: Loader): Loader {
   return {
     ...loader,
@@ -48,8 +48,8 @@ function tolerantImages(loader: Loader): Loader {
 }
 
 /**
- * Categories are editable in the CMS. The file name is the slug, which stays in Spanish
- * because it appears in visitor-facing URLs (?rubro=ropa).
+ * Los rubros se editan en el CMS. El nombre del archivo es el slug, que queda en espanol
+ * porque aparece en las URLs que ven los visitantes (?rubro=ropa).
  */
 const categories = defineCollection({
   loader: tolerantImages(glob({ base: './src/content/categories', pattern: '*.yml' })),
@@ -72,10 +72,10 @@ const products = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string().min(3).max(80),
-      category: z.string().min(1), // category slug, checked in lib/products.ts
+      category: z.string().min(1), // slug del rubro, validado en lib/products.ts
       subcategory: z.string().max(40).optional(),
       cashPrice: z.number().int().positive(),
-      photos: z.array(image()).max(6), // the panel requires 1+; empty only if a file went missing
+      photos: z.array(image()).max(6), // el panel exige 1 o mas; queda vacio solo si falto un archivo
       sizes: z.array(z.string().min(1)).default([]),
       colors: z
         .array(
@@ -89,7 +89,7 @@ const products = defineCollection({
         )
         .default([]),
       available: z.boolean().default(true),
-      // Can be paid online with Mercado Pago; off = only at the store or by WhatsApp.
+      // Se puede pagar online con Mercado Pago; desactivado = solo en el local o por WhatsApp.
       onlinePayment: z.boolean().default(true),
       featured: z.boolean().default(false),
       description: z.string().max(300).optional(),
@@ -108,7 +108,7 @@ const weekday = z.enum([
   'sunday',
 ]);
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
-/** Business facts that may still read "TODO ..."; the UI renders them as visible placeholders. */
+/** Datos del negocio que pueden decir todavia "TODO ..."; la interfaz los muestra como placeholders visibles. */
 const pendable = z.string().default('');
 
 const settings = defineCollection({
@@ -126,7 +126,7 @@ const settings = defineCollection({
             closed: z.boolean().default(false),
             opens: time.optional(),
             closes: time.optional(),
-            // Optional second shift (split hours, e.g. 10-14 and 18-22).
+            // Segundo turno opcional (horario cortado, ej: 10-14 y 18-22).
             reopens: time.optional(),
             closesLate: time.optional(),
           }),
@@ -134,18 +134,18 @@ const settings = defineCollection({
         .length(7),
       whatsapp: z.union([z.string().regex(/^549\d{10}$/), z.string().startsWith('TODO')]),
       social: z.object({ instagram: pendable, facebook: pendable, tiktok: pendable }),
-      // 'yes' shows the "Pagar con Mercado Pago" button in the cart.
+      // 'yes' muestra el boton "Pagar con Mercado Pago" en el carrito.
       acceptsMercadoPago: z.enum(['yes', 'no', 'pending']),
       minUnits: z.number().int().min(1).default(3),
-      // Fixed ARS amount added once per purchase when paying by Mercado Pago or transfer.
+      // Monto fijo en ARS que se suma una vez por compra al pagar con Mercado Pago o transferencia.
       paymentSurcharge: z.number().int().min(0).optional(),
-      // Minimum of products (without the surcharge) to reserve with Mercado Pago.
+      // Minimo de productos (sin el recargo) para reservar con Mercado Pago.
       mpMinAmount: z.number().int().min(0).default(35000),
       contactPerson: z.object({ name: pendable, role: pendable, photo: image().optional() }),
       photos: z.object({
         storefront: image().optional(),
       }),
-      // Up to 3 product slugs for the hero; empty = first 3 featured.
+      // Hasta 3 slugs de productos para el hero; vacio = los 3 primeros destacados.
       heroProducts: z.array(z.string()).max(3).default([]),
       season: z.object({
         active: z.boolean(),

@@ -120,7 +120,7 @@ const mixList =
   }
 
   @media (max-width: 63.99rem) {
-    /* A last tile left alone in its row takes the whole row. */
+    /* Un ultimo mosaico que queda solo en su fila ocupa toda la fila. */
     .tile:nth-child(even):last-child {
       grid-column: 1 / -1;
     }
@@ -131,7 +131,7 @@ const mixList =
     }
   }
 
-  /* No photo yet: the tile itself is the dashed frame, so the label always sits on it. */
+  /* Sin foto todavia: el mosaico mismo es el marco punteado, asi la etiqueta siempre queda encima. */
   .placeholder {
     position: relative;
     display: flex;
@@ -208,7 +208,7 @@ const mixList =
       grid-column: span 4;
     }
 
-    /* First category large on the left, the next two stacked beside it, the rest in rows of 3. */
+    /* Primer rubro grande a la izquierda, los dos siguientes apilados al lado, el resto en filas de 3. */
     .tile-lead {
       grid-column: 1 / 8;
       grid-row: span 2;
@@ -219,7 +219,7 @@ const mixList =
       grid-column: 8 / 13;
     }
 
-    /* Fill the last row when the extra categories don't come in threes. */
+    /* Completa la ultima fila cuando los rubros sobrantes no vienen de a tres. */
     .tile:nth-child(3n + 4):last-child {
       grid-column: 1 / -1;
     }

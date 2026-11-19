@@ -1,3 +1,6 @@
+// Pagina de producto: valida que se elijan talle y color obligatorios, agrega la linea al
+// carrito (stores/cart.ts) y controla la barra de compra del celular. Los datos del producto
+// llegan por data-* en el formulario [data-add-form].
 import { addLine, MAX_QUANTITY } from '../lib/cart';
 import { $cart } from '../stores/cart';
 
@@ -35,6 +38,7 @@ if (form) {
     if (!fields.length && missing) missing.textContent = '';
   }
 
+  // Misma regla que clampQuantity de lib/cart.ts: entero entre 1 y MAX_QUANTITY.
   function clampQuantity() {
     if (!quantity) return 1;
     const n = Math.min(MAX_QUANTITY, Math.max(1, Math.floor(Number(quantity.value)) || 1));
@@ -63,6 +67,7 @@ if (form) {
       return;
     }
 
+    // El precio guardado en el carrito es provisorio: cart-page.ts lo revalida contra el catalogo.
     const { slug = '', name = '', price = '0', photo = '' } = form.dataset;
     $cart.set(
       addLine($cart.get(), {
@@ -88,7 +93,7 @@ if (form) {
 
   refresh();
 
-  // Mobile bar: only while neither the price tag nor the in-page button is on screen.
+  // Barra en celular: solo mientras no se ve ni el cartel de precio ni el boton de la pagina.
   const bar = document.querySelector<HTMLElement>('[data-buy-bar]');
   const watched = [
     document.querySelector<HTMLElement>('.info .price'),

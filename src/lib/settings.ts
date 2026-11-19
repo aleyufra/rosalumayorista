@@ -1,3 +1,5 @@
+// Lectura de src/content/settings/site.yml (datos del negocio y textos de la home) y helpers
+// derivados. Los valores que faltan cargar empiezan con TODO (ver isPending en text.ts).
 import { getEntry, type CollectionEntry } from 'astro:content';
 import { formatPrice } from './price';
 import { fillTokens, isPending } from './text';
@@ -10,18 +12,18 @@ export async function getSettings(): Promise<Settings> {
   return entry.data;
 }
 
-/** Fixed amount added once per purchase when paying by Mercado Pago or transfer; null while unset. */
+/** Monto fijo que se suma una vez por compra al pagar con Mercado Pago o transferencia; null mientras no se cargue. */
 export function surchargeAmount(settings: Settings): number | null {
   return settings.paymentSurcharge ?? null;
 }
 
-/** "$ 1.500" or null while the owner has not set the surcharge. */
+/** "$ 1.500" o null mientras quien administra el negocio no cargue el recargo. */
 export function surchargeLabel(settings: Settings): string | null {
   const amount = surchargeAmount(settings);
   return amount === null ? null : formatPrice(amount);
 }
 
-/** Switched on in the panel and with the surcharge loaded: without it the amount charged would be wrong. */
+/** Activado en el panel y con el recargo cargado: sin eso el monto cobrado seria incorrecto. */
 export function mercadoPagoEnabled(settings: Settings): boolean {
   return settings.acceptsMercadoPago === 'yes' && surchargeAmount(settings) !== null;
 }
@@ -35,7 +37,7 @@ export function addressLine(settings: Settings): string {
   return isPending(number) ? `${street}, ${city}` : `${street} ${number}, ${city}`;
 }
 
-/** Tokens the owner can write in CMS texts: {minimo} and {recargo}. */
+/** Tokens que se pueden escribir en los textos del CMS: {minimo}, {recargo} y {reserva}. */
 export function copyTokens(settings: Settings): Record<string, string> {
   return {
     minimo: String(settings.minUnits),
@@ -48,4 +50,5 @@ export function fillCopy(settings: Settings, text: string): string {
   return fillTokens(text, copyTokens(settings));
 }
 
+// Reexportado para que los componentes importen precios y ajustes desde un solo lugar.
 export { formatPrice };

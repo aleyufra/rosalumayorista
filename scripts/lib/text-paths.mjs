@@ -1,8 +1,10 @@
-// Shared helpers for build scripts: download a font once and turn text into SVG path data.
+// Utilidades compartidas de los scripts de build: descargar una fuente una sola vez y convertir texto en trazos SVG.
 import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import opentype from 'opentype.js';
 
+// Las fuentes se descargan una sola vez a scripts/.cache (ignorada por git) y se reutilizan.
+// Los glifos se convierten a trazos SVG para que el logo no dependa de una fuente instalada.
 const CACHE = path.resolve(import.meta.dirname, '../.cache');
 
 export const FONTS = {
@@ -32,7 +34,7 @@ export async function loadFont(name) {
   return opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
 }
 
-/** Lays out text glyph by glyph (with kerning) and returns its path data and bounding box. */
+/** Acomoda el texto glifo por glifo (con kerning) y devuelve sus trazos y su caja delimitadora. */
 export function textPath(font, text, size) {
   const p = new opentype.Path();
   const glyphs = [...text].map((c) => font.charToGlyph(c));
@@ -48,8 +50,8 @@ export function textPath(font, text, size) {
   return { d: pathData(p.commands), x: bb.x1, y: bb.y1, w: bb.x2 - bb.x1, h: bb.y2 - bb.y1 };
 }
 
-// opentype.js toPathData() glues numbers together when a coordinate is -0 ("12.90" instead of
-// "12.9 0"), which corrupts every glyph after it. Serialize the commands ourselves.
+// toPathData() de opentype.js pega los numeros cuando una coordenada es -0 ("12.90" en lugar de
+// "12.9 0"), lo que corrompe todos los glifos siguientes. Por eso serializamos los comandos nosotros.
 function pathData(commands) {
   const n = (v) => (Math.round(v * 10) / 10 || 0).toString();
   return commands

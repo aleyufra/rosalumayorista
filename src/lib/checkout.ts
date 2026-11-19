@@ -1,16 +1,19 @@
+// Logica pura del cobro con Mercado Pago (sin DOM ni red), asi se puede testear con vitest.
+// La usan el Worker (worker/index.ts) y la pagina del carrito. Regla clave: el servidor nunca
+// confia en precios del navegador; rearma todo desde el catalogo publicado en el build.
 import { lineKey, MAX_QUANTITY, type CatalogProduct } from './cart';
 import { formatPrice } from './price';
 
-/** Published at build time in /checkout.json; read by the cart page and the Worker. */
+/** Se publica en el build en /checkout.json; lo leen la pagina del carrito y el Worker. */
 export interface CheckoutConfig {
   enabled: boolean;
   surcharge: number;
   minUnits: number;
-  /** Minimum of products (without the surcharge) to reserve with Mercado Pago. */
+  /** Minimo de productos (sin el recargo) para reservar con Mercado Pago. */
   minAmount: number;
 }
 
-/** ARS still needed in online products to reach the Mercado Pago minimum (0 when reached). */
+/** ARS que faltan en productos online para llegar al minimo de Mercado Pago (0 si ya se alcanzo). */
 export function mpMinimumMissing(subtotal: number, minAmount: number): number {
   return Math.max(0, minAmount - subtotal);
 }
@@ -28,7 +31,7 @@ export interface CheckoutRequest {
   phone: string;
 }
 
-/** A line rebuilt from the catalogue: prices never come from the browser. */
+/** Una linea rearmada desde el catalogo: los precios nunca vienen del navegador. */
 export interface CheckoutLine {
   slug: string;
   name: string;
@@ -49,13 +52,14 @@ const MAX_LINES = 100;
 
 const isOptionalString = (v: unknown) => v === undefined || typeof v === 'string';
 
-/** Shape check of the JSON body the cart page posts to /api/checkout. */
+/** Verifica la forma del JSON que la pagina del carrito manda a /api/checkout. */
 export function parseCheckoutRequest(body: unknown): CheckoutRequest | null {
   if (typeof body !== 'object' || body === null) return null;
   const b = body as Record<string, unknown>;
   if (typeof b.name !== 'string' || typeof b.phone !== 'string' || !Array.isArray(b.lines)) {
     return null;
   }
+  // Tope de lineas para que nadie mande un pedido gigante.
   if (b.lines.length > MAX_LINES) return null;
   const lines: CheckoutRequestLine[] = [];
   for (const raw of b.lines as unknown[]) {
@@ -80,16 +84,16 @@ export function parseCheckoutRequest(body: unknown): CheckoutRequest | null {
   return { lines, name: b.name, phone: b.phone };
 }
 
-/** Argentine phone as digits only, 8 to 15 of them; null when it can't be a phone. */
+/** Telefono argentino solo con digitos, de 8 a 15; null si no puede ser un telefono. */
 export function normalizePhone(phone: string): string | null {
   const digits = phone.replace(/\D/g, '');
   return digits.length >= 8 && digits.length <= 15 ? digits : null;
 }
 
 /**
- * Rebuilds the order from the catalogue of the last build. Lines that are sold out, gone,
- * with a variant that no longer exists or marked as store-only are left out silently:
- * the cart page already shows why.
+ * Rearma el pedido desde el catalogo del ultimo build. Las lineas agotadas, borradas,
+ * con una variante que ya no existe o marcadas como solo para el local se omiten en silencio:
+ * la pagina del carrito ya muestra el motivo.
  */
 export function validateCheckout(
   request: CheckoutRequest,
@@ -110,10 +114,12 @@ export function validateCheckout(
   }
 
   const bySlug = new Map(catalog.map((p) => [p.slug, p]));
+  // Se fusionan las lineas repetidas (mismo producto, talle y color) sumando cantidades.
   const merged = new Map<string, CheckoutLine>();
   for (const line of request.lines) {
     const product = bySlug.get(line.slug);
     if (!product || !product.available || !product.onlinePayment) continue;
+    // La variante tiene que existir; y si el producto tiene talles o colores, es obligatorio elegir.
     if (line.size !== undefined && !product.sizes.includes(line.size)) continue;
     if (line.color !== undefined && !product.colors.includes(line.color)) continue;
     if (line.size === undefined && product.sizes.length) continue;
@@ -127,6 +133,7 @@ export function validateCheckout(
       size: line.size,
       color: line.color,
       quantity: Math.min(MAX_QUANTITY, (existing?.quantity ?? 0) + line.quantity),
+      // El precio sale del catalogo, no de la peticion.
       unitPrice: product.cashPrice,
       photo: product.photo,
     });
@@ -152,7 +159,7 @@ export function validateCheckout(
   return { ok: true, lines, name, phone };
 }
 
-/** "Remera básica (Talle M, Color Negro)", the title shown in Checkout Pro. */
+/** "Remera básica (Talle M, Color Negro)", el titulo que se ve en Checkout Pro. */
 export function itemTitle(line: Pick<CheckoutLine, 'name' | 'size' | 'color'>): string {
   const parts = [line.size && `Talle ${line.size}`, line.color && `Color ${line.color}`].filter(
     Boolean,
@@ -168,9 +175,10 @@ export interface PreferenceContext {
   now: Date;
 }
 
+// La preferencia (el link de pago) vence a las 2 horas.
 const PREFERENCE_LIFETIME_MS = 2 * 60 * 60 * 1000;
 
-/** Body for POST https://api.mercadopago.com/checkout/preferences. */
+/** Cuerpo del POST a https://api.mercadopago.com/checkout/preferences. */
 export function buildPreference(
   lines: CheckoutLine[],
   surcharge: number,
@@ -197,19 +205,23 @@ export function buildPreference(
     items,
     payer: { name: ctx.name, phone: { area_code: '', number: ctx.phone } },
     metadata: { name: ctx.name, phone: ctx.phone, order_code: ctx.orderCode },
+    // external_reference vuelve en el pago y permite cruzarlo con el pedido (ver /api/payment).
     external_reference: ctx.orderCode,
     statement_descriptor: 'ROSALU',
     payment_methods: {
+      // Sin efectivo en puntos de pago ni cajeros (pagan despues y la reserva quedaria colgada)
+      // y sin cuotas: los precios son de contado.
       excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }],
       installments: 1,
     },
+    // binary_mode: el pago queda aprobado o rechazado, sin estados intermedios.
     binary_mode: true,
     back_urls: {
       success: `${ctx.origin}/pago/aprobado`,
       failure: `${ctx.origin}/pago/rechazado`,
       pending: `${ctx.origin}/pago/pendiente`,
     },
-    // Mercado Pago drops non-public return URLs (localhost) and then rejects auto_return.
+    // Mercado Pago descarta las URLs de retorno no publicas (localhost) y despues rechaza auto_return.
     ...(ctx.origin.startsWith('https://') ? { auto_return: 'approved' } : {}),
     expires: true,
     expiration_date_from: ctx.now.toISOString(),
@@ -219,7 +231,7 @@ export function buildPreference(
 
 const CODE_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-/** "RSL-7K2Q9X" from random bytes; no 0/O or 1/I so it reads well over WhatsApp. */
+/** "RSL-7K2Q9X" a partir de bytes aleatorios; sin 0/O ni 1/I para que se lea bien por WhatsApp. */
 export function makeOrderCode(random: Uint8Array): string {
   const chars = [...random.slice(0, 6)].map((b) => CODE_ALPHABET[b % CODE_ALPHABET.length]);
   return `RSL-${chars.join('')}`;
@@ -231,7 +243,7 @@ export interface PaymentItem {
   unitPrice: number;
 }
 
-/** What /api/payment tells the result page about a verified payment. */
+/** Lo que /api/payment le informa a la pagina de resultado sobre un pago verificado. */
 export interface PaymentSummary {
   id: string;
   status: string;
@@ -241,11 +253,12 @@ export interface PaymentSummary {
   items: PaymentItem[];
 }
 
-/** Picks the few fields the result page needs from a Mercado Pago payment. */
+/** Toma de un pago de Mercado Pago los pocos campos que necesita la pagina de resultado. */
 export function toPaymentSummary(payment: unknown): PaymentSummary | null {
   if (typeof payment !== 'object' || payment === null) return null;
   const p = payment as Record<string, unknown>;
   if (typeof p.id !== 'number' && typeof p.id !== 'string') return null;
+  // La respuesta de Mercado Pago es externa: se lee de forma defensiva, con valores por defecto.
   const info = (p.additional_info ?? {}) as { items?: unknown };
   const metadata = (p.metadata ?? {}) as { name?: unknown };
   const items = Array.isArray(info.items)

@@ -1,3 +1,6 @@
+// Arma los mensajes de WhatsApp. El formato del pedido esta fijado por el brief y por los tests
+// (whatsapp.test.ts): cambiarlo exige actualizar los tests a conciencia. Se usa formatPricePlain
+// (espacio comun) porque el texto sale de la pagina.
 import type { CartLine } from './cart';
 import { activeLines, getTotals } from './cart';
 import type { PaymentSummary } from './checkout';
@@ -12,7 +15,7 @@ function variantText(line: CartLine): string {
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
 
-/** The exact order message from the brief; excluded lines never reach it. */
+/** El mensaje de pedido exacto del brief; las lineas excluidas nunca llegan. */
 export function buildOrderMessage(lines: CartLine[], customerName = ''): string {
   const name = customerName.trim().replace(/\s+/g, ' ').slice(0, MAX_NAME_LENGTH);
   const greeting = name
@@ -36,7 +39,7 @@ export function buildOrderMessage(lines: CartLine[], customerName = ''): string 
 }
 
 /**
- * Sent by the customer after reserving with Mercado Pago, together with the receipt.
+ * Lo manda la clienta despues de reservar con Mercado Pago, junto con el comprobante.
  */
 export function buildPaidOrderMessage(summary: PaymentSummary): string {
   const name = summary.name.trim().replace(/\s+/g, ' ').slice(0, MAX_NAME_LENGTH);
@@ -60,6 +63,7 @@ export function buildPaidOrderMessage(summary: PaymentSummary): string {
   ].join('\n');
 }
 
+// wa.me exige el numero solo con digitos y el texto codificado para URL.
 export function buildWhatsAppUrl(phone: string, text?: string): string {
   const base = `https://wa.me/${phone.replace(/\D/g, '')}`;
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;

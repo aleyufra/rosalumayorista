@@ -1,7 +1,7 @@
-// Generates placeholder photos (same aspect ratio as the real ones) and seeds the 9 sample
-// products. Existing files are never overwritten, so real photos and edited products are safe.
+// Genera fotos placeholder (con la misma proporcion que las reales) y carga los 9 productos
+// de ejemplo. Nunca pisa archivos existentes, asi que las fotos reales y los productos editados quedan a salvo.
 //
-// Usage (Git Bash or any shell): pnpm placeholders
+// Uso (Git Bash o cualquier shell): pnpm placeholders
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -17,7 +17,7 @@ const MUTED = '#5C5C5C';
 
 const font = await loadFont('archivoBody');
 
-/** A flat paper-grey frame with a dashed inset and a centred two-line label. */
+/** Un marco plano gris papel con un borde interior punteado y una etiqueta centrada de dos lineas. */
 async function placeholder(file, width, height, kicker, label) {
   if (await exists(file)) return false;
   const size = Math.round(width / 18);

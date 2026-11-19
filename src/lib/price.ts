@@ -4,12 +4,12 @@ const formatter = new Intl.NumberFormat('es-AR', {
   maximumFractionDigits: 0,
 });
 
-/** "$ 12.500" — keeps the non-breaking space so the sign never wraps away from the number. */
+/** "$ 12.500" — conserva el espacio de no separacion para que el signo nunca quede lejos del numero. */
 export function formatPrice(amount: number): string {
   return formatter.format(amount);
 }
 
-/** Same format with a plain space, for text that leaves the page (the WhatsApp message). */
+/** Mismo formato con espacio comun, para texto que sale de la pagina (el mensaje de WhatsApp). */
 export function formatPricePlain(amount: number): string {
   return formatPrice(amount).replace(/ /g, ' ');
 }

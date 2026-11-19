@@ -11,7 +11,7 @@ const hours: DayHours[] = [
   { day: 'sunday', closed: true },
 ];
 
-// Jujuy is UTC-3 all year. 2026-11-02 is a Monday.
+// Jujuy es UTC-3 todo el ano. El 2026-11-02 es lunes.
 const at = (local: string) => new Date(`${local}-03:00`);
 
 describe('getOpeningStatus', () => {

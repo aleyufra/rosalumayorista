@@ -1,3 +1,7 @@
+// Pantalla del carrito (/carrito). TS vanilla que conecta el DOM renderizado por carrito.astro
+// mediante atributos data-*. Todo el estado sale de $cart (stores/cart.ts); render() vuelve a
+// dibujar las lineas completas cada vez que cambia. Dos salidas: pedido por WhatsApp y
+// reserva con Mercado Pago (POST /api/checkout).
 import {
   lineKey,
   payableLines,
@@ -43,6 +47,7 @@ if (root) {
   const mpError = root.querySelector<HTMLElement>('[data-mp-error]');
   const mpSubmit = root.querySelector<HTMLButtonElement>('[data-mp-submit]');
   const mpMinAmount = Number(root.dataset.mpMin ?? '0');
+  // Evita doble envio mientras se espera la respuesta de /api/checkout.
   let mpBusy = false;
 
   const ONLINE_TEXT =
@@ -60,6 +65,8 @@ if (root) {
     variant: ' ya no tiene ese talle o color y queda fuera del pedido.',
   };
 
+  // Se arma con textContent / append (no con innerHTML) para que un nombre de producto
+  // nunca se interprete como HTML.
   function noticeHtml(n: CartNotice): HTMLParagraphElement {
     const p = document.createElement('p');
     p.className = 'notice';
@@ -137,6 +144,7 @@ if (root) {
       remove.setAttribute('aria-label', `Quitar ${line.name}`);
       remove.addEventListener('click', () => {
         update(removeLine($cart.get(), key));
+        // El boton desaparece con la linea: el foco pasa al titulo para no perderlo (accesibilidad).
         root?.querySelector<HTMLElement>('h1')?.focus();
       });
     }
@@ -171,10 +179,13 @@ if (root) {
     }
   }
 
+  // Solo se cobran las lineas "pagables" (activas y con onlinePayment); el recargo se suma una
+  // sola vez por compra. El servidor vuelve a validar todo: esto es solo informacion para la clienta.
   function renderMercadoPago(lines: CartLine[]) {
     if (!mpForm) return;
     const payable = payableLines(lines);
     const { units, total } = getTotals(payable);
+    // Hay productos que solo se compran en el local si las unidades pagables son menos que las totales.
     const storeOnly = units < getTotals(lines).units;
     if (onlineRow) onlineRow.hidden = !storeOnly;
     if (onlineTotal) onlineTotal.textContent = formatPrice(total);
@@ -204,15 +215,17 @@ if (root) {
     if (mpSubmit) mpSubmit.disabled = mpBusy || missing > 0 || amountMissing > 0;
   }
 
+  // Unico punto de escritura: guarda en el store (localStorage) y redibuja.
   function update(lines: CartLine[], focusKey?: string) {
     $cart.set(lines);
     render(lines, focusKey);
   }
 
+  // tabindex -1 permite enfocar el h1 por codigo sin meterlo en el orden del tabulador.
   root.querySelector('h1')?.setAttribute('tabindex', '-1');
   render($cart.get());
 
-  // Revalidate against the catalogue of the latest build.
+  // Revalida contra el catalogo del ultimo build.
   if ($cart.get().length) {
     fetch('/products.json', { cache: 'no-cache' })
       .then((r) =>
@@ -234,7 +247,7 @@ if (root) {
       });
   }
 
-  // Another tab changed the cart.
+  // Otra pestana cambio el carrito.
   $cart.listen((lines) => render([...lines]));
 
   root.querySelector('[data-clear]')?.addEventListener('click', () => confirm?.showModal());
@@ -266,6 +279,7 @@ if (root) {
       return showError('Escribí tu teléfono con característica.');
     showError('');
 
+    // Al servidor solo viajan slug, talle, color y cantidad; el precio lo recalcula el Worker.
     const lines = payableLines($cart.get());
     mpBusy = true;
     mpSubmit.disabled = true;
@@ -294,11 +308,13 @@ if (root) {
         if (!r.ok || !data.initPoint || !data.orderCode) {
           throw new Error(data.error ?? 'No pudimos abrir Mercado Pago. Probá de nuevo.');
         }
+        // Se recuerda que lineas se mandaron para sacarlas del carrito en /pago/aprobado,
+        // y solo si el pago se confirma (ver scripts/payment-result.ts).
         const pending: PendingPayment = { orderCode: data.orderCode, keys: lines.map(lineKey) };
         try {
           sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending));
         } catch {
-          // Without storage the cart just isn't cleared after paying.
+          // Sin storage, el carrito simplemente no se vacia despues de pagar.
         }
         window.location.href = data.initPoint;
       })

@@ -9,13 +9,13 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title: string;
   description: string;
-  /** Absolute or root-relative image for link previews. */
+  /** Imagen absoluta o relativa a la raiz para las vistas previas de links. */
   image?: string;
   noindex?: boolean;
 }
 
 const { title, description, image = '/og.png', noindex = false } = Astro.props;
-const site = Astro.site ?? new URL('https://rosalumayorista.almarweb.workers.dev');
+const site = Astro.site ?? new URL('https://rosalumayorista.alejandromaryufra.workers.dev');
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
 const ogImage = new URL(image, site).href;
 const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
@@ -53,7 +53,7 @@ const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
     <slot name="head" />
 
     <script is:inline>
-      // Skip the hero tag drop when this page was reached through a view transition.
+      // Omite la caida del cartel del hero cuando se llego a esta pagina por una transicion de vista.
       addEventListener('pagereveal', (e) => {
         if (e.viewTransition) document.documentElement.classList.add('arrived-by-transition');
       });

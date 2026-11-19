@@ -4,7 +4,7 @@ Esta guía es para cargar y cambiar cosas del sitio sin tocar nada técnico.
 
 ## Entrar
 
-1. Abrí **https://rosalumayorista.almarweb.workers.dev/admin/** (en la compu o en el celular).
+1. Abrí **https://rosalumayorista.alejandromaryufra.workers.dev/admin/** (en la compu o en el celular).
 2. Tocá **Iniciar sesión con GitHub** y entrá con tu usuario.
 3. La primera vez, si el panel aparece en inglés: tocá tu foto o el ícono de arriba a la derecha > **Settings** > **Language** y elegí **Español**.
 

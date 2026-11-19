@@ -1,5 +1,5 @@
 ---
-/** One button language for the whole site. Renders a link when href is given. */
+/** Un solo lenguaje de botones para todo el sitio. Se dibuja como link cuando se pasa href. */
 import type { HTMLAttributes } from 'astro/types';
 
 type Variant = 'primary' | 'outline-dark' | 'outline-light' | 'text';
@@ -64,7 +64,7 @@ const classes = ['btn', `btn-${variant}`, { 'btn-full': full }, className];
     transform: translateY(1px);
   }
 
-  /* Disabled reads as "still pending", the same dashed language as PendingValue. */
+  /* Deshabilitado se lee como "todavia pendiente", con el mismo trazo punteado que PendingValue. */
   .btn:disabled,
   .btn:disabled:hover {
     border: 1px dashed var(--color-muted);
