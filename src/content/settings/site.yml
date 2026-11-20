@@ -50,8 +50,8 @@ social:
   facebook: https://www.facebook.com/profile.php?id=100063624184269
   tiktok: https://www.tiktok.com/@rosalu_mayorista
 acceptsMercadoPago: 'yes'
-minUnits: 3
-paymentSurcharge: 500
+minUnits: 2
+paymentSurcharge: 200
 mpMinAmount: 1000
 contactPerson:
   name: 'TODO: nombre de quien atiende'
