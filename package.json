@@ -16,6 +16,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "playwright test",
     "logo": "node scripts/build-logo.mjs",
     "placeholders": "node scripts/build-placeholders.mjs",
     "deploy": "astro build && wrangler deploy"
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "@playwright/test": "1.64.1",
     "@types/node": "^26.6.6",
     "eslint": "10.14.0",
     "eslint-plugin-astro": "3.2.1",

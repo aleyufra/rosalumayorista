@@ -30,9 +30,9 @@ const showMix = sampleMix.length > 0;
           <br />
           desde
           <br />
-          unidades
+          {settings.minUnits === 1 ? 'unidad' : 'unidades'}
         </span>
-        <span class="num">3</span>
+        <span class="num">{settings.minUnits}</span>
       </MarketTag>
 
       <p class="subtitle">{settings.copy.heroSubtitle}</p>
