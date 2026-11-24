@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // SITE_URL se puede pisar con una variable de entorno (por ejemplo al tener dominio propio);
 // se usa para el sitemap y las URLs absolutas (og:image, JSON-LD).
-const SITE_URL = process.env.SITE_URL ??'https://rosalumayorista.alejandromaryufra.workers.dev';
+const SITE_URL = process.env.SITE_URL ?? 'https://rosalumayorista.aleyufra.workers.dev';
 
 export default defineConfig({
   site: SITE_URL,

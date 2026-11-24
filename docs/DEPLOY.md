@@ -1,6 +1,6 @@
 # Deploy y panel
 
-El sitio se publica en **Cloudflare Workers (static assets)**: cada push a `main` (incluidos los cambios que se guardan desde el panel) construye el sitio y lo publica en unos minutos. El panel `/admin` usa el Worker de autenticación que ya existe: `https://sveltia-cms-auth.alejandromaryufra.workers.dev`.
+El sitio se publica en **Cloudflare Workers (static assets)**: cada push a `main` (incluidos los cambios que se guardan desde el panel) construye el sitio y lo publica en unos minutos. El panel `/admin` usa el Worker de autenticación que ya existe: `https://sveltia-cms-auth.aleyufra.workers.dev`.
 
 Todos los comandos son para **Git Bash en Windows**.
 
@@ -29,7 +29,7 @@ git push -u origin main
    - **Deploy command:** `pnpm exec wrangler deploy`
 4. En **Settings > Build > Variables**, agregá `NODE_VERSION` = `24`.
    - Si el build falla por la versión de pnpm, agregá también `PNPM_VERSION` = `12.15.0`.
-5. Guardá y desplegá. El sitio queda en `https://rosalumayorista.alejandromaryufra.workers.dev`.
+5. Guardá y desplegá. El sitio queda en `https://rosalumayorista.aleyufra.workers.dev`.
 
 Para el pago con Mercado Pago hay que cargar el secreto `MP_ACCESS_TOKEN` en el Worker: ver [MERCADOPAGO.md](MERCADOPAGO.md).
 
@@ -58,12 +58,12 @@ Sveltia CMS todavía no permite iniciar sesión con GitHub sin un intermediario 
 1. **Dominio permitido.** En Cloudflare > Workers & Pages > `sveltia-cms-auth` > **Settings > Variables and Secrets**, editá `ALLOWED_DOMAINS` y sumá el dominio del sitio, separado por coma si ya había otros:
 
    ```
-   rosalumayorista.alejandromaryufra.workers.dev
+   rosalumayorista.aleyufra.workers.dev
    ```
 
 2. **Variables de GitHub.** En el mismo lugar tienen que estar `GITHUB_CLIENT_ID` y `GITHUB_CLIENT_SECRET` (este último como secreto).
 3. **OAuth App de GitHub.** En https://github.com/settings/developers > OAuth Apps, la app que usa ese Worker tiene que tener:
-   - **Authorization callback URL:** `https://sveltia-cms-auth.alejandromaryufra.workers.dev/callback`
+   - **Authorization callback URL:** `https://sveltia-cms-auth.aleyufra.workers.dev/callback`
 
    Si el Worker ya atiende otro sitio, la misma OAuth App sirve para este.
 
@@ -74,7 +74,7 @@ Sveltia CMS todavía no permite iniciar sesión con GitHub sin un intermediario 
 1. Ella necesita una cuenta de GitHub (gratis, en https://github.com/signup).
 2. En el repositorio: **Settings > Collaborators > Add people**, buscá su usuario y dale permiso **Write**.
 3. Le llega un mail de invitación: tiene que aceptarlo.
-4. Desde ese momento entra a `https://rosalumayorista.alejandromaryufra.workers.dev/admin/` con **Iniciar sesión con GitHub**.
+4. Desde ese momento entra a `https://rosalumayorista.aleyufra.workers.dev/admin/` con **Iniciar sesión con GitHub**.
 
 Pasale la guía [CMS-GUIDE.md](CMS-GUIDE.md).
 

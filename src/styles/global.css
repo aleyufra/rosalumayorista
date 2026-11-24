@@ -58,7 +58,7 @@
   --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-drop: cubic-bezier(0.34, 1.32, 0.5, 1);
 
-  --container-content: 75rem;
+  --container-content: 87.5rem;
 }
 
 :root {

@@ -11,13 +11,10 @@ Todo esto se carga desde el panel (`/admin` > **Datos del negocio y textos**), s
 | Recargo por Mercado Pago o transferencia ($, por compra) | Panel > Recargo por Mercado Pago o transferencia                                                   | "Falta cargar: recargo por Mercado Pago o transferencia" en producto y carrito |
 | ¿Aceptan Mercado Pago?                                   | Panel > ¿Aceptan Mercado Pago? (poné Sí recién después de cargar el secreto, ver `MERCADOPAGO.md`) | No aparece el botón Pagar con Mercado Pago en el carrito                       |
 | Instagram, Facebook y TikTok                             | Panel > Redes                                                                                      | El footer muestra "Falta cargar: redes sociales"                               |
-| Nombre y rol de quien atiende                            | Panel > Quien atiende                                                                              | "Falta cargar: nombre" y "Falta cargar: rol"                                   |
-| Foto de quien atiende                                    | Panel > Quien atiende > Foto                                                                       | Foto provisoria                                                                |
 | Fotos del local y de los rubros                          | Panel > Fotos de la página principal                                                               | Fotos provisorias (ver `PHOTOS-TODO.md`)                                       |
-| Ejemplo de ganancia con 3 productos reales               | Panel > Ejemplo de ganancia                                                                        | Se usan precios de ejemplo redondos, rotulados como ejemplo                    |
 | Subcategorías por rubro                                  | Cada producto > Subcategoría (texto libre)                                                         | Campo opcional, no se muestra                                                  |
 | Productos reales                                         | Panel > Productos                                                                                  | Hay 9 productos de ejemplo (filtro "Productos de ejemplo") para borrar         |
-| Dominio propio                                           | Ver `DEPLOY.md`                                                                                    | El sitio está en `rosalumayorista.alejandromaryufra.workers.dev`               |
+| Dominio propio                                           | Ver `DEPLOY.md`                                                                                    | El sitio está en `rosalumayorista.aleyufra.workers.dev`                        |
 
 ## Al pasar a un dominio propio
 

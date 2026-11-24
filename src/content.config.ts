@@ -141,7 +141,6 @@ const settings = defineCollection({
       paymentSurcharge: z.number().int().min(0).optional(),
       // Minimo de productos (sin el recargo) para reservar con Mercado Pago.
       mpMinAmount: z.number().int().min(0).default(35000),
-      contactPerson: z.object({ name: pendable, role: pendable, photo: image().optional() }),
       photos: z.object({
         storefront: image().optional(),
       }),
@@ -154,15 +153,6 @@ const settings = defineCollection({
         title: z.string(),
         text: z.string(),
       }),
-      profitExample: z
-        .array(
-          z.object({
-            product: z.string(),
-            wholesalePrice: z.number().int().positive(),
-            resalePrice: z.number().int().positive(),
-          }),
-        )
-        .length(3),
       faq: z.array(z.object({ question: z.string(), answer: z.string() })).min(1),
       copy: z.object({
         heroSubtitle: z.string(),

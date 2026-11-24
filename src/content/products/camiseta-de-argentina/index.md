@@ -2,7 +2,7 @@
 name: Camiseta de Argentina
 category: ropa
 subcategory: Remeras
-cashPrice: 500
+cashPrice: 23000
 photos:
   - remera-argentina.webp
 sizes:
@@ -13,5 +13,5 @@ available: true
 onlinePayment: true
 featured: true
 isSample: false
-updatedAt: 2026-11-20T04:08:26
+updatedAt: 2026-11-21T18:34:54
 ---

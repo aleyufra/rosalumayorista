@@ -4,7 +4,7 @@ Esta guía es para cargar y cambiar cosas del sitio sin tocar nada técnico.
 
 ## Entrar
 
-1. Abrí **https://rosalumayorista.alejandromaryufra.workers.dev/admin/** (en la compu o en el celular).
+1. Abrí **https://rosalumayorista.aleyufra.workers.dev/admin/** (en la compu o en el celular).
 2. Tocá **Iniciar sesión con GitHub** y entrá con tu usuario.
 3. La primera vez, si el panel aparece en inglés: tocá tu foto o el ícono de arriba a la derecha > **Settings** > **Language** y elegí **Español**.
 
@@ -72,7 +72,7 @@ La temporada es el bloque de color de la página principal (Navidad y Reyes, Dí
 
 ## Otros datos del negocio
 
-En **Datos del negocio y textos** también se cambian: la dirección, los horarios, el WhatsApp, las redes, quién atiende y su foto, la foto del local, los 3 productos que se ven junto al cartel principal, el ejemplo de ganancia, las preguntas frecuentes y los textos de la página principal.
+En **Datos del negocio y textos** también se cambian: la dirección, los horarios, el WhatsApp, las redes, la foto del local, los 3 productos que se ven junto al cartel principal, las preguntas frecuentes y los textos de la página principal.
 
 En las respuestas de las preguntas frecuentes podés escribir `{minimo}`, `{recargo}` y `{reserva}`: el sitio los reemplaza por el mínimo de compra, el recargo que tengas cargado y el mínimo para reservar con Mercado Pago.
 

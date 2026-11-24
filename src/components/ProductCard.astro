@@ -26,9 +26,9 @@ const CATEGORY_LABELS = await getCategoryLabels();
           formats={['avif', 'webp']}
           fallbackFormat="webp"
           widths={[200, 300, 420, 600]}
-          sizes="(min-width: 75rem) 18rem, (min-width: 64rem) 25vw, (min-width: 48rem) 33vw, 50vw"
+          sizes="(min-width: 87.5rem) 17rem, (min-width: 64rem) 20vw, (min-width: 48rem) 25vw, 50vw"
           loading={eager ? 'eager' : 'lazy'}
-          style={`view-transition-name: product-${product.id};`}
+          data-vt-photo={product.id}
           class="lg:p-0"
         />
       )}
@@ -69,9 +69,9 @@ const CATEGORY_LABELS = await getCategoryLabels();
   .photo {
     position: relative;
     aspect-ratio: var(--aspect-product);
-    border: 1px solid var(--color-rule);
+    border: 1px solid var(--color-charcoal);
     background: var(--color-white);
-    border-radius: 6px;
+    border-radius: 0px;
   }
 
   /* Contain y no cover: las fotos verticales o anchas se ven enteras, nunca recortadas. */
@@ -87,8 +87,13 @@ const CATEGORY_LABELS = await getCategoryLabels();
   .price {
     position: absolute;
     left: -0.35rem;
-    bottom: 0.6rem;
+    bottom: 0.25rem;
     max-width: calc(100% - 0.5rem);
+  }
+
+  /* En la tarjeta el cartel va un poco mas chico que el SM general. */
+  .price :global(.size-sm) {
+    font-size: 0.95rem;
   }
 
   .sample {

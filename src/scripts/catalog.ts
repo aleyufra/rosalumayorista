@@ -1,6 +1,7 @@
 // Filtro del catalogo del lado del cliente. La pagina trae todas las tarjetas ya renderizadas
-// y un indice JSON (#catalog-index); aca solo se muestran u ocultan segun busqueda, rubro y
-// disponibilidad, y se sincroniza el estado con la URL para poder compartir el link.
+// y un indice JSON (#catalog-index); aca solo se muestran, ocultan y reordenan segun busqueda,
+// rubro, rango de precio, disponibilidad y orden, y se sincroniza el estado con la URL para
+// poder compartir el link.
 import { normalizeSearch } from '../lib/text';
 
 // key = texto de busqueda ya normalizado (sin acentos, en minusculas), calculado en el servidor.
@@ -8,10 +9,22 @@ interface IndexEntry {
   slug: string;
   category: string;
   available: boolean;
+  price: number;
   key: string;
 }
 
+type Sort = '' | 'menor-precio' | 'mayor-precio';
+
 const PAGE_SIZE = 24;
+const SORTS = new Set<Sort>(['', 'menor-precio', 'mayor-precio']);
+
+// Campo vacio o invalido = sin limite.
+function readPrice(input: HTMLInputElement | null): number | undefined {
+  const raw = input?.value.trim();
+  if (!raw) return undefined;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
 
 const form = document.querySelector<HTMLFormElement>('[data-filters]');
 const indexEl = document.getElementById('catalog-index');
@@ -21,22 +34,36 @@ if (form && indexEl) {
   const items = new Map(
     [...document.querySelectorAll<HTMLElement>('[data-item]')].map((el) => [el.dataset.item, el]),
   );
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
   const q = form.querySelector<HTMLInputElement>('[data-q]');
+  const sort = form.querySelector<HTMLSelectElement>('[data-sort]');
   const categories = [...form.querySelectorAll<HTMLInputElement>('[data-category]')];
   const onlyAvailable = form.querySelector<HTMLInputElement>('[data-available]');
+  const priceMin = form.querySelector<HTMLInputElement>('[data-price-min]');
+  const priceMax = form.querySelector<HTMLInputElement>('[data-price-max]');
   const count = document.querySelector<HTMLElement>('[data-count]');
   const empty = document.querySelector<HTMLElement>('[data-empty]');
   const moreWrap = document.querySelector<HTMLElement>('[data-more-wrap]');
   const more = document.querySelector<HTMLButtonElement>('[data-more]');
-  const clear = document.querySelector<HTMLButtonElement>('[data-clear]');
+  const clears = [...document.querySelectorAll<HTMLButtonElement>('[data-clear]')];
+  const sideClear = document.querySelector<HTMLButtonElement>('[data-clear-side]');
+  const panel = document.querySelector<HTMLElement>('[data-filters-panel]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-filters-toggle]');
+  const activeCount = document.querySelector<HTMLElement>('[data-active-count]');
+  const apply = document.querySelector<HTMLButtonElement>('[data-apply]');
+  const applyLabel = document.querySelector<HTMLElement>('[data-apply-label]');
   const validCategories = new Set(categories.map((c) => c.value));
 
   let visibleLimit = PAGE_SIZE;
 
-  // Lee el link compartido: ?rubro=ropa&q=remera&disponibles=1
+  // Lee el link compartido: ?rubro=ropa&q=remera&disponibles=1&desde=5000&hasta=20000&orden=menor-precio
   const params = new URLSearchParams(location.search);
   const initialCategory = params.get('rubro') ?? '';
+  const initialSort = (params.get('orden') ?? '') as Sort;
   if (q) q.value = params.get('q') ?? '';
+  if (sort) sort.value = SORTS.has(initialSort) ? initialSort : '';
+  if (priceMin) priceMin.value = params.get('desde') ?? '';
+  if (priceMax) priceMax.value = params.get('hasta') ?? '';
   for (const c of categories)
     c.checked = c.value === (validCategories.has(initialCategory) ? initialCategory : '');
   if (onlyAvailable) onlyAvailable.checked = params.get('disponibles') === '1';
@@ -46,16 +73,22 @@ if (form && indexEl) {
       query: normalizeSearch(q?.value ?? ''),
       category: categories.find((c) => c.checked)?.value ?? '',
       available: onlyAvailable?.checked ?? false,
+      min: readPrice(priceMin),
+      max: readPrice(priceMax),
+      sort: (sort?.value ?? '') as Sort,
     };
   }
 
   // replaceState (no pushState): filtrar no llena el historial con una entrada por tecla.
-  function syncUrl({ category, available }: ReturnType<typeof state>) {
+  function syncUrl({ category, available, min, max, sort }: ReturnType<typeof state>) {
     const next = new URLSearchParams();
     if (category) next.set('rubro', category);
     const raw = q?.value.trim();
     if (raw) next.set('q', raw);
+    if (min !== undefined) next.set('desde', String(min));
+    if (max !== undefined) next.set('hasta', String(max));
     if (available) next.set('disponibles', '1');
+    if (sort) next.set('orden', sort);
     const search = next.toString();
     history.replaceState(history.state, '', search ? `?${search}` : location.pathname);
   }
@@ -68,32 +101,78 @@ if (form && indexEl) {
       (p) =>
         (!s.category || p.category === s.category) &&
         (!s.available || p.available) &&
+        (s.min === undefined || p.price >= s.min) &&
+        (s.max === undefined || p.price <= s.max) &&
         words.every((w) => p.key.includes(w)),
     );
+    // sort es estable: a igual precio se mantiene el orden original (mas nuevos primero).
+    if (s.sort === 'menor-precio') matches.sort((a, b) => a.price - b.price);
+    if (s.sort === 'mayor-precio') matches.sort((a, b) => b.price - a.price);
+
+    // Reordena las tarjetas en el DOM: primero las que coinciden, en el orden elegido.
+    const matched = new Set(matches.map((p) => p.slug));
+    const order = [
+      ...matches.map((p) => p.slug),
+      ...index.map((p) => p.slug).filter((slug) => !matched.has(slug)),
+    ];
+    for (const slug of order) {
+      const el = items.get(slug);
+      if (grid && el) grid.append(el);
+    }
     const shown = new Set(matches.slice(0, visibleLimit).map((p) => p.slug));
     for (const [slug, el] of items) el.hidden = !shown.has(slug ?? '');
 
-    if (count) {
-      count.textContent = matches.length === 1 ? '1 producto' : `${matches.length} productos`;
-    }
+    const label = matches.length === 1 ? '1 producto' : `${matches.length} productos`;
+    if (count) count.textContent = label;
+    if (applyLabel)
+      applyLabel.textContent = matches.length === 0 ? 'Sin resultados' : `Ver ${label}`;
     if (empty) empty.hidden = matches.length > 0;
     if (moreWrap) moreWrap.hidden = matches.length <= visibleLimit;
+
+    // Filtros del panel activos (la busqueda y el orden quedan afuera: estan siempre a la vista).
+    const active =
+      Number(Boolean(s.category)) +
+      Number(s.min !== undefined || s.max !== undefined) +
+      Number(s.available);
+    if (activeCount) {
+      activeCount.textContent = String(active);
+      activeCount.hidden = active === 0;
+    }
+    if (sideClear) sideClear.hidden = active === 0;
     syncUrl(s);
   }
 
-  // Debounce de 150 ms al escribir; los demas controles (rubro, disponibles) filtran al instante.
-  let timer: number | undefined;
-  q?.addEventListener('input', () => {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => {
-      visibleLimit = PAGE_SIZE;
-      render();
-    }, 150);
-  });
-  form.addEventListener('change', () => {
+  function reset() {
     visibleLimit = PAGE_SIZE;
     render();
-  });
+  }
+
+  // Panel plegable en celular: el boton "Filtros" lo abre y "Ver N productos" lo cierra.
+  if (panel && toggle) {
+    panel.dataset.collapsible = '';
+    toggle.hidden = false;
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) panel.dataset.open = '';
+      else delete panel.dataset.open;
+    };
+    toggle.addEventListener('click', () => setOpen(!('open' in panel.dataset)));
+    apply?.addEventListener('click', () => {
+      setOpen(false);
+      document.getElementById('resultados')?.scrollIntoView({ block: 'start' });
+      toggle.focus({ preventScroll: true });
+    });
+  }
+
+  // Debounce de 150 ms al escribir (busqueda y precios); el resto filtra al instante.
+  let timer: number | undefined;
+  for (const input of [q, priceMin, priceMax]) {
+    input?.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(reset, 150);
+    });
+  }
+  form.addEventListener('change', reset);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     render();
@@ -103,17 +182,22 @@ if (form && indexEl) {
     visibleLimit += PAGE_SIZE;
     render();
     // Mueve el foco al primer producto recien mostrado, para quienes usan teclado.
-    const revealed = [...items.values()].filter((el) => !el.hidden)[firstNew];
+    const revealed = [...(grid?.children ?? [])].filter((el) => !(el as HTMLElement).hidden)[
+      firstNew
+    ];
     revealed?.querySelector<HTMLAnchorElement>('a')?.focus();
   });
-  clear?.addEventListener('click', () => {
-    if (q) q.value = '';
-    for (const c of categories) c.checked = c.value === '';
-    if (onlyAvailable) onlyAvailable.checked = false;
-    visibleLimit = PAGE_SIZE;
-    render();
-    q?.focus();
-  });
+  for (const clear of clears) {
+    clear.addEventListener('click', () => {
+      if (q) q.value = '';
+      for (const c of categories) c.checked = c.value === '';
+      if (onlyAvailable) onlyAvailable.checked = false;
+      if (priceMin) priceMin.value = '';
+      if (priceMax) priceMax.value = '';
+      reset();
+      (clear === sideClear ? categories[0] : q)?.focus();
+    });
+  }
 
   render();
 }

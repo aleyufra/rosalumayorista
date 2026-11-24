@@ -21,7 +21,7 @@ const { products } = Astro.props;
         </div>
         <p class="intro">Precios en efectivo, publicados como en el local.</p>
       </div>
-      <ul class:list={['grid', { 'grid-3': products.length % 4 !== 0 }]}>
+      <ul class="grid">
         {products.map((p) => (
           <li>
             <ProductCard product={p} />
@@ -67,6 +67,8 @@ const { products } = Astro.props;
   }
 
   .all {
+    display: flex;
+    justify-content: center;
     margin-top: 2.5rem;
   }
 
@@ -74,11 +76,6 @@ const { products } = Astro.props;
     .grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 2.25rem 1.25rem;
-    }
-
-    /* 3, 6 o 7 productos: tres columnas evitan una fila huerfana. */
-    .grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 

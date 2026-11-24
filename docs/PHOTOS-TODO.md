@@ -7,7 +7,6 @@ Hoy el sitio usa fotos provisorias grises que dicen qué foto va en cada lugar. 
 | Foto                                        | Forma          | Tamaño mínimo  | Dónde se sube                                                       |
 | ------------------------------------------- | -------------- | -------------- | ------------------------------------------------------------------- |
 | Frente del local, con el cartel y la vereda | Horizontal 3:2 | 1500 × 1000 px | Datos del negocio > Fotos de la página principal > Frente del local |
-| Quien atiende, de frente, en el local       | Vertical 4:5   | 1000 × 1250 px | Datos del negocio > Quien atiende > Foto                            |
 | Rubro ropa (perchero o mesa con prendas)    | Vertical 4:5   | 1000 × 1250 px | Datos del negocio > Fotos de la página principal > Rubro ropa       |
 | Rubro juguetería                            | Vertical 4:5   | 1000 × 1250 px | Datos del negocio > Fotos de la página principal > Rubro juguetería |
 | Rubro bazar                                 | Vertical 4:5   | 1000 × 1250 px | Datos del negocio > Fotos de la página principal > Rubro bazar      |

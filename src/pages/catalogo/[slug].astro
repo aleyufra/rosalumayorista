@@ -40,13 +40,13 @@ const CATEGORY_LABELS = await getCategoryLabels();
 const surcharge = surchargeAmount(settings);
 const related = all
   .filter((p) => p.id !== product.id && p.data.category === category && p.data.available)
-  .slice(0, 4);
+  .slice(0, 5);
 const thumb = await thumbnailUrl(product);
 const cover = photos[0];
 const shareImage = cover
   ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src
   : '/og.png';
-const site = Astro.site ?? new URL('https://rosalumayorista.alejandromaryufra.workers.dev');
+const site = Astro.site ?? new URL('https://rosalumayorista.aleyufra.workers.dev');
 const askBackUrl = hasWhatsApp(settings)
   ? buildWhatsAppUrl(settings.whatsapp, `¡Hola Rosalu! Quería saber cuándo vuelve: ${name}`)
   : undefined;
@@ -227,12 +227,12 @@ const productLd = {
         )}
 
         <ul class="trust">
-          <li>
-            <strong>Retiro en el local.</strong> No hacemos envíos.
-          </li>
-          <li>
-            <strong>Cambio en 24 hs</strong> con ticket, sin uso y con etiqueta.
-          </li>
+          {/* La garantia de cambio no aplica a la ropa. */}
+          {category !== 'ropa' && (
+            <li>
+              <strong>Cambio en 24 hs</strong> con ticket, sin uso y con etiqueta.
+            </li>
+          )}
           <li>
             <strong>Mínimo {settings.minUnits} productos</strong>, surtidos entre todos los rubros.
           </li>
@@ -303,19 +303,28 @@ const productLd = {
 
   h1 {
     margin: 0.25rem 0 1.25rem;
+    font-size: clamp(1.625rem, 1.4rem + 1.1vw, 2.125rem);
   }
 
   .price {
     margin-left: -0.35rem;
   }
 
+  /* El cartel MD general va un poco mas chico en la ficha. */
+  .price :global(.size-md) {
+    font-size: clamp(2rem, 1.7rem + 1.4vw, 2.75rem);
+  }
+
   .price-note {
     margin: 0.85rem 0 0;
     color: var(--color-muted);
+    font-size: var(--text-small);
   }
 
   .price-alt {
-    margin: 0.25rem 0 0;
+    margin: 0.2rem 0 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
   }
 
   .price-alt strong {
@@ -515,6 +524,11 @@ const productLd = {
     margin: 0 0 1.5rem;
   }
 
+  /* Hasta tablet entran 4 (2 filas de 2 o 1 de 4); la 5ta solo en escritorio, para no dejar una tarjeta sola. */
+  .related-grid > li:nth-child(5) {
+    display: none;
+  }
+
   .related-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -565,6 +579,15 @@ const productLd = {
   }
 
   @media (min-width: 48rem) {
+    /* Desde tablet el boton deja de ocupar todo el ancho de la columna. */
+    .inline-action :global(.btn) {
+      width: auto;
+      min-width: 15rem;
+      min-height: 2.75rem;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.9375rem;
+    }
+
     .related-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 2rem 1.25rem;
@@ -573,20 +596,33 @@ const productLd = {
 
   @media (min-width: 64rem) {
     .layout {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 1.5rem;
+      /* Galeria (cuadrado de hasta 70vh) e info (20 a 28rem), centradas como un bloque. */
+      grid-template-columns: minmax(0, 70vh) minmax(20rem, 28rem);
+      justify-content: center;
+      gap: 1.5rem 3rem;
       align-items: start;
     }
 
+    .crumbs {
+      width: min(100%, calc(70vh + 31rem));
+      margin-inline: auto;
+    }
+
     .media {
-      grid-column: 1 / 8;
       margin-inline: 0;
     }
 
     .info {
-      grid-column: 8 / 13;
       position: sticky;
       top: 5rem;
+    }
+
+    .related-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .related-grid > li:nth-child(5) {
+      display: revert;
     }
 
     .buy-bar {

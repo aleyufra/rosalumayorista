@@ -15,7 +15,7 @@ interface Props {
 }
 
 const { title, description, image = '/og.png', noindex = false } = Astro.props;
-const site = Astro.site ?? new URL('https://rosalumayorista.alejandromaryufra.workers.dev');
+const site = Astro.site ?? new URL('https://rosalumayorista.aleyufra.workers.dev');
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
 const ogImage = new URL(image, site).href;
 const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
@@ -57,6 +57,24 @@ const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
       addEventListener('pagereveal', (e) => {
         if (e.viewTransition) document.documentElement.classList.add('arrived-by-transition');
       });
+
+      // Solo la foto del producto que se abre (o del que se vuelve) lleva nombre de transicion.
+      // Si todas las tarjetas lo tuvieran, las de "relacionados" del detalle tambien volarian
+      // hacia su gemela del catalogo al volver.
+      (() => {
+        const slugOf = (url) => url && new URL(url).pathname.match(/^\/catalogo\/([^/]+)$/)?.[1];
+        const mark = (slug, vt) => {
+          if (!slug || !vt) return;
+          const img = document.querySelector(`[data-vt-photo="${CSS.escape(slug)}"]`);
+          if (!img) return;
+          img.style.viewTransitionName = `product-${slug}`;
+          vt.finished.finally(() => (img.style.viewTransitionName = ''));
+        };
+        addEventListener('pageswap', (e) => mark(slugOf(e.activation?.entry?.url), e.viewTransition));
+        addEventListener('pagereveal', (e) =>
+          mark(slugOf(window.navigation?.activation?.from?.url), e.viewTransition),
+        );
+      })();
     </script>
   </head>
   <body>

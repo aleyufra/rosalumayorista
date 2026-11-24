@@ -50,41 +50,32 @@ social:
   facebook: https://www.facebook.com/profile.php?id=100063624184269
   tiktok: https://www.tiktok.com/@rosalu_mayorista
 acceptsMercadoPago: 'yes'
-minUnits: 2
-paymentSurcharge: 200
-mpMinAmount: 1000
-contactPerson:
-  name: 'TODO: nombre de quien atiende'
-  role: 'TODO: rol (por ejemplo, encargada)'
+minUnits: 3
+paymentSurcharge: 2500
+mpMinAmount: 35000
 photos:
   storefront: ../../assets/cms/storefront.webp
+heroProducts:
+  - camiseta-de-argentina
+  - juego-de-mate-stanley
+  - pantuflas-mujer-stitch
 season:
   active: true
   theme: christmas
   tag: Navidad y Reyes
   title: Se vienen Navidad y Reyes
   text: Las que se surten ahora llegan a diciembre con mercadería lista para vender. Armá tu surtido con tiempo y reponé lo que más vuela.
-profitExample:
-  - product: Remera básica
-    wholesalePrice: 9000
-    resalePrice: 14000
-  - product: Juego de té infantil
-    wholesalePrice: 7500
-    resalePrice: 12000
-  - product: Taza de cerámica
-    wholesalePrice: 2800
-    resalePrice: 4500
 faq:
   - question: ¿Cuál es el mínimo?
     answer: 3 productos en total. Pueden ser iguales o distintos, y las unidades del mismo producto también cuentan.
+  - question: ¿Aceptan transferencia?
+    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia o Mercado Pago hay un recargo de {recargo} por compra.
   - question: ¿Se puede comprar surtido?
     answer: Sí. Podés mezclar ropa, juguetería y bazar en el mismo pedido para llegar al mínimo.
   - question: ¿Hacen envíos?
     answer: Por ahora no. Armás tu pedido, te lo confirmamos por WhatsApp y lo retirás en el local de calle Gorriti.
-  - question: ¿Aceptan transferencia?
-    answer: Sí. Pagando en efectivo tenés el precio especial que ves publicado. Por transferencia o Mercado Pago hay un recargo de {recargo} por compra.
   - question: ¿Cómo son los cambios?
-    answer: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas con el ticket, sin uso y con la etiqueta, y te lo cambiamos. Es un cambio, no devolvemos dinero.
+    answer: En juguetería y bazar, si el producto vino fallado o necesitás otro color, lo traés dentro de las 24 horas con el ticket, sin uso y con la etiqueta, y te lo cambiamos. Es un cambio, no devolvemos dinero. La ropa no tiene cambio ni se permite probar.
   - question: ¿Aceptan Mercado Pago?
     answer: Sí, para reservar tu pedido. Desde el carrito pagás con Mercado Pago (tarjeta o dinero en cuenta, en 1 pago) y lo retirás en el local. Se habilita desde {reserva} en productos, más un recargo de {recargo} por compra. Después nos mandás el comprobante por WhatsApp.
 copy:
@@ -93,7 +84,7 @@ copy:
     - title: Local en el centro
       text: Venís, lo ves y te lo llevás. Estamos en calle Gorriti.
     - title: Cambio en 24 horas
-      text: Si vino fallado o necesitás otro talle o color, te lo cambiamos.
+      text: En juguetería y bazar, si vino fallado o necesitás otro color, te lo cambiamos. No aplica a ropa.
     - title: Precio especial en efectivo
       text: El precio publicado es el que pagás en efectivo.
     - title: El mismo trato
@@ -103,12 +94,13 @@ copy:
       text: Todos los productos tienen el precio publicado. Elegí talle, color y cantidad.
     - title: Lo mandás por WhatsApp y te confirmamos
       text: El pedido sale armado con un toque. Te respondemos con la disponibilidad.
-    - title: Venís al local, lo ves, pagás y te lo llevás
-      text: Lo revisás en el mostrador y recién ahí pagás.
-  guarantee: Si el producto vino fallado o necesitás otro talle o color, lo traés dentro de las 24 horas y te lo cambiamos.
+    - title: Reservás, venís al local, y te lo llevás
+      text: Revisas en el mostrador todo lo que reservaste y te lo llevas.
+  guarantee: Si un producto de juguetería o bazar vino fallado o necesitás otro color, lo traés dentro de las 24 horas y te lo cambiamos.
   guaranteeConditions:
     - Traé el ticket de compra.
     - El producto tiene que estar sin uso y con la etiqueta.
     - Es un cambio, no una devolución de dinero.
+    - No aplica a ropa.
   closingTitle: Vení a Rosalu y llevate lo que más te guste al mejor precio
   closingText: Mirá el catálogo, mandanos tu pedido o pasá por el local. Te esperamos!

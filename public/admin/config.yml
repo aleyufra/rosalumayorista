@@ -11,7 +11,7 @@ backend:
   repo: aleyufra/rosalumayorista
   branch: main
   # Worker aparte que hace el login OAuth con GitHub (no es el Worker de este repo).
-  base_url: https://sveltia-cms-auth.alejandromaryufra.workers.dev
+  base_url: https://sveltia-cms-auth.aleyufra.workers.dev
   # Mensajes de los commits que genera el panel. Aparecen en el historial de git.
   commit_messages:
     create: 'Panel: nuevo {{collection}} {{slug}}'
@@ -20,9 +20,9 @@ backend:
     uploadMedia: 'Panel: sube {{path}}'
     deleteMedia: 'Panel: borra {{path}}'
 
-site_url: https://rosalumayorista.alejandromaryufra.workers.dev
+site_url: https://rosalumayorista.aleyufra.workers.dev
 # Idioma fijo de la interfaz del panel, sin depender del navegador.
-display_url: https://rosalumayorista.alejandromaryufra.workers.dev
+display_url: https://rosalumayorista.aleyufra.workers.dev
 logo_url: /favicon.svg
 
 # Las imagenes de los datos del negocio (persona, frente del local, rubros) viven en src/ para
@@ -303,13 +303,6 @@ singletons:
         min: 0
         default: 35000
         hint: 'Suma mínima de productos que se pagan online, sin el recargo. Ej: 35000 con un recargo de 2500 = la clienta paga 37500 como mínimo. Solo el número, sin puntos.'
-      - name: contactPerson
-        label: Quien atiende (aparece en la página principal)
-        widget: object
-        fields:
-          - { name: name, label: Nombre, widget: string }
-          - { name: role, label: Rol, widget: string, hint: 'Ej: Encargada del local.' }
-          - { name: photo, label: Foto, widget: image, required: false, hint: 'Vertical, de frente, con luz natural.' }
       - name: photos
         label: Fotos de la página principal
         widget: object
@@ -342,17 +335,6 @@ singletons:
           - { name: tag, label: Texto del cartel (corto), widget: string, hint: 'Máximo 20 letras. Ej: Navidad y Reyes.', pattern: ['^.{1,20}$', 'Máximo 20 letras.'] }
           - { name: title, label: Título, widget: string }
           - { name: text, label: Texto, widget: text }
-      - name: profitExample
-        label: Ejemplo de ganancia (3 productos)
-        widget: list
-        min: 3
-        max: 3
-        hint: 'La ganancia se calcula sola. Precios sin puntos ni signo $.'
-        summary: '{{product}}'
-        fields:
-          - { name: product, label: Producto, widget: string }
-          - { name: wholesalePrice, label: Precio mayorista, widget: number, value_type: int, min: 1 }
-          - { name: resalePrice, label: Precio de reventa sugerido, widget: number, value_type: int, min: 1 }
       - name: faq
         label: Preguntas frecuentes
         widget: list

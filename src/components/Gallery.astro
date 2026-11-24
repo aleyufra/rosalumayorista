@@ -25,17 +25,25 @@ const many = photos.length > 1;
   >
     {photos.map((photo, i) => (
       <figure class="slide" data-slide>
-        <Picture
-          src={photo}
-          alt={many ? `${name}, foto ${i + 1} de ${photos.length}` : name}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[360, 540, 720, 960, 1200]}
-          sizes="(min-width: 64rem) 46rem, 100vw"
-          loading={i === 0 ? 'eager' : 'lazy'}
-          fetchpriority={i === 0 ? 'high' : undefined}
-          style={i === 0 ? `view-transition-name: product-${slug}` : undefined}
-        />
+        <button
+          type="button"
+          class="zoom"
+          data-zoom={i}
+          aria-label={many ? `Ampliar foto ${i + 1} de ${photos.length}` : 'Ampliar foto'}
+          aria-haspopup="dialog"
+        >
+          <Picture
+            src={photo}
+            alt={many ? `${name}, foto ${i + 1} de ${photos.length}` : name}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[360, 540, 720, 960, 1200]}
+            sizes="(min-width: 64rem) 46rem, 100vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+            style={i === 0 ? `view-transition-name: product-${slug}` : undefined}
+          />
+        </button>
       </figure>
     ))}
   </div>
@@ -67,6 +75,51 @@ const many = photos.length > 1;
       </ul>
     </>
   )}
+
+  {/* Visor a pantalla completa: se abre al tocar la foto. */}
+  <dialog class="viewer" aria-label={`Fotos de ${name}`} data-viewer>
+    {photos.map((photo, i) => (
+      <figure class="viewer-slide" data-viewer-slide hidden={i !== 0}>
+        <Picture
+          src={photo}
+          alt={many ? `${name}, foto ${i + 1} de ${photos.length}` : name}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[720, 1080, 1440, 1920]}
+          sizes="90vw"
+          loading="lazy"
+        />
+      </figure>
+    ))}
+
+    <button type="button" class="viewer-btn viewer-close" aria-label="Cerrar" data-viewer-close>
+      <Icon name="close" />
+    </button>
+
+    {many && (
+      <>
+        <button
+          type="button"
+          class="viewer-btn viewer-prev"
+          aria-label="Foto anterior"
+          data-viewer-prev
+        >
+          <Icon name="chevron-left" />
+        </button>
+        <button
+          type="button"
+          class="viewer-btn viewer-next"
+          aria-label="Foto siguiente"
+          data-viewer-next
+        >
+          <Icon name="chevron-right" />
+        </button>
+        <p class="viewer-count" aria-live="polite" data-viewer-count>
+          1 / {photos.length}
+        </p>
+      </>
+    )}
+  </dialog>
 </div>
 
 <script>
@@ -74,13 +127,60 @@ const many = photos.length > 1;
     const track = gallery.querySelector<HTMLElement>('[data-track]');
     const slides = [...gallery.querySelectorAll<HTMLElement>('[data-slide]')];
     const thumbs = [...gallery.querySelectorAll<HTMLButtonElement>('[data-thumb]')];
-    if (!track || slides.length < 2) continue;
+    if (!track) continue;
 
     const current = () => Math.round(track.scrollLeft / track.clientWidth);
     const go = (i: number) => {
       const target = Math.max(0, Math.min(slides.length - 1, i));
       track.scrollTo({ left: target * track.clientWidth });
     };
+
+    // Visor: muestra una foto por vez y da la vuelta al llegar al final.
+    const viewer = gallery.querySelector<HTMLDialogElement>('[data-viewer]');
+    const viewerSlides = [...gallery.querySelectorAll<HTMLElement>('[data-viewer-slide]')];
+    const viewerCount = gallery.querySelector<HTMLElement>('[data-viewer-count]');
+    if (viewer && viewerSlides.length) {
+      let at = 0;
+      const show = (i: number) => {
+        at = (i + viewerSlides.length) % viewerSlides.length;
+        viewerSlides.forEach((s, n) => (s.hidden = n !== at));
+        if (viewerCount) viewerCount.textContent = `${at + 1} / ${viewerSlides.length}`;
+        // La galeria de atras acompaña, asi al cerrar queda en la misma foto.
+        track.scrollTo({ left: at * track.clientWidth, behavior: 'instant' });
+      };
+      for (const zoom of gallery.querySelectorAll<HTMLButtonElement>('[data-zoom]')) {
+        zoom.addEventListener('click', () => {
+          show(Number(zoom.dataset.zoom));
+          viewer.showModal();
+        });
+      }
+      gallery.querySelector('[data-viewer-close]')?.addEventListener('click', () => viewer.close());
+      gallery.querySelector('[data-viewer-prev]')?.addEventListener('click', () => show(at - 1));
+      gallery.querySelector('[data-viewer-next]')?.addEventListener('click', () => show(at + 1));
+      // Tocar el fondo oscuro (fuera de la foto y de los botones) cierra.
+      let swiped = false;
+      viewer.addEventListener('click', (e) => {
+        if (swiped) return void (swiped = false);
+        const target = e.target as HTMLElement;
+        if (target === viewer || target.matches('[data-viewer-slide]')) viewer.close();
+      });
+      viewer.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') show(at + 1);
+        if (e.key === 'ArrowLeft') show(at - 1);
+      });
+      // Deslizar con el dedo para cambiar de foto.
+      let startX: number | undefined;
+      viewer.addEventListener('pointerdown', (e) => (startX = e.clientX));
+      viewer.addEventListener('pointerup', (e) => {
+        if (startX === undefined || viewerSlides.length < 2) return;
+        const dx = e.clientX - startX;
+        startX = undefined;
+        swiped = Math.abs(dx) > 50;
+        if (swiped) show(dx < 0 ? at + 1 : at - 1);
+      });
+    }
+
+    if (slides.length < 2) continue;
 
     gallery.querySelector('[data-prev]')?.addEventListener('click', () => go(current() - 1));
     gallery.querySelector('[data-next]')?.addEventListener('click', () => go(current() + 1));
@@ -113,7 +213,7 @@ const many = photos.length > 1;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-width: none;
-    border: 1px solid var(--color-rule);
+    border: 2px solid var(--color-charcoal);
     background: var(--color-white);
   }
 
@@ -130,7 +230,7 @@ const many = photos.length > 1;
   .slide {
     flex: 0 0 100%;
     margin: 0;
-    padding: 20px;
+    padding: 0px;
     box-sizing: border-box;
     aspect-ratio: var(--aspect-product);
     scroll-snap-align: start;
@@ -142,6 +242,142 @@ const many = photos.length > 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  .zoom {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+
+  .zoom:focus-visible {
+    outline-offset: -3px;
+  }
+
+  /* ---------- Visor ---------- */
+  .viewer {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-white);
+    overscroll-behavior: contain;
+    --color-focus: var(--color-white);
+  }
+
+  .viewer::backdrop {
+    background: rgb(20 20 20 / 0.92);
+  }
+
+  :global(html:has(.viewer[open])) {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .viewer[open] {
+      animation: viewer-in 180ms ease-out;
+    }
+  }
+
+  @keyframes viewer-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* La figura es la caja donde entra la foto; fuera de ella se ve el fondo oscuro. */
+  .viewer-slide {
+    position: absolute;
+    inset: 4.5rem 1rem;
+    margin: 0;
+  }
+
+  .viewer-slide[hidden] {
+    display: none;
+  }
+
+  .viewer-slide :global(picture) {
+    display: contents;
+  }
+
+  .viewer-slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+  }
+
+  .viewer-btn {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    background: var(--color-white);
+    color: var(--color-charcoal);
+    cursor: pointer;
+    transition:
+      background-color 140ms ease-out,
+      color 140ms ease-out;
+  }
+
+  .viewer-btn:hover {
+    background: var(--color-charcoal);
+    color: var(--color-white);
+  }
+
+  .viewer-close {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .viewer-prev,
+  .viewer-next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .viewer-prev {
+    left: 0.75rem;
+  }
+
+  .viewer-next {
+    right: 0.75rem;
+  }
+
+  .viewer-count {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    margin: 0;
+    color: var(--color-mist);
+    font-size: var(--text-small);
+    font-variant-numeric: tabular-nums;
+    transform: translateX(-50%);
+  }
+
+  @media (min-width: 64rem) {
+    .viewer-slide {
+      inset: 3.5rem 6rem;
+    }
+
+    .viewer-prev {
+      left: 1.5rem;
+    }
+
+    .viewer-next {
+      right: 1.5rem;
+    }
   }
 
   .sold-out .slide :global(img) {
@@ -186,6 +422,12 @@ const many = photos.length > 1;
   }
 
   @media (min-width: 64rem) {
+    /* Cuadrado de hasta 70vh de lado; limitado por el ancho de la columna. */
+    .track,
+    .arrows {
+      max-width: 70vh;
+    }
+
     .arrows {
       position: absolute;
       inset: 0 0 auto;

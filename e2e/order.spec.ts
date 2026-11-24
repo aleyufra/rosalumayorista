@@ -31,7 +31,7 @@ test('enviar pedido abre WhatsApp con el mensaje armado', async ({ page }) => {
 
   const opened = await page.evaluate(() => (window as unknown as { opened: string[] }).opened);
   expect(opened).toHaveLength(1);
-  const url = new URL(opened[0]!);
+  const url = new URL(opened[0] ?? '');
   expect(url.href).toContain('5493885846033');
   const text = url.searchParams.get('text') ?? '';
   expect(text).toContain('Vero');
