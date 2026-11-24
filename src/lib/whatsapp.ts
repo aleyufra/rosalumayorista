@@ -63,6 +63,33 @@ export function buildPaidOrderMessage(summary: PaymentSummary): string {
   ].join('\n');
 }
 
+export interface RevocationRequest {
+  code: string;
+  name: string;
+  products: string;
+  orderCode?: string;
+  /** Fecha del input type="date" (AAAA-MM-DD). */
+  date?: string;
+}
+
+const oneLine = (s = '') => s.trim().replace(/\s+/g, ' ');
+
+/** Solicitud del boton de arrepentimiento (Res. 424/2020): el codigo es la constancia. */
+export function buildRevocationMessage(r: RevocationRequest): string {
+  const date = oneLine(r.date).split('-').reverse().join('/');
+  return [
+    '¡Hola Rosalu! Quiero arrepentirme de una compra (botón de arrepentimiento).',
+    '',
+    `Código de la solicitud: ${r.code}`,
+    `Nombre: ${oneLine(r.name).slice(0, MAX_NAME_LENGTH)}`,
+    `Productos: ${oneLine(r.products)}`,
+    ...(oneLine(r.orderCode) ? [`Pedido: ${oneLine(r.orderCode)}`] : []),
+    ...(date ? [`Fecha de compra o retiro: ${date}`] : []),
+    '',
+    '¿Me confirman que recibieron la solicitud?',
+  ].join('\n');
+}
+
 // wa.me exige el numero solo con digitos y el texto codificado para URL.
 export function buildWhatsAppUrl(phone: string, text?: string): string {
   const base = `https://wa.me/${phone.replace(/\D/g, '')}`;

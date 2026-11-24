@@ -203,6 +203,16 @@ singletons:
       - name: businessName
         label: Nombre del negocio
         widget: string
+      - name: legalName
+        label: Titular o razón social
+        widget: string
+        required: false
+        hint: 'Nombre completo de la persona o empresa dueña del negocio, como figura en ARCA. Aparece en la política de privacidad.'
+      - name: taxId
+        label: CUIT
+        widget: string
+        required: false
+        hint: 'Ej: 27-12345678-9. Aparece en la política de privacidad.'
       - name: address
         label: Dirección
         widget: object

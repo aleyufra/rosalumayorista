@@ -13,6 +13,7 @@ Todo esto se carga desde el panel (`/admin` > **Datos del negocio y textos**), s
 | Instagram, Facebook y TikTok                             | Panel > Redes                                                                                      | El footer muestra "Falta cargar: redes sociales"                               |
 | Fotos del local y de los rubros                          | Panel > Fotos de la página principal                                                               | Fotos provisorias (ver `PHOTOS-TODO.md`)                                       |
 | Subcategorías por rubro                                  | Cada producto > Subcategoría (texto libre)                                                         | Campo opcional, no se muestra                                                  |
+| Titular o razón social y CUIT                            | Panel > Titular o razón social / CUIT                                                              | La política de privacidad muestra "Falta cargar: titular" y "Falta cargar: CUIT" |
 | Productos reales                                         | Panel > Productos                                                                                  | Hay 9 productos de ejemplo (filtro "Productos de ejemplo") para borrar         |
 | Dominio propio                                           | Ver `DEPLOY.md`                                                                                    | El sitio está en `rosalumayorista.aleyufra.workers.dev`                        |
 

@@ -231,10 +231,13 @@ export function buildPreference(
 
 const CODE_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-/** "RSL-7K2Q9X" a partir de bytes aleatorios; sin 0/O ni 1/I para que se lea bien por WhatsApp. */
-export function makeOrderCode(random: Uint8Array): string {
+/**
+ * "RSL-7K2Q9X" a partir de bytes aleatorios; sin 0/O ni 1/I para que se lea bien por WhatsApp.
+ * El prefijo distingue pedidos (RSL) de solicitudes de arrepentimiento (ARR).
+ */
+export function makeOrderCode(random: Uint8Array, prefix = 'RSL'): string {
   const chars = [...random.slice(0, 6)].map((b) => CODE_ALPHABET[b % CODE_ALPHABET.length]);
-  return `RSL-${chars.join('')}`;
+  return `${prefix}-${chars.join('')}`;
 }
 
 export interface PaymentItem {

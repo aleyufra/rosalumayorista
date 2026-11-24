@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { CartLine } from './cart';
-import { buildOrderMessage, buildPaidOrderMessage, buildWhatsAppUrl } from './whatsapp';
+import {
+  buildOrderMessage,
+  buildPaidOrderMessage,
+  buildRevocationMessage,
+  buildWhatsAppUrl,
+} from './whatsapp';
 
 const lines: CartLine[] = [
   {
@@ -102,5 +107,37 @@ describe('buildPaidOrderMessage', () => {
         'Te mando el comprobante. Lo retiro en el local.',
       ].join('\n'),
     );
+  });
+});
+
+describe('buildRevocationMessage', () => {
+  it('includes the request code and every filled field', () => {
+    expect(
+      buildRevocationMessage({
+        code: 'ARR-23456Z',
+        name: '  Vero   Díaz ',
+        products: '2 remeras básicas',
+        orderCode: 'RSL-7K2Q9X',
+        date: '2026-11-20',
+      }),
+    ).toBe(
+      [
+        '¡Hola Rosalu! Quiero arrepentirme de una compra (botón de arrepentimiento).',
+        '',
+        'Código de la solicitud: ARR-23456Z',
+        'Nombre: Vero Díaz',
+        'Productos: 2 remeras básicas',
+        'Pedido: RSL-7K2Q9X',
+        'Fecha de compra o retiro: 20/11/2026',
+        '',
+        '¿Me confirman que recibieron la solicitud?',
+      ].join('\n'),
+    );
+  });
+
+  it('leaves out the optional fields when empty', () => {
+    const text = buildRevocationMessage({ code: 'ARR-23456Z', name: 'Vero', products: 'Taza' });
+    expect(text).not.toContain('Pedido:');
+    expect(text).not.toContain('Fecha');
   });
 });

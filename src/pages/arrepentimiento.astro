@@ -1,0 +1,209 @@
+---
+// Boton de arrepentimiento (Res. 424/2020): sin registro previo, y con un codigo de solicitud
+// que la persona recibe en el momento (la norma pide darlo dentro de las 24 horas).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import PendingValue from '../components/PendingValue.astro';
+import { getSettings, hasWhatsApp } from '../lib/settings';
+import { buildWhatsAppUrl } from '../lib/whatsapp';
+
+const settings = await getSettings();
+const whatsapp = hasWhatsApp(settings) ? settings.whatsapp : '';
+---
+
+<BaseLayout
+  title="Botón de arrepentimiento"
+  description="Si compraste en Rosalu por el sitio y te arrepentiste, cancelá la compra dentro de los 10 días corridos."
+>
+  <div class="wrap page">
+    <h1 class="voice-title text-h1">Botón de arrepentimiento</h1>
+    <p class="lead">
+      Si compraste por este sitio (pedido por WhatsApp o reserva con Mercado Pago) y te
+      arrepentiste, podés cancelar la compra. No necesitás cuenta ni dar explicaciones.
+    </p>
+
+    <h2 class="voice-title text-h3">Cómo funciona</h2>
+    <ol class="steps">
+      <li>Completás el formulario de abajo.</li>
+      <li>
+        Te damos un <strong>código de solicitud</strong> en el momento: es tu constancia. Se abre
+        WhatsApp con la solicitud lista para mandarnos.
+      </li>
+      <li>Traés el producto al local, como lo recibiste.</li>
+      <li>Te devolvemos lo que pagaste, por el mismo medio de pago, sin costo para vos.</li>
+    </ol>
+    <p class="note">
+      Tenés <strong>10 días corridos</strong> desde que retiraste el producto o desde la compra, lo
+      que haya pasado último (Ley 24.240, art. 34, y Código Civil y Comercial, art. 1110). Es
+      distinto del cambio en 24 horas: acá cancelás la compra.
+    </p>
+
+    {whatsapp ? (
+      <form class="form" data-revocation data-whatsapp={whatsapp}>
+        <label for="rev-name">Tu nombre</label>
+        <input id="rev-name" name="name" type="text" autocomplete="name" maxlength="60" required />
+
+        <label for="rev-products">Qué compraste</label>
+        <textarea id="rev-products" name="products" rows="3" maxlength="400" required></textarea>
+
+        <label for="rev-order">
+          Código de pedido <span class="optional">(opcional, ej: RSL-7K2Q9X)</span>
+        </label>
+        <input id="rev-order" name="orderCode" type="text" maxlength="20" autocomplete="off" />
+
+        <label for="rev-date">
+          Fecha de compra o retiro <span class="optional">(opcional)</span>
+        </label>
+        <input id="rev-date" name="date" type="date" />
+
+        <Button type="submit" full>
+          <Icon name="whatsapp" />
+          Enviar solicitud por WhatsApp
+        </Button>
+        <p class="privacy">
+          Usamos estos datos solo para tu solicitud. <a href="/privacidad">Política de privacidad</a>
+        </p>
+      </form>
+    ) : (
+      <p>
+        <PendingValue label="número de WhatsApp" /> Mientras tanto, acercate al local para cancelar
+        la compra.
+      </p>
+    )}
+
+    <div class="done" role="status" tabindex="-1" hidden data-revocation-done>
+      <p class="done-label">Tu código de solicitud</p>
+      <p class="code" data-revocation-code></p>
+      <p>
+        Guardalo: es tu constancia. Si WhatsApp no se abrió,{' '}
+        <a href="#" target="_blank" rel="noopener" data-revocation-link>tocá acá para mandarnos la
+        solicitud</a>.
+      </p>
+    </div>
+
+    {whatsapp && (
+      <noscript>
+        <p class="note">
+          Para cancelar una compra{' '}
+          <a
+            href={buildWhatsAppUrl(whatsapp, '¡Hola Rosalu! Quiero arrepentirme de una compra (botón de arrepentimiento).')}
+            target="_blank"
+            rel="noopener"
+          >
+            escribinos por WhatsApp
+          </a>{' '}
+          y te damos el código de solicitud.
+        </p>
+      </noscript>
+    )}
+  </div>
+</BaseLayout>
+
+<script>
+  import '../scripts/revocation';
+</script>
+
+<style>
+  .page {
+    max-width: 44rem;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-section);
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-lead);
+    font-weight: 500;
+  }
+
+  h2 {
+    margin: 2rem 0 0.75rem;
+  }
+
+  .steps {
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+    list-style: decimal;
+  }
+
+  .steps li {
+    margin-bottom: 0.5rem;
+  }
+
+  .note {
+    margin: 0 0 2rem;
+    color: var(--color-muted);
+  }
+
+  .form {
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--color-charcoal);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+  }
+
+  .optional {
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    margin-bottom: 1rem;
+    padding: 0.6rem 0.85rem;
+    border: 2px solid var(--color-charcoal);
+    border-radius: var(--radius-field);
+    background: var(--color-white);
+    font: inherit;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .privacy {
+    margin: 0.75rem 0 0;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+
+  a {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-magenta);
+    text-decoration-thickness: 2px;
+  }
+
+  .done {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    border: 2px solid var(--color-charcoal);
+    background: var(--color-white);
+  }
+
+  .done p {
+    margin: 0 0 0.5rem;
+  }
+
+  .done-label {
+    color: var(--color-muted);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .code {
+    font-size: var(--text-h2);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+</style>

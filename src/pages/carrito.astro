@@ -164,6 +164,9 @@ const mpEnabled = mercadoPagoEnabled(settings);
             </p>
           </form>
         )}
+        <p class="pickup">
+          Usamos tus datos solo para tu pedido. <a href="/privacidad">Política de privacidad</a>
+        </p>
       </aside>
     </div>
   </div>
@@ -489,6 +492,14 @@ const mpEnabled = mercadoPagoEnabled(settings);
     margin: 0.75rem 0 0;
     color: var(--color-muted);
     font-size: var(--text-small);
+  }
+
+  .pickup a {
+    color: var(--color-charcoal);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-magenta);
+    text-decoration-thickness: 2px;
   }
 
   .confirm {

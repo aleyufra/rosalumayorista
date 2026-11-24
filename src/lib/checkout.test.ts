@@ -304,3 +304,9 @@ describe('mpMinimumMissing', () => {
     expect(mpMinimumMissing(50000, 35000)).toBe(0);
   });
 });
+
+describe('makeOrderCode with a prefix', () => {
+  it('uses the given prefix', () => {
+    expect(makeOrderCode(new Uint8Array([0, 1, 2, 3, 4, 31]), 'ARR')).toBe('ARR-23456Z');
+  });
+});

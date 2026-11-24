@@ -80,8 +80,22 @@ const year = new Date().getFullYear();
       )}
     </div>
   </div>
-  <div class="wrap">
-    <p class="legal">Rosalu {year}. Precios en pesos argentinos, pagando en efectivo.</p>
+  <div class="wrap legal">
+    {/* Res. 424/2020: el boton de arrepentimiento va visible y destacado desde la home. */}
+    <a href="/arrepentimiento" class="regret">Botón de arrepentimiento</a>
+    <ul class="plain legal-links">
+      <li><a href="/privacidad">Política de privacidad</a></li>
+      <li>
+        <a
+          href="https://www.argentina.gob.ar/servicio/iniciar-un-reclamo-ante-defensa-del-consumidor"
+          rel="noopener"
+          target="_blank"
+        >
+          Defensa de las y los Consumidores. Para reclamos ingrese aquí
+        </a>
+      </li>
+    </ul>
+    <p>Rosalu {year}. Precios en pesos argentinos, pagando en efectivo.</p>
   </div>
 </footer>
 
@@ -141,11 +155,43 @@ const year = new Date().getFullYear();
   }
 
   .legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
     margin-top: 2.5rem;
     padding-top: 1.25rem;
     border-top: 1px solid rgb(255 255 255 / 0.12);
     color: var(--color-mist);
     font-size: var(--text-small);
+  }
+
+  .legal p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+
+  .regret {
+    padding-inline: 1rem;
+    border: 2px solid var(--color-white);
+    color: var(--color-white);
+    font-size: 1rem;
+    text-decoration: none;
+  }
+
+  .regret:hover {
+    background: var(--color-white);
+    color: var(--color-charcoal);
+  }
+
+  .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+  }
+
+  .legal-links a {
+    font-weight: 500;
   }
 
   @media (min-width: 48rem) {

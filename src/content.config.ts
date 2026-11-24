@@ -116,6 +116,9 @@ const settings = defineCollection({
   schema: ({ image }) =>
     z.object({
       businessName: z.string(),
+      // Titular legal del negocio: lo pide la politica de privacidad (Ley 25.326, art. 6).
+      legalName: pendable,
+      taxId: pendable,
       address: z.object({ street: z.string(), number: pendable, city: z.string() }),
       mapsUrl: pendable,
       mapEmbedUrl: pendable,
