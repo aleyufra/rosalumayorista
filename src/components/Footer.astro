@@ -53,7 +53,7 @@ const year = new Date().getFullYear();
     </div>
 
     <div>
-      <h2 class="label">Escribinos</h2>
+      <h2 class="label">Redes sociales</h2>
       <p>
         {hasWhatsApp(settings) ? (
           <a href={buildWhatsAppUrl(settings.whatsapp)} rel="noopener" target="_blank">
@@ -82,8 +82,8 @@ const year = new Date().getFullYear();
   </div>
   <div class="wrap legal">
     {/* Res. 424/2020: el boton de arrepentimiento va visible y destacado desde la home. */}
-    <a href="/arrepentimiento" class="regret">Botón de arrepentimiento</a>
     <ul class="plain legal-links">
+      <li><a href="/arrepentimiento">Botón de arrepentimiento</a></li>
       <li><a href="/privacidad">Política de privacidad</a></li>
       <li>
         <a
@@ -91,7 +91,7 @@ const year = new Date().getFullYear();
           rel="noopener"
           target="_blank"
         >
-          Defensa de las y los Consumidores. Para reclamos ingrese aquí
+          Defensa del consumidor
         </a>
       </li>
     </ul>
@@ -171,17 +171,14 @@ const year = new Date().getFullYear();
     margin: 0;
   }
 
-  .regret {
-    padding-inline: 1rem;
-    border: 2px solid var(--color-white);
-    color: var(--color-white);
-    font-size: 1rem;
+  .legal a {
+    color: var(--color-mist);
     text-decoration: none;
   }
 
-  .regret:hover {
-    background: var(--color-white);
-    color: var(--color-charcoal);
+  .regret:hover,
+  .legal a:hover {
+    color: var(--color-white);
   }
 
   .legal-links {

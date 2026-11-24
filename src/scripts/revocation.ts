@@ -8,6 +8,10 @@ const done = document.querySelector<HTMLElement>('[data-revocation-done]');
 const codeEl = document.querySelector<HTMLElement>('[data-revocation-code]');
 const link = document.querySelector<HTMLAnchorElement>('[data-revocation-link]');
 
+const orderInput = form?.querySelector<HTMLInputElement>('[name=orderCode]');
+const lastOrder = localStorage.getItem('rosalu-last-order');
+if (orderInput && lastOrder && !orderInput.value) orderInput.value = lastOrder;
+
 form?.addEventListener('submit', (e) => {
   e.preventDefault();
   const data = new FormData(form);

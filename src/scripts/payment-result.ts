@@ -78,6 +78,7 @@ if (root) {
     );
     setReceipt(buildPaidOrderMessage(summary));
     clearPaidLines(summary.orderCode);
+    localStorage.setItem('rosalu-last-order', summary.orderCode);
     show('ok');
   };
 
