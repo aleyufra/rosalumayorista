@@ -35,9 +35,9 @@ const many = photos.length > 1;
           <Picture
             src={photo}
             alt={many ? `${name}, foto ${i + 1} de ${photos.length}` : name}
-            formats={['avif', 'webp']}
+            formats={['webp']}
             fallbackFormat="webp"
-            widths={[360, 540, 720, 960, 1200]}
+            widths={[540, 960, 1440]}
             sizes="(min-width: 64rem) 46rem, 100vw"
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchpriority={i === 0 ? 'high' : undefined}
@@ -68,7 +68,7 @@ const many = photos.length > 1;
               aria-label={`Ver foto ${i + 1}`}
               aria-current={i === 0 ? 'true' : undefined}
             >
-              <Picture src={photo} alt="" formats={['webp']} widths={[96, 144]} sizes="4.5rem" />
+              <Picture src={photo} alt="" formats={['webp']} widths={[144]} sizes="4.5rem" />
             </button>
           </li>
         ))}
@@ -83,9 +83,9 @@ const many = photos.length > 1;
         <Picture
           src={photo}
           alt={many ? `${name}, foto ${i + 1} de ${photos.length}` : name}
-          formats={['avif', 'webp']}
+          formats={['webp']}
           fallbackFormat="webp"
-          widths={[720, 1080, 1440, 1920]}
+          widths={[960, 1440]}
           sizes="90vw"
           loading="lazy"
         />

@@ -8,9 +8,11 @@ interface Props {
   product: Product;
   eager?: boolean;
   headingLevel?: 'h2' | 'h3';
+  /** Molde para scripts/catalog.ts: renderiza todas las variantes (agotado, ejemplo) para que el script saque las que no van. */
+  template?: boolean;
 }
 
-const { product, eager = false, headingLevel: Heading = 'h3' } = Astro.props;
+const { product, eager = false, headingLevel: Heading = 'h3', template = false } = Astro.props;
 const { name, cashPrice, photos, available, category, isSample } = product.data;
 const cover = photos[0];
 const CATEGORY_LABELS = await getCategoryLabels();
@@ -23,31 +25,44 @@ const CATEGORY_LABELS = await getCategoryLabels();
         <Picture
           src={cover}
           alt={name}
-          formats={['avif', 'webp']}
+          formats={['webp']}
           fallbackFormat="webp"
-          widths={[200, 300, 420, 600]}
+          widths={[300, 540]}
           sizes="(min-width: 87.5rem) 17rem, (min-width: 64rem) 20vw, (min-width: 48rem) 25vw, 50vw"
           loading={eager ? 'eager' : 'lazy'}
           data-vt-photo={product.id}
           class="lg:p-0"
         />
       )}
-      {isSample && <span class="sample">Ejemplo</span>}
+      {(isSample || template) && (
+        <span class="sample" data-card-sample>
+          Ejemplo
+        </span>
+      )}
       <div class="price">
-        {available ? (
-          <MarketTag size="sm">{formatPrice(cashPrice)}</MarketTag>
-        ) : (
-          <MarketTag size="sm" tone="charcoal">
+        {(available || template) && (
+          <MarketTag size="sm" data-card-price>
+            {formatPrice(cashPrice)}
+          </MarketTag>
+        )}
+        {(!available || template) && (
+          <MarketTag size="sm" tone="charcoal" data-card-sold-out>
             Agotado
           </MarketTag>
         )}
       </div>
     </div>
     <div class="body">
-      <Heading class="name">{name}</Heading>
+      <Heading class="name" data-card-name>
+        {name}
+      </Heading>
       <p class="meta">
-        {CATEGORY_LABELS[category] ?? category}
-        {!available && <span class="was">{formatPrice(cashPrice)}</span>}
+        <span data-card-category>{CATEGORY_LABELS[category] ?? category}</span>
+        {(!available || template) && (
+          <span class="was" data-card-was>
+            {formatPrice(cashPrice)}
+          </span>
+        )}
       </p>
       <span class="details">Ver detalles</span>
     </div>

@@ -1,8 +1,9 @@
 ---
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import Button from '../../components/Button.astro';
-import { getProducts, getCategories } from '../../lib/products';
+import { getProducts, getCategories, getCategoryLabels, productUrl } from '../../lib/products';
 import { getSettings, hasWhatsApp } from '../../lib/settings';
 import { normalizeSearch } from '../../lib/text';
 import { buildWhatsAppUrl } from '../../lib/whatsapp';
@@ -10,13 +11,32 @@ import { buildWhatsAppUrl } from '../../lib/whatsapp';
 const settings = await getSettings();
 const products = await getProducts();
 const categories = await getCategories();
-const index = products.map((p) => ({
-  slug: p.id,
-  category: p.data.category,
-  available: p.data.available,
-  price: p.data.cashPrice,
-  key: normalizeSearch(`${p.data.name} ${p.data.subcategory ?? ''}`),
-}));
+const labels = await getCategoryLabels();
+// Solo las primeras tarjetas van en el HTML; el resto lo arma scripts/catalog.ts desde el indice
+// clonando el molde (#catalog-card), asi la pagina pesa lo mismo con 20 o con 2000 productos.
+const INITIAL_CARDS = 24;
+// Mismos anchos y formato que ProductCard: Astro reutiliza los mismos archivos.
+const index = await Promise.all(
+  products.map(async (p) => {
+    const cover = p.data.photos[0];
+    const img = cover
+      ? await getImage({ src: cover, widths: [300, 540], format: 'webp' })
+      : undefined;
+    return {
+      slug: p.id,
+      category: p.data.category,
+      available: p.data.available,
+      price: p.data.cashPrice,
+      key: normalizeSearch(`${p.data.name} ${p.data.subcategory ?? ''}`),
+      name: p.data.name,
+      url: productUrl(p.id),
+      label: labels[p.data.category] ?? p.data.category,
+      sample: p.data.isSample,
+      img: img && { src: img.src, srcset: img.srcSet.attribute },
+    };
+  }),
+);
+const templateProduct = products.find((p) => p.data.photos[0]) ?? products[0];
 const countByCategory = (id: string) => products.filter((p) => p.data.category === id).length;
 const askUrl = hasWhatsApp(settings)
   ? buildWhatsAppUrl(
@@ -41,12 +61,24 @@ const askUrl = hasWhatsApp(settings)
     <form class="body" action="/catalogo" method="get" data-filters>
       <div class="toolbar">
         <div class="search" role="search">
-          <label class="field-label" for="q">Buscar por nombre</label>
-          <input id="q" name="q" type="search" placeholder="Ej: remera, muñeca, taza" autocomplete="off" enterkeyhint="search" data-q />
+          <label class="field-label" for="q">
+            Buscar por nombre
+          </label>
+          <input
+            id="q"
+            name="q"
+            type="search"
+            placeholder="Ej: remera, muñeca, taza"
+            autocomplete="off"
+            enterkeyhint="search"
+            data-q
+          />
         </div>
 
         <div class="sort">
-          <label class="field-label" for="orden">Ordenar por</label>
+          <label class="field-label" for="orden">
+            Ordenar por
+          </label>
           <select id="orden" name="orden" data-sort>
             <option value="">Más nuevos</option>
             <option value="menor-precio">Menor precio</option>
@@ -68,14 +100,18 @@ const askUrl = hasWhatsApp(settings)
       </div>
 
       <aside class="sidebar" id="filters-panel" aria-labelledby="filters-title" data-filters-panel>
-        <h2 class="sidebar-title voice-title" id="filters-title">Filtros</h2>
+        <h2 class="sidebar-title voice-title" id="filters-title">
+          Filtros
+        </h2>
 
         <fieldset class="group">
           <legend>Rubro</legend>
           <div class="options">
             <label class="option">
               <input type="radio" name="rubro" value="" checked data-category />
-              <span>Todos <small>{products.length}</small></span>
+              <span>
+                Todos <small>{products.length}</small>
+              </span>
             </label>
             {categories.map((c) => (
               <label class="option">
@@ -94,13 +130,29 @@ const askUrl = hasWhatsApp(settings)
             <label>
               <span class="range-label">Desde</span>
               <span class="money">
-                <input name="desde" type="number" inputmode="numeric" min="0" step="1" placeholder="Mín." data-price-min />
+                <input
+                  name="desde"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  step="1"
+                  placeholder="Mín."
+                  data-price-min
+                />
               </span>
             </label>
             <label>
               <span class="range-label">Hasta</span>
               <span class="money">
-                <input name="hasta" type="number" inputmode="numeric" min="0" step="1" placeholder="Máx." data-price-max />
+                <input
+                  name="hasta"
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  step="1"
+                  placeholder="Máx."
+                  data-price-max
+                />
               </span>
             </label>
           </div>
@@ -115,7 +167,9 @@ const askUrl = hasWhatsApp(settings)
           </label>
         </fieldset>
 
-        <button type="button" class="clear-link" hidden data-clear data-clear-side>Limpiar filtros</button>
+        <button type="button" class="clear-link" hidden data-clear data-clear-side>
+          Limpiar filtros
+        </button>
 
         <div class="apply">
           <Button full data-apply>
@@ -125,7 +179,9 @@ const askUrl = hasWhatsApp(settings)
 
         <noscript>
           <div class="apply-noscript">
-            <Button type="submit" full>Filtrar</Button>
+            <Button type="submit" full>
+              Filtrar
+            </Button>
           </div>
         </noscript>
       </aside>
@@ -136,7 +192,7 @@ const askUrl = hasWhatsApp(settings)
         </p>
 
         <ul class="grid" data-grid>
-          {products.map((product, i) => (
+          {products.slice(0, INITIAL_CARDS).map((product, i) => (
             <li data-item={product.id}>
               <ProductCard product={product} eager={i < 5} headingLevel="h2" />
             </li>
@@ -145,7 +201,10 @@ const askUrl = hasWhatsApp(settings)
 
         <div class="empty" data-empty hidden>
           <h2 class="voice-title text-h3">No encontramos productos con esa búsqueda.</h2>
-          <p>Probá con otra palabra, otro rango de precio o mirá todos los rubros. Si buscás algo puntual, preguntanos.</p>
+          <p>
+            Probá con otra palabra, otro rango de precio o mirá todos los rubros. Si buscás algo
+            puntual, preguntanos.
+          </p>
           <div class="empty-actions">
             <Button variant="outline-dark" data-clear>
               Limpiar filtros
@@ -170,6 +229,13 @@ const askUrl = hasWhatsApp(settings)
   </section>
 
   <script type="application/json" id="catalog-index" set:html={JSON.stringify(index)} />
+  {templateProduct && (
+    <template id="catalog-card">
+      <li>
+        <ProductCard product={templateProduct} headingLevel="h2" template />
+      </li>
+    </template>
+  )}
 </BaseLayout>
 
 <script>

@@ -1,8 +1,9 @@
-// Filtro del catalogo del lado del cliente. La pagina trae todas las tarjetas ya renderizadas
-// y un indice JSON (#catalog-index); aca solo se muestran, ocultan y reordenan segun busqueda,
-// rubro, rango de precio, disponibilidad y orden, y se sincroniza el estado con la URL para
-// poder compartir el link.
+// Filtro del catalogo del lado del cliente. La pagina trae renderizadas solo las primeras
+// tarjetas y un indice JSON (#catalog-index) con todos los productos; aca se filtra segun
+// busqueda, rubro, rango de precio, disponibilidad y orden, se arman las tarjetas que faltan
+// clonando el molde (#catalog-card) y se sincroniza el estado con la URL para compartir el link.
 import { normalizeSearch } from '../lib/text';
+import { formatPrice } from '../lib/price';
 
 // key = texto de busqueda ya normalizado (sin acentos, en minusculas), calculado en el servidor.
 interface IndexEntry {
@@ -11,6 +12,11 @@ interface IndexEntry {
   available: boolean;
   price: number;
   key: string;
+  name: string;
+  url: string;
+  label: string;
+  sample: boolean;
+  img?: { src: string; srcset: string };
 }
 
 type Sort = '' | 'menor-precio' | 'mayor-precio';
@@ -35,6 +41,55 @@ if (form && indexEl) {
     [...document.querySelectorAll<HTMLElement>('[data-item]')].map((el) => [el.dataset.item, el]),
   );
   const grid = document.querySelector<HTMLElement>('[data-grid]');
+  const cardTemplate = document.querySelector<HTMLTemplateElement>('#catalog-card');
+
+  // Arma la tarjeta de un producto que no vino en el HTML a partir del molde, que trae todas las
+  // variantes: se completan los datos y se sacan las partes que no corresponden.
+  function buildCard(p: IndexEntry): HTMLElement | undefined {
+    const li = cardTemplate?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+    if (!li) return undefined;
+    li.dataset.item = p.slug;
+    const card = li.querySelector<HTMLElement>('article');
+    if (card) {
+      card.dataset.slug = p.slug;
+      card.classList.toggle('sold-out', !p.available);
+    }
+    li.querySelector('a')?.setAttribute('href', p.url);
+    const picture = li.querySelector('picture');
+    const img = li.querySelector('img');
+    const photo = p.img;
+    if (photo && img) {
+      picture?.querySelectorAll('source').forEach((s) => s.setAttribute('srcset', photo.srcset));
+      img.src = photo.src;
+      img.srcset = photo.srcset;
+      img.alt = p.name;
+      img.loading = 'lazy';
+      img.removeAttribute('fetchpriority');
+      img.dataset.vtPhoto = p.slug;
+    } else {
+      (picture ?? img)?.remove();
+    }
+    const set = (selector: string, text: string) => {
+      const el = li.querySelector(selector);
+      if (el) el.textContent = text;
+    };
+    set('[data-card-name]', p.name);
+    set('[data-card-category]', p.label);
+    set('[data-card-price]', formatPrice(p.price));
+    set('[data-card-was]', formatPrice(p.price));
+    const drop = (selector: string) => li.querySelector(selector)?.remove();
+    if (!p.sample) drop('[data-card-sample]');
+    // El precio y "Agotado" estan dentro del cartel (MarketTag): se saca el cartel entero.
+    const dropTag = (selector: string) =>
+      li.querySelector(selector)?.closest('.market-tag')?.remove();
+    if (p.available) {
+      dropTag('[data-card-sold-out]');
+      drop('[data-card-was]');
+    } else {
+      dropTag('[data-card-price]');
+    }
+    return li;
+  }
   const q = form.querySelector<HTMLInputElement>('[data-q]');
   const sort = form.querySelector<HTMLSelectElement>('[data-sort]');
   const categories = [...form.querySelectorAll<HTMLInputElement>('[data-category]')];
@@ -109,18 +164,18 @@ if (form && indexEl) {
     if (s.sort === 'menor-precio') matches.sort((a, b) => a.price - b.price);
     if (s.sort === 'mayor-precio') matches.sort((a, b) => b.price - a.price);
 
-    // Reordena las tarjetas en el DOM: primero las que coinciden, en el orden elegido.
-    const matched = new Set(matches.map((p) => p.slug));
-    const order = [
-      ...matches.map((p) => p.slug),
-      ...index.map((p) => p.slug).filter((slug) => !matched.has(slug)),
-    ];
-    for (const slug of order) {
-      const el = items.get(slug);
+    // Muestra las que entran en la pagina, en el orden elegido (armando las que falten) y oculta el resto.
+    const visible = matches.slice(0, visibleLimit);
+    const shown = new Set(visible.map((p) => p.slug));
+    for (const [slug, el] of items) el.hidden = !shown.has(slug ?? '');
+    for (const p of visible) {
+      let el = items.get(p.slug);
+      if (!el) {
+        el = buildCard(p);
+        if (el) items.set(p.slug, el);
+      }
       if (grid && el) grid.append(el);
     }
-    const shown = new Set(matches.slice(0, visibleLimit).map((p) => p.slug));
-    for (const [slug, el] of items) el.hidden = !shown.has(slug ?? '');
 
     const label = matches.length === 1 ? '1 producto' : `${matches.length} productos`;
     if (count) count.textContent = label;
