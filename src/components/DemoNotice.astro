@@ -1,0 +1,47 @@
+---
+// Franja fija de "sitio de muestra" mientras el sitio es una propuesta. Al entregarlo, borrar
+// este componente y su linea en BaseLayout.astro: --demo-offset deja de existir y todo lo
+// que se corre hacia arriba por la franja (boton de WhatsApp, barra de compra, avisos) vuelve a 0.
+---
+
+<p class="demo-notice" role="note">
+  <span>
+    <strong>Sitio de muestra:</strong> esta página no pertenece a Rosalu. Es una propuesta y los
+    productos y precios no son reales.
+  </span>
+</p>
+
+<style is:global>
+  :root {
+    --demo-offset: 2.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    :root {
+      --demo-offset: 2rem;
+    }
+  }
+
+  body {
+    padding-bottom: calc(var(--demo-offset) + env(safe-area-inset-bottom));
+  }
+</style>
+
+<style>
+  .demo-notice {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--demo-offset);
+    margin: 0;
+    padding: 0.25rem var(--gutter) env(safe-area-inset-bottom);
+    background: var(--color-charcoal);
+    color: var(--color-white);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    text-align: center;
+  }
+</style>

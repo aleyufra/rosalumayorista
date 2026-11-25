@@ -1,5 +1,5 @@
 ---
-name: Pantalones Jeans Cl[asicos
+name: Pantalones Jeans Clásicos
 category: ropa
 subcategory: Pantalones
 cashPrice: 12000

@@ -1,0 +1,165 @@
+---
+// Politica de cookies. Como privacidad.astro, describe solo lo que el sitio hace de verdad: si
+// se suma o se saca algo que guarda datos en el navegador, hay que actualizarla.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import { analyticsId, getSettings } from '../lib/settings';
+
+const hasAnalytics = analyticsId(await getSettings()) !== null;
+---
+
+<BaseLayout
+  title="Política de cookies"
+  description="Qué guarda el sitio de Rosalu en tu navegador, para qué sirve y cómo cambiar tu elección."
+>
+  <article class="wrap page">
+    <h1 class="voice-title text-h1">Política de cookies</h1>
+    <p class="updated">Última actualización: 25 de noviembre de 2026.</p>
+
+    <p class="lead">
+      Guardamos en tu navegador solo lo necesario para que el carrito funcione.
+      {hasAnalytics && ' Las estadísticas de visitas se activan únicamente si las aceptás.'}
+    </p>
+
+    <h2 class="voice-title text-h3">Qué son</h2>
+    <p>
+      Las cookies y el almacenamiento local son pequeños datos que un sitio guarda en tu celular o
+      computadora para recordar algo entre una página y otra, por ejemplo qué pusiste en el carrito.
+    </p>
+
+    <h2 class="voice-title text-h3">Necesarias para que el sitio funcione</h2>
+    <p>
+      No se pueden desactivar desde el sitio porque sin ellas el carrito no anda. No nos llegan a
+      nosotros.
+    </p>
+    <ul>
+      <li>
+        <strong>Carrito</strong> (<code>rosalu-cart-v1</code>): los productos que elegiste. Queda
+        hasta que vacíes el carrito o borres los datos del sitio.
+      </li>
+      <li>
+        <strong>Último pedido</strong> (<code>rosalu-last-order</code>): el código de tu última
+        reserva con Mercado Pago, para completarlo solo en el botón de arrepentimiento.
+      </li>
+      <li>
+        <strong>Pago en curso</strong> (<code>rosalu-pending-payment</code>): mientras pagás en
+        Mercado Pago, para mostrarte el resultado al volver. Se borra al cerrar la pestaña.
+      </li>
+      {hasAnalytics && (
+        <li>
+          <strong>Tu elección de cookies</strong> (<code>rosalu-cookies-v1</code>): si aceptaste o
+          rechazaste las estadísticas, para no volver a preguntarte en cada página.
+        </li>
+      )}
+    </ul>
+
+    {hasAnalytics && (
+      <>
+        <h2 class="voice-title text-h3">Estadísticas (solo si las aceptás)</h2>
+        <p>
+          Usamos <strong>Google Analytics</strong> para saber cuánta gente visita el sitio, qué
+          productos miran más y desde qué tipo de dispositivo. Nos sirve para mejorar el catálogo.
+          No lo usamos para publicidad ni para saber quién sos.
+        </p>
+        <ul>
+          <li>
+            <code>_ga</code> y <code>_ga_…</code>: identifican tu navegador de forma anónima para
+            contar visitas. Duran hasta 2 años.
+          </li>
+        </ul>
+        <p>
+          Hasta que no tocás <strong>Aceptar</strong>, el sitio no carga Google Analytics ni guarda
+          estas cookies. Si después cambiás de idea y las rechazás, las borramos. Google puede
+          procesar estos datos fuera de Argentina; podés leer cómo lo hace en su{' '}
+          <a
+            href="https://policies.google.com/technologies/partner-sites?hl=es"
+            target="_blank"
+            rel="noopener"
+          >
+            política de privacidad
+          </a>
+          .
+        </p>
+        <div class="change">
+          <Button variant="outline-dark" data-consent-open>
+            Cambiar mi elección
+          </Button>
+        </div>
+      </>
+    )}
+
+    <h2 class="voice-title text-h3">De otros servicios</h2>
+    <ul>
+      <li>
+        <strong>Google Maps</strong>: el mapa de la página principal lo muestra Google, que puede
+        usar sus propias cookies.
+      </li>
+      <li>
+        <strong>Mercado Pago</strong>: cuando pagás, lo hacés en el sitio de Mercado Pago, con sus
+        propias cookies.
+      </li>
+    </ul>
+
+    <h2 class="voice-title text-h3">Cómo borrarlas</h2>
+    <p>
+      Podés borrar todo lo que guardó el sitio desde la configuración de tu navegador (en general,
+      en Privacidad &gt; Borrar datos de navegación). Si lo hacés, se vacía el carrito.
+    </p>
+    <p>
+      Para más detalles sobre tus datos, mirá la <a href="/privacidad">política de privacidad</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: 56rem;
+    font-size: 0.9375rem;
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem) var(--space-section);
+  }
+
+  h1 {
+    margin: 0;
+  }
+
+  .updated {
+    margin: 0.75rem 0 1.5rem;
+    color: var(--color-muted);
+    font-size: var(--text-small);
+  }
+
+  .lead {
+    font-size: var(--text-lead);
+    font-weight: 500;
+  }
+
+  h2 {
+    margin: 2.25rem 0 0.75rem;
+  }
+
+  p,
+  li {
+    margin: 0 0 0.75rem;
+  }
+
+  ul {
+    margin: 0 0 0.75rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  a {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-magenta);
+    text-decoration-thickness: 2px;
+  }
+
+  code {
+    font-size: 0.85em;
+  }
+
+  .change {
+    margin-top: 1rem;
+  }
+</style>

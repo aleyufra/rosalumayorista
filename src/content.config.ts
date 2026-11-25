@@ -10,9 +10,7 @@ const IMAGE_FILE = /\.(webp|png|jpe?g|avif|gif|svg)$/i;
 /** Quita las referencias a imagenes cuyo archivo ya no existe, para que una foto renombrada no rompa el sitio. */
 function dropMissingImages(value: unknown, baseDir: string, where: string): unknown {
   if (Array.isArray(value)) {
-    return value
-      .map((v) => dropMissingImages(v, baseDir, where))
-      .filter((v) => v !== undefined);
+    return value.map((v) => dropMissingImages(v, baseDir, where)).filter((v) => v !== undefined);
   }
   if (value && Object.getPrototypeOf(value) === Object.prototype) {
     return Object.fromEntries(
@@ -119,6 +117,8 @@ const settings = defineCollection({
       // Titular legal del negocio: lo pide la politica de privacidad (Ley 25.326, art. 6).
       legalName: pendable,
       taxId: pendable,
+      // ID de medicion de Google Analytics (G-XXXXXXXXXX). Vacio = sin estadisticas ni aviso de cookies.
+      analyticsId: pendable,
       address: z.object({ street: z.string(), number: pendable, city: z.string() }),
       mapsUrl: pendable,
       mapEmbedUrl: pendable,

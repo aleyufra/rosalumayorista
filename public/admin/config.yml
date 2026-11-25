@@ -213,6 +213,11 @@ singletons:
         widget: string
         required: false
         hint: 'Ej: 27-12345678-9. Aparece en la política de privacidad.'
+      - name: analyticsId
+        label: ID de Google Analytics
+        widget: string
+        required: false
+        hint: 'Empieza con G- (Google Analytics > Administrar > Flujos de datos). Vacío = sin estadísticas ni aviso de cookies.'
       - name: address
         label: Dirección
         widget: object

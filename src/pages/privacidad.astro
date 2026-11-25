@@ -3,11 +3,12 @@
 // sitio hace de verdad: si cambia que datos se piden o a quien se mandan, hay que actualizarla.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PendingValue from '../components/PendingValue.astro';
-import { getSettings, addressLine, hasWhatsApp } from '../lib/settings';
+import { getSettings, addressLine, analyticsId, hasWhatsApp } from '../lib/settings';
 import { isPending } from '../lib/text';
 import { buildWhatsAppUrl } from '../lib/whatsapp';
 
 const settings = await getSettings();
+const hasAnalytics = analyticsId(settings) !== null;
 const whatsappUrl = hasWhatsApp(settings)
   ? buildWhatsAppUrl(settings.whatsapp, '¡Hola Rosalu! Quería hacer una consulta sobre mis datos.')
   : undefined;
@@ -28,8 +29,7 @@ const whatsappUrl = hasWhatsApp(settings)
 
     <h2 class="voice-title text-h3">Quién es responsable de tus datos</h2>
     <p>
-      {isPending(settings.legalName) ? <PendingValue label="titular" /> : settings.legalName}
-      {' '}(CUIT{' '}
+      {isPending(settings.legalName) ? <PendingValue label="titular" /> : settings.legalName} (CUIT{' '}
       {isPending(settings.taxId) ? <PendingValue label="CUIT" /> : settings.taxId}), que atiende
       como {settings.businessName} en {addressLine(settings)}.
     </p>
@@ -42,10 +42,10 @@ const whatsappUrl = hasWhatsApp(settings)
       </li>
       <li>
         <strong>Reserva con Mercado Pago:</strong> tu nombre y tu teléfono, para saber de quién es
-        el pedido y avisarte cuándo retirarlo. Pasan por nuestro servidor solo para crear el pago
-        y se envían a Mercado Pago; no armamos una base de datos con ellos. Los datos de tu
-        tarjeta o cuenta los pide y procesa Mercado Pago: nosotros vemos el nombre, el mail y el
-        detalle del pago, nunca los datos de la tarjeta.
+        el pedido y avisarte cuándo retirarlo. Pasan por nuestro servidor solo para crear el pago y
+        se envían a Mercado Pago; no armamos una base de datos con ellos. Los datos de tu tarjeta o
+        cuenta los pide y procesa Mercado Pago: nosotros vemos el nombre, el mail y el detalle del
+        pago, nunca los datos de la tarjeta.
       </li>
       <li>
         <strong>Botón de arrepentimiento:</strong> tu nombre, lo que compraste y, si los tenés, el
@@ -58,15 +58,24 @@ const whatsappUrl = hasWhatsApp(settings)
       </li>
     </ul>
     <p>
-      Darnos tus datos es voluntario. Sin nombre y teléfono no podemos tomar una reserva con
-      Mercado Pago, pero siempre podés comprar en el local.
+      Darnos tus datos es voluntario. Sin nombre y teléfono no podemos tomar una reserva con Mercado
+      Pago, pero siempre podés comprar en el local.
     </p>
 
     <h2 class="voice-title text-h3">Lo que no hacemos</h2>
-    <p>
-      No usamos cookies propias ni herramientas de estadísticas o publicidad. No vendemos, no
-      alquilamos ni cedemos tus datos.
-    </p>
+    {hasAnalytics ? (
+      <p>
+        No usamos herramientas de publicidad. Solo usamos Google Analytics para contar visitas, y
+        únicamente si lo aceptás en el aviso de cookies (ver la{' '}
+        <a href="/cookies">política de cookies</a>). No vendemos, no alquilamos ni cedemos tus
+        datos.
+      </p>
+    ) : (
+      <p>
+        No usamos cookies propias ni herramientas de estadísticas o publicidad. No vendemos, no
+        alquilamos ni cedemos tus datos.
+      </p>
+    )}
 
     <h2 class="voice-title text-h3">Servicios que usamos</h2>
     <ul>
@@ -75,8 +84,18 @@ const whatsappUrl = hasWhatsApp(settings)
         de las visitas (por ejemplo la dirección IP) para que el sitio funcione y sea seguro. Sus
         servidores pueden estar fuera de Argentina.
       </li>
-      <li><strong>Mercado Pago</strong> procesa los pagos online.</li>
-      <li><strong>WhatsApp</strong> (de Meta) transporta los mensajes de pedido.</li>
+      <li>
+        <strong>Mercado Pago</strong> procesa los pagos online.
+      </li>
+      <li>
+        <strong>WhatsApp</strong> (de Meta) transporta los mensajes de pedido.
+      </li>
+      {hasAnalytics && (
+        <li>
+          <strong>Google Analytics</strong> cuenta las visitas al sitio (páginas vistas, tipo de
+          dispositivo, ciudad aproximada), solo si aceptaste las cookies de estadísticas.
+        </li>
+      )}
       <li>
         <strong>Google Maps</strong> muestra el mapa del local en la página principal; al cargarse,
         Google puede usar sus propias cookies.
@@ -94,8 +113,8 @@ const whatsappUrl = hasWhatsApp(settings)
       ) : (
         'por WhatsApp'
       )}{' '}
-      o pasá por el local. Te respondemos en un máximo de 10 días corridos si pedís ver tus datos,
-      y de 5 días hábiles si pedís corregirlos o borrarlos.
+      o pasá por el local. Te respondemos en un máximo de 10 días corridos si pedís ver tus datos, y
+      de 5 días hábiles si pedís corregirlos o borrarlos.
     </p>
     <p>
       El titular de los datos personales tiene la facultad de ejercer el derecho de acceso a los

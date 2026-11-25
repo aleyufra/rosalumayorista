@@ -28,6 +28,12 @@ export function mercadoPagoEnabled(settings: Settings): boolean {
   return settings.acceptsMercadoPago === 'yes' && surchargeAmount(settings) !== null;
 }
 
+/** ID de Google Analytics valido (G-...) o null: sin ID no se muestra el aviso de cookies ni se carga nada. */
+export function analyticsId(settings: Settings): string | null {
+  const id = settings.analyticsId.trim();
+  return /^G-[A-Z0-9]+$/.test(id) ? id : null;
+}
+
 export function hasWhatsApp(settings: Settings): boolean {
   return !isPending(settings.whatsapp);
 }

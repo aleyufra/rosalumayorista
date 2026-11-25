@@ -1,6 +1,6 @@
 ---
 name: Pantuflas Mujer Stitch
-category: jugueteria
+category: ropa
 subcategory: Pantuflas
 cashPrice: 18000
 photos:

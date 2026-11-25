@@ -466,7 +466,7 @@ const productLd = {
   /* Celular: el precio y la accion quedan al alcance, abajo en la pantalla. */
   .buy-bar {
     position: fixed;
-    inset: auto 0 0;
+    inset: auto 0 var(--demo-offset, 0px);
     z-index: 30;
     display: flex;
     align-items: center;
@@ -494,7 +494,7 @@ const productLd = {
   }
 
   :global(body:has([data-add-form])) {
-    padding-bottom: 5.5rem;
+    padding-bottom: calc(5.5rem + var(--demo-offset, 0px));
   }
 
   .sold-out-box {
@@ -541,7 +541,7 @@ const productLd = {
   .toast {
     position: fixed;
     left: 50%;
-    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    bottom: calc(5.5rem + env(safe-area-inset-bottom) + var(--demo-offset, 0px));
     z-index: 35;
     display: flex;
     gap: 1rem;
@@ -630,11 +630,11 @@ const productLd = {
     }
 
     :global(body:has([data-add-form])) {
-      padding-bottom: 0;
+      padding-bottom: var(--demo-offset, 0px);
     }
 
     .toast {
-      bottom: 2rem;
+      bottom: calc(2rem + var(--demo-offset, 0px));
     }
   }
 </style>

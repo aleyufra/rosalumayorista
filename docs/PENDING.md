@@ -1,28 +1,32 @@
-# Datos pendientes
+# Pendientes antes de entregar el sitio
 
-Todo esto se carga desde el panel (`/admin` > **Datos del negocio y textos**), salvo donde se indica otra cosa. Mientras falte un dato, el sitio muestra un recuadro punteado que dice "Falta cargar: ..." en lugar de inventar un valor.
+Hoy el sitio es una **propuesta**: tiene productos de muestra y una franja abajo que avisa que no pertenece a Rosalu. Lo que se carga desde el panel está en `/admin` > **Datos del negocio y textos**. Mientras falte un dato, el sitio muestra un recuadro punteado que dice "Falta cargar: ..." en lugar de inventar un valor.
 
-| Dato                                                     | Dónde se carga                                                                                     | Qué pasa mientras falta                                                        |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Altura de la calle Gorriti                               | Panel > Dirección > Altura                                                                         | Se muestra la calle sin número y "Falta cargar: altura"                        |
-| Link de Google Maps (Cómo llegar)                        | Panel > Link de Google Maps                                                                        | No aparece el botón "Cómo llegar"                                              |
-| Link para insertar el mapa                               | Panel > Link para insertar el mapa                                                                 | Se ve el mapa provisorio, sin botón "Ver mapa"                                 |
-| Número de WhatsApp (549388XXXXXXX)                       | Panel > Número de WhatsApp                                                                         | Los botones de WhatsApp aparecen desactivados y no se puede enviar el pedido   |
-| Recargo por Mercado Pago o transferencia ($, por compra) | Panel > Recargo por Mercado Pago o transferencia                                                   | "Falta cargar: recargo por Mercado Pago o transferencia" en producto y carrito |
-| ¿Aceptan Mercado Pago?                                   | Panel > ¿Aceptan Mercado Pago? (poné Sí recién después de cargar el secreto, ver `MERCADOPAGO.md`) | No aparece el botón Pagar con Mercado Pago en el carrito                       |
-| Instagram, Facebook y TikTok                             | Panel > Redes                                                                                      | El footer muestra "Falta cargar: redes sociales"                               |
-| Fotos del local y de los rubros                          | Panel > Fotos de la página principal                                                               | Fotos provisorias (ver `PHOTOS-TODO.md`)                                       |
-| Subcategorías por rubro                                  | Cada producto > Subcategoría (texto libre)                                                         | Campo opcional, no se muestra                                                  |
-| Titular o razón social y CUIT                            | Panel > Titular o razón social / CUIT                                                              | La política de privacidad muestra "Falta cargar: titular" y "Falta cargar: CUIT" |
-| Productos reales                                         | Panel > Productos                                                                                  | Hay 9 productos de ejemplo (filtro "Productos de ejemplo") para borrar         |
-| Dominio propio                                           | Ver `DEPLOY.md`                                                                                    | El sitio está en `rosalumayorista.aleyufra.workers.dev`                        |
+## Datos del negocio
+
+| Dato                     | Dónde se carga                       | Estado                                                                                                   |
+| ------------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| CUIT real                | Panel > CUIT                         | Hay uno provisorio (`27-00000000-0`) que aparece en la política de privacidad. Reemplazarlo por el real. |
+| Titular o razón social   | Panel > Titular o razón social       | Cargado: Rosa Maria Rodriguez. Confirmar que coincida con ARCA.                                          |
+| ID de Google Analytics   | Panel > ID de Google Analytics       | Vacío: no hay estadísticas ni aviso de cookies. Al cargar el `G-XXXXXXXXXX` se activan los dos solos.    |
+| QR de Data Fiscal (ARCA) | Código (footer), ver con el contador | Falta. Es obligatorio para sitios que venden; se pide con clave fiscal en ARCA.                          |
+| Subcategorías por rubro  | Cada producto > Subcategoría         | Opcional.                                                                                                |
+
+## Al entregar el sitio a la dueña
+
+1. **Borrar los productos de muestra**: los 30 que tienen fotos de Pexels (archivos `.jpg`, cargados el 24/11/2026, con pago online desactivado) y cualquier otro que no venda. Se borran desde el panel > Productos.
+2. **Quitar la franja de "Sitio de muestra"**: borrar `src/components/DemoNotice.astro` y su línea `<DemoNotice />` en `src/layouts/BaseLayout.astro`.
+3. **Mercado Pago de la dueña**: reemplazar el secreto `MP_ACCESS_TOKEN` en Cloudflare por el de su cuenta y hacer una compra real de prueba (ver `MERCADOPAGO.md`).
+4. **Pasar las cuentas**: el repositorio de GitHub, la cuenta de Cloudflare (sitio y Worker `sveltia-cms-auth`) y la propiedad de Google Analytics hoy están a nombre del desarrollador. Transferirlas o dejar por escrito quién las mantiene.
+5. **Dominio propio** (opcional): hoy el sitio está en `rosalumayorista.aleyufra.workers.dev`. Ver abajo.
 
 ## Al pasar a un dominio propio
 
-Cambiar la URL en estos tres lugares y volver a publicar:
+Cambiar la URL en estos lugares y volver a publicar:
 
 1. `astro.config.mjs` (`SITE_URL`, o la variable de entorno `SITE_URL` en Cloudflare).
 2. `public/robots.txt` (línea `Sitemap:`).
 3. `public/admin/config.yml` (`site_url` y `display_url`).
+4. Google Analytics > Administrar > Flujos de datos: actualizar la URL del flujo.
 
 Y sumar el dominio nuevo a `ALLOWED_DOMAINS` en el Worker `sveltia-cms-auth`.

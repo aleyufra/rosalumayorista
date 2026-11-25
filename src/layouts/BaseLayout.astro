@@ -5,6 +5,8 @@ import '../styles/global.css';
 import archivoUpright from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import DemoNotice from '../components/DemoNotice.astro';
+import CookieConsent from '../components/CookieConsent.astro';
 
 interface Props {
   title: string;
@@ -70,7 +72,9 @@ const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
           img.style.viewTransitionName = `product-${slug}`;
           vt.finished.finally(() => (img.style.viewTransitionName = ''));
         };
-        addEventListener('pageswap', (e) => mark(slugOf(e.activation?.entry?.url), e.viewTransition));
+        addEventListener('pageswap', (e) =>
+          mark(slugOf(e.activation?.entry?.url), e.viewTransition),
+        );
         addEventListener('pagereveal', (e) =>
           mark(slugOf(window.navigation?.activation?.from?.url), e.viewTransition),
         );
@@ -87,6 +91,8 @@ const fullTitle = title === 'Rosalu' ? title : `${title} | Rosalu`;
     </main>
     <Footer />
     <slot name="after" />
+    <CookieConsent />
+    <DemoNotice />
   </body>
 </html>
 
